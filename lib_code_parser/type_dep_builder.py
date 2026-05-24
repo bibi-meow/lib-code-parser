@@ -3,13 +3,12 @@
 from __future__ import annotations
 
 import ast
-from pathlib import Path
 
+from lib_code_parser._paths import get_module_name as _get_module_name
 from lib_code_parser.models import TypeDep
 
-
-def _get_module_name(path: str) -> str:
-    return Path(path).stem
+# ARC-04 / DET-04: single source of truth for path -> module-name; thin shim
+# preserves the v0.1.0 private symbol export for test backward-compat.
 
 
 def build_type_deps(source: str, path: str) -> list[TypeDep]:
@@ -55,9 +54,7 @@ def build_type_deps(source: str, path: str) -> list[TypeDep]:
     return deps
 
 
-def _collect_annotation_deps(
-    annotation: ast.expr, module_name: str, deps: list[TypeDep]
-) -> None:
+def _collect_annotation_deps(annotation: ast.expr, module_name: str, deps: list[TypeDep]) -> None:
     """Recursively collect type names from annotation AST nodes."""
     # Walk the annotation tree to find Name nodes (type names)
     for sub in ast.walk(annotation):

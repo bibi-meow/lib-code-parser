@@ -4,14 +4,15 @@ from __future__ import annotations
 
 import ast
 import re
-from pathlib import Path
 
+from lib_code_parser._paths import get_module_name as _get_module_name
 from lib_code_parser.models import FunctionNode, ParamInfo, SourceRange, TraceTag
 
-
-def _get_module_name(path: str) -> str:
-    """Convert file path to module name (stem only)."""
-    return Path(path).stem
+# ARC-04 / DET-04: single source of truth for path -> module-name; the
+# `_get_module_name` symbol is preserved as a re-export alias so the v0.1.0
+# private-symbol import path `from lib_code_parser.ast_extractor import
+# _get_module_name` keeps working for tests/acceptance/test_fr01* and
+# tests/unit/test_ast_extractor.
 
 
 def _extract_annotation(node: ast.expr | None) -> str:
@@ -36,9 +37,7 @@ def _make_source_range(node: ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassD
     return SourceRange(start_line=node.lineno, end_line=end)
 
 
-def _extract_params(
-    args: ast.arguments, skip_self_cls: bool = True
-) -> list[ParamInfo]:
+def _extract_params(args: ast.arguments, skip_self_cls: bool = True) -> list[ParamInfo]:
     """Extract ParamInfo list from ast.arguments."""
     params: list[ParamInfo] = []
     for arg in args.args:

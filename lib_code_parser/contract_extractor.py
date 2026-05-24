@@ -3,16 +3,15 @@
 from __future__ import annotations
 
 import ast
-from pathlib import Path
 
+from lib_code_parser._paths import get_module_name as _get_module_name
 from lib_code_parser.models import ContractInfo
+
+# ARC-04 / DET-04: single source of truth for path -> module-name; thin shim
+# preserves the v0.1.0 private symbol export for test backward-compat.
 
 _PRECONDITION_DECORATORS = frozenset({"field_validator", "validator"})
 _INVARIANT_DECORATORS = frozenset({"model_validator"})
-
-
-def _get_module_name(path: str) -> str:
-    return Path(path).stem
 
 
 def _get_decorator_name(decorator: ast.expr) -> str:
