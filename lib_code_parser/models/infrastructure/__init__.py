@@ -14,7 +14,7 @@ from lib_code_parser.models.infrastructure.config import ParserConfig
 __all__ = [
     "CAV",
     "ArtifactId",
-    "NormalizedArtifact",
     "CodeContent",
+    "NormalizedArtifact",
     "ParserConfig",
 ]
