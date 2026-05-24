@@ -39,8 +39,6 @@ class TestGetModuleNameSingleSource:
 
     def test_no_duplicate_module_name_helper(self) -> None:
         # _paths.py is the single source of truth — must define get_module_name once
-        paths_py = (
-            Path(__file__).resolve().parents[2] / "lib_code_parser" / "_paths.py"
-        )
+        paths_py = Path(__file__).resolve().parents[2] / "lib_code_parser" / "_paths.py"
         content = paths_py.read_text(encoding="utf-8")
         assert content.count("def get_module_name(") == 1
