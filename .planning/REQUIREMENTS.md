@@ -153,18 +153,64 @@ v0.2.0 リリース時に下記が全て満たされていること:
 
 ## Traceability
 
-Will be populated by `gsd-roadmapper` during Step 8 (ROADMAP creation).
-
 | Requirement | Phase | US support | Status |
 |-------------|-------|------------|--------|
-| (To be filled by roadmapper) | | | |
+| AST-01 | Phase 2 | US-01, US-22 | Pending |
+| AST-02 | Phase 2 | US-01, US-22, US-25 | Pending |
+| AST-03 | Phase 2 | US-01, US-22 | Pending |
+| AST-04 | Phase 2 | US-01, US-22 | Pending |
+| AST-05 | Phase 2 | US-01, US-22, US-25, US-32 | Pending |
+| DIA-01 | Phase 3 | US-25, US-32 | Pending |
+| DIA-02 | Phase 3 | US-25, US-32 | Pending |
+| DIA-03 | Phase 3 | US-25, US-32 | Pending |
+| DIA-04 | Phase 3 | US-25, US-32 | Pending |
+| DIA-05 | Phase 3 | US-25, US-32 | Pending |
+| DIA-06 | Phase 3 | US-25, US-32 | Pending |
+| DIA-07 | Phase 3 | US-25, US-32 | Pending |
+| SPC-01 | Phase 3 | US-01, US-22 | Pending |
+| SPC-02 | Phase 3 | US-01, US-22 | Pending |
+| SPC-03 | Phase 4 | US-01, US-22 | Pending |
+| SPC-04 | Phase 3 | US-01, US-22 | Pending |
+| LNG-01 | Phase 4 | US-01, US-22, US-25, US-32 | Pending |
+| LNG-02 | Phase 4 | US-01, US-22, US-25, US-32 | Pending |
+| LNG-03 | Phase 4 | US-01, US-22, US-25, US-32 | Pending |
+| LNG-04 | Phase 4 | US-01, US-22, US-25, US-32 | Pending |
+| LNG-05 | Phase 4 | US-01, US-22, US-25, US-32 | Pending |
+| ARC-01 | Phase 1 | US-01, US-22, US-25, US-32 | Pending |
+| ARC-02 | Phase 1 | US-01, US-22, US-25, US-32 | Pending |
+| ARC-03 | Phase 1 | US-01, US-22, US-25, US-32 | Pending |
+| ARC-04 | Phase 1 | US-01, US-22, US-25, US-32 | Pending |
+| ARC-05 | Phase 1 | US-01, US-22, US-25, US-32 | Pending |
+| DET-01 | Phase 5 | US-01, US-22, US-25, US-32 | Pending |
+| DET-02 | Phase 4 | US-01, US-22, US-25, US-32 | Pending |
+| DET-03 | Phase 2 | US-01, US-22 | Pending |
+| DET-04 | Phase 1 | US-01, US-22, US-25, US-32 | Pending |
+| DET-05 | Phase 1 | US-01, US-22, US-25, US-32 | Pending |
+| SCH-01 | Phase 1 | US-25, US-32 | Pending |
+| SCH-02 | Phase 1 | US-25, US-32 | Pending |
+| SCH-03 | Phase 1 | US-25, US-32 | Pending |
+| SCH-04 | Phase 5 | US-25, US-32 | Pending |
+| TRC-01 | Phase 1 | US-01, US-22, US-25, US-32 | Pending |
+| TRC-02 | Phase 2 | US-01, US-22, US-25, US-32 | Pending |
+| TRC-03 | Phase 2 | US-01, US-22, US-25, US-32 | Pending |
+| DOC-01 | Phase 1 | US-01, US-22, US-25, US-32 | Pending |
+| DOC-02 | Phase 5 | US-01, US-22, US-25, US-32 | Pending |
+| DOC-03 | Phase 1 | US-01, US-22, US-25, US-32 | Pending |
+| DOC-04 | Phase 1 | US-01, US-22, US-25, US-32 | Pending |
 
 **Coverage:**
 - v1 requirements: **42** total
-- Mapped to phases: **0** (pre-roadmap)
-- Unmapped: **42** ⚠️ (will be 0 after Step 8)
+- Mapped to phases: **42** ✓
+- Unmapped: **0** ✓
+
+**Phase distribution:**
+- Phase 1 (Architecture Foundation + Spec Correction): 14 requirements — ARC-01..05, SCH-01..03, DET-04, DET-05, DOC-01, DOC-03, DOC-04, TRC-01
+- Phase 2 (Python Frontend + AST Primitives + ACL-2 Adapters): 8 requirements — AST-01..05, DET-03, TRC-02, TRC-03
+- Phase 3 (Python Diagram + Spec Extractors): 10 requirements — DIA-01..07, SPC-01, SPC-02, SPC-04
+- Phase 4 (C++ Frontend + C++ Extractors): 7 requirements — LNG-01..05, SPC-03, DET-02
+- Phase 5 (Cross-Cutting Integration + Acceptance): 3 requirements — DET-01, SCH-04, DOC-02
 
 ---
 
 *Requirements defined: 2026-05-24*
-*Last updated: 2026-05-24 after initial definition*
+*Last updated: 2026-05-24 after roadmap creation — Traceability table populated, 42/42 mapped*
