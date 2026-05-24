@@ -18,7 +18,6 @@ from pydantic import BaseModel
 
 from lib_code_parser.adapters.base import SubprocessAdapter, run_subprocess
 
-
 # ---------------------------------------------------------------------------
 # Deterministic env injection — assert each of the 4 _DETERMINISTIC_ENV keys
 # ---------------------------------------------------------------------------
@@ -183,9 +182,7 @@ class _FakeAdapter(SubprocessAdapter):
         # Echo the target_path back through stdout so we can assert it flowed through.
         return [sys.executable, "-c", f"print({target_path!r})"]
 
-    def parse_output(
-        self, stdout: str, stderr: str, returncode: int
-    ) -> _FakeOutput:
+    def parse_output(self, stdout: str, stderr: str, returncode: int) -> _FakeOutput:
         return _FakeOutput(stdout=stdout, stderr=stderr, returncode=returncode)
 
 
