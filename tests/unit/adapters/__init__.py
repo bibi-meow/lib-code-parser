@@ -1,0 +1,1 @@
+"""Subprocess adapter tests."""
