@@ -32,14 +32,14 @@ Decimal phases appear between their surrounding integers in numeric order.
   5. `lib-code-parser.md` spec doc no longer mentions `callgraph.py` or "ACL-2" (replaced by the internal call graph extractor description + `pyright` for type resolution); `pyproject.toml` declares `license = "Apache-2.0"` with `LICENSE` file shipped and `README.md` includes a "No GPL bundled" license summary (call graph internal, pyright MIT, libclang Apache-2.0 with LLVM exception); SP-3 libclang feasibility spike result is recorded (verdict: ship / ship-best-effort / defer) under `.planning/spikes/SP-3-libclang-macos-arm64.md`
 **Plans**: 10 plans across 3 waves
   - Wave 1 (8 parallel plans):
-    - [ ] 01-01-license-and-pyproject-PLAN.md — Apache-2.0 LICENSE + pyproject PEP 639 SPDX (DOC-04, DOC-03)
-    - [ ] 01-02-spec-doc-rewrite-PLAN.md — Full rewrite of lib-code-parser.md removing callgraph.py / ACL-2 (DOC-01, DOC-03)
-    - [ ] 01-03-models-infrastructure-PLAN.md — CAV + NormalizedArtifact[TContent] + typed ParserConfig (SCH-02, ARC-05, ARC-02)
-    - [ ] 01-04-models-primitives-PLAN.md — FunctionNode/CallGraph/TypeDep/ContractInfo + source_kind discriminator (SCH-02)
-    - [ ] 01-05-models-evaluations-PLAN.md — EdgeKind closed Literal (11 values) + GraphNode/Edge/Model/GuardExpr (SCH-01, SCH-03, SCH-02)
-    - [ ] 01-06-paths-and-dispatch-PLAN.md — _paths.py + _dispatch.py (ARC-04, DET-04)
-    - [ ] 01-07-adapters-base-PLAN.md — adapters/base.py subprocess hardening helper + ABC (ARC-03, DET-05)
-    - [ ] 01-08-docs-common-view-and-extending-PLAN.md — docs/08 + docs/09 (6 Open-Closed invariants) (ARC-04, DET-04 substrate)
+    - [x] 01-01-license-and-pyproject-PLAN.md — Apache-2.0 LICENSE + pyproject PEP 639 SPDX (DOC-04, DOC-03)
+    - [x] 01-02-spec-doc-rewrite-PLAN.md — Full rewrite of lib-code-parser.md removing callgraph.py / ACL-2 (DOC-01, DOC-03)
+    - [x] 01-03-models-infrastructure-PLAN.md — CAV + NormalizedArtifact[TContent] + typed ParserConfig (SCH-02, ARC-05, ARC-02)
+    - [x] 01-04-models-primitives-PLAN.md — FunctionNode/CallGraph/TypeDep/ContractInfo + source_kind discriminator (SCH-02)
+    - [x] 01-05-models-evaluations-PLAN.md — EdgeKind closed Literal (11 values) + GraphNode/Edge/Model/GuardExpr (SCH-01, SCH-03, SCH-02)
+    - [x] 01-06-paths-and-dispatch-PLAN.md — _paths.py + _dispatch.py (ARC-04, DET-04)
+    - [x] 01-07-adapters-base-PLAN.md — adapters/base.py subprocess hardening helper + ABC (ARC-03, DET-05)
+    - [x] 01-08-docs-common-view-and-extending-PLAN.md — docs/08 + docs/09 (6 Open-Closed invariants) (ARC-04, DET-04 substrate)
   - Wave 2 (depends on Wave 1):
     - [ ] 01-09-layout-migration-and-parity-PLAN.md — Lib __init__ rewrite + extractor shims + parity test (ARC-01, ARC-04, DET-04 finalizers)
   - Wave 3 (depends on Wave 2):
@@ -97,7 +97,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Architecture Foundation + Spec Correction | 0/10 | Planned | - |
+| 1. Architecture Foundation + Spec Correction | 8/10 | In Progress|  |
 | 2. Python Frontend + AST Primitives + ACL-2 Adapters | 0/TBD | Not started | - |
 | 3. Python Diagram + Spec Extractors | 0/TBD | Not started | - |
 | 4. C++ Frontend + C++ Extractors | 0/TBD | Not started | - |
