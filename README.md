@@ -127,4 +127,13 @@ pytest
 
 ## License
 
-MIT
+`lib-code-parser` itself is licensed under the **Apache License 2.0**. See the [`LICENSE`](./LICENSE) file at the project root for the full text, including the Section 3 patent grant.
+
+**No GPL bundled.** This library does not depend on, bundle, or invoke any GPL-licensed tool at runtime. The call graph extractor is internal to `lib-code-parser` (it is **not** `pyan3`, and **not** `ACL-2` — both of which were incorrectly referenced in the v0.1.0 spec doc and are being corrected). Bundled and runtime dependency licenses:
+
+| Component | License | Notes |
+|---|---|---|
+| `lib-code-parser` itself | Apache-2.0 | This library; see [`LICENSE`](./LICENSE) |
+| Call graph extractor | Internal (Apache-2.0) | Not `pyan3` (GPL v2), not `ACL-2`; ships as part of this library |
+| `pyright` | MIT | Subprocess dev-dependency for Phase 2 PyrightAdapter (`pyright[nodejs]==1.1.409`) |
+| `libclang` | Apache-2.0 WITH LLVM exception | In-process ctypes dependency, strictly pinned to `==18.1.1` (DET-02); the LLVM exception softens copyleft propagation for static linking |
