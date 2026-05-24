@@ -23,6 +23,10 @@ must_haves:
     - ".planning/spikes/SP-3-libclang-macos-arm64.md exists with the 4-step verdict template (a/b/c/d) per D-21 and a provisional verdict slot for first-run results"
     - "docs/99-trace-matrix.md includes a Phase 1 14-row matrix mapping each Phase 1 REQ-ID to its US support (per TRC-01)"
     - "Existing CI workflow (Linux Python 3.11) preserved and continues to gate PR merges; sp3-libclang-spike does NOT block merges (continue-on-error)"
+    - "D-18: SP-3 spike CI matrix is GitHub Actions macos-14 (Apple Silicon arm64) + Python 3.13/3.14 ONLY in Phase 1 (Ubuntu-aarch64 / Windows / macos-x86 belong to Phase 4 LNG-01)"
+    - "D-19: SP-3 spike priority is lowest within Phase 1 (run after other Phase 1 closure plans complete; continue-on-error: true ensures it does not block merges)"
+    - "D-20: SP-3 spike runs 4 verification steps (a) pip install / (b) Index.create() / (c) Config.library_path assertion / (d) minimal C++ fixture parse"
+    - "D-22: Phase 1 close condition is relaxed — CI workflow setup + first run kicked + provisional verdict slot present in spike doc; the verdict RESULT does not block Phase 1 close (Phase 4 entry re-evaluates)"
   artifacts:
     - path: ".github/workflows/ci.yml"
       provides: "Existing test job + new sp3-libclang-spike best-effort job"

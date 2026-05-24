@@ -16,6 +16,9 @@ must_haves:
     - "lib_code_parser/_paths.py:get_module_name(path: str) -> str is the single source of truth for module name derivation"
     - "lib_code_parser/_dispatch.py declares 3 empty dispatch dicts (FRONTENDS / PRIMITIVES / EVALUATIONS) with typed Callable signatures"
     - "Dispatch dicts are append-only per Open-Closed contract (enforced via code review + docs/09 per pre-resolved decision #4)"
+    - "D-10: nested layout under lib_code_parser/ — models/{infrastructure,primitives,evaluations}/, frontends/, extractors/{primitives,...}/, adapters/ (this plan ships _paths.py + _dispatch.py at the top of that layout)"
+    - "D-11: design axis is the evaluation unit (output); shared primitives are obtained in pull mode (evaluation units import primitives), not push injection"
+    - "D-12: _dispatch.py manages 3 dicts (FRONTENDS / PRIMITIVES / EVALUATIONS); executor walks the dicts (Task 2 ships the empty typed dicts; entries added in Phase 2-4)"
   artifacts:
     - path: "lib_code_parser/_paths.py"
       provides: "get_module_name() single source"

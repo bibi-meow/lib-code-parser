@@ -16,6 +16,9 @@ must_haves:
     - "GraphNode, GraphEdge, GraphModel, GuardExpr defined in lib-code-parser's evaluations layer with extra='forbid'"
     - "Schema is structurally compatible with lib-diagram-parser (same field names + types) per pre-resolved decision #5"
     - "GraphEdge supports optional physical_module field for SCH-02 physical-side metadata convention"
+    - "D-15: Phase 1 does NOT submit a PR to sibling lib-diagram-parser; Phase 3 re-evaluates after node_type="package" situation is reassessed"
+    - "D-16: SCH-01 interpretation broadened — direct utilization of lib-diagram-parser models (including subclass) is permitted; model duplication remains banned"
+    - "D-17: schema compatibility is guaranteed by SCH-04 (cross-lib schema compat test, Phase 5); Phase 1 only fixes the schema contract, test implementation is deferred"
   artifacts:
     - path: "lib_code_parser/models/evaluations/graph_base.py"
       provides: "EdgeKind Literal + GraphNode/GraphEdge/GraphModel/GuardExpr (lib-diagram-parser compatible schema, locally defined per pre-resolved decision #5)"

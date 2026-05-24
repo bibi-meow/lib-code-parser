@@ -15,6 +15,8 @@ must_haves:
     - "docs/09-extending.md enumerates all 6 Open-Closed invariants AND documents the append-only invariant on dispatch dicts per pre-resolved decision #4"
     - "docs/09-extending.md instructs that the verifier-facing logical-architecture comparison target is models/evaluations/ only (D-14)"
     - "docs/09-extending.md states adding a new EdgeKind value is a MAJOR version-bump operation, not an ad-hoc patch (Pitfall 7 prevention)"
+    - "D-07: docs/08-common-view-pattern.md created on the SDD-chain numbering (08-) — lib-code-parser内に閉じる (no workspace-common doc; sibling-lib adoption recipe ships as Section 5 of docs/08)"
+    - "D-13: docs/09-extending.md enumerates exactly the 6 Open-Closed invariants verbatim from CONTEXT.md (existing primitive/evaluation immutability, CodeContent optional fields only, dispatch dict append-only, pull-based primitive supply, executor scan-only)"
   artifacts:
     - path: "docs/08-common-view-pattern.md"
       provides: "Common View / CAV / Generic envelope transferable design doc"

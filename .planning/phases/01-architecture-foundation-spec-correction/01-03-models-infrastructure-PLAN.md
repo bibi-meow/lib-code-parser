@@ -22,6 +22,9 @@ must_haves:
     - "CAV is frozen + extra='forbid' + arbitrary_types_allowed and rejects unknown languages"
     - "NormalizedArtifact is a Pydantic Generic with TContent bound to BaseModel; unparameterized construction still works for v0.1.0 callers"
     - "ParserConfig is typed (no params: dict[str, object]) and rejects unknown fields with ValidationError"
+    - "D-05: CAV ConfigDict(extra="forbid", arbitrary_types_allowed=True, frozen=True) enforces immutability via Pydantic v2 (Task 2)"
+    - "D-06: NormalizedArtifact made Pydantic Generic (NormalizedArtifact[TContent]); v0.1.0 caller parity asserted via byte-identical JSON parity test (Task 3)"
+    - "D-08: execute(config, raw_content, path) -> NormalizedArtifact[CodeContent] signature is stable; ParserConfig field names (enabled / language / extract_* / *_version) fixed as sibling-lib-reusable generic names (Task 2)"
   artifacts:
     - path: "lib_code_parser/models/infrastructure/cav.py"
       provides: "Common AST View envelope (single-parse contract)"

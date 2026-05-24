@@ -17,6 +17,7 @@ must_haves:
     - "SubprocessAdapter abstract base class drives subprocess execution via run_subprocess() (subclasses implement tool_argv + parse_output)"
     - "Determinism env is injected on every subprocess call without exception"
     - "Helper is transferable — sibling libs can copy it verbatim (no internal state, pure-function style)"
+    - "D-09: adapters/base.py written as abstract base class (SubprocessAdapter) + transferable run_subprocess() helper (no internal state) so sibling libs can copy the same pattern verbatim"
   artifacts:
     - path: "lib_code_parser/adapters/base.py"
       provides: "run_subprocess() helper + SubprocessAdapter ABC"

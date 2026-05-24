@@ -15,6 +15,9 @@ must_haves:
     - "Spec doc cites Apache-2.0 license and bundled-dependency license matrix (call graph internal, pyright MIT, libclang Apache-2.0 WITH LLVM-exception)"
     - "v0.1.0 spec doc preserved under frozen/ for traceability"
     - "Downstream verifier agents see the v0.2.0 architecture (CAV, EdgeKind, nested layout, 5 diagrams + 2 specs, Doxygen, physical_*/source_* prefix)"
+    - "D-01: lib-code-parser.md full rewrite (surgical edit rejected — internal logical integrity would break under partial edit)"
+    - "D-02: pre-rewrite v0.1.0 spec doc backed up to frozen/2026-05-24-v0.1.0-spec/ before Task 2 overwrites the file (backup-before-major-rewrite rule)"
+    - "D-03: rewrite section structure locked to §概要 / §インターフェース / §出力 / §採用アルゴリズム / §出力 schema (new) / §License (new) / §Traceability (new)"
   artifacts:
     - path: "lib-code-parser.md"
       provides: "v0.2.0 architecture spec doc"
