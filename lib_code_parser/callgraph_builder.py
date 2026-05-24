@@ -3,13 +3,12 @@
 from __future__ import annotations
 
 import ast
-from pathlib import Path
 
+from lib_code_parser._paths import get_module_name as _get_module_name
 from lib_code_parser.models import CallEdge, CallGraph
 
-
-def _get_module_name(path: str) -> str:
-    return Path(path).stem
+# ARC-04 / DET-04: single source of truth for path -> module-name; thin shim
+# preserves the v0.1.0 private symbol export for test backward-compat.
 
 
 def _get_call_name(func_node: ast.expr) -> str | None:
