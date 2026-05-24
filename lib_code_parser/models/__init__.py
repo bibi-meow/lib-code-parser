@@ -1,13 +1,18 @@
-"""Subpackages: infrastructure, primitives, evaluations.
+"""Parent package marker for `lib_code_parser.models`.
 
-Transitional v0.1.0 legacy symbol re-exports live here until Plan 09 wires the
-final flat surface from primitives/evaluations subpackages. The legacy class
-definitions below mirror ``lib_code_parser/models.py`` byte-for-byte (which is
-shadowed by this package directory but kept in tree per Plan 03 boundary).
+Wave 1 transitional state — combines Plan 03 (infrastructure subpackage),
+Plan 04 (primitives subpackage), and Plan 05 (evaluations subpackage). The
+12 v0.1.0 names are preserved at this barrel for caller-side parity until
+Plan 09 (Wave 2) wires the final flat surface (re-exports from infrastructure
++ primitives + evaluations and deletes the legacy `lib_code_parser/models.py`).
 
-Plan 09 deletes ``lib_code_parser/models.py`` and replaces these inline defs
-with re-exports from ``lib_code_parser.models.primitives`` and
-``lib_code_parser.models.evaluations``.
+Primitive surface (FunctionNode, ParamInfo, SourceRange, TraceTag, CallEdge,
+CallGraph, TypeDep, ContractInfo) re-exports from `models.primitives`.
+The remaining infra surface (ArtifactId, CodeContent, NormalizedArtifact,
+ParserConfig) is provided here as transitional v0.1.0-shape stubs so existing
+v0.1.0 extractors and the executor continue to import via
+`from lib_code_parser.models import X`. Plan 09 will replace these stubs with
+re-exports from `models.infrastructure`.
 
 Traces: ARC-02, ARC-05, SCH-02.
 """
@@ -16,66 +21,23 @@ from __future__ import annotations
 
 from pydantic import BaseModel
 
-# --- v0.1.0 legacy bridge -----------------------------------------------------
-# These mirror the v0.1.0 class definitions previously in
-# ``lib_code_parser/models.py``. Required because the new ``models/`` package
-# directory shadows the legacy ``models.py`` module, breaking every
-# ``from lib_code_parser.models import FunctionNode, ...`` import in the
-# pre-Phase-1 source tree (executor.py, ast_extractor.py, callgraph_builder.py,
-# contract_extractor.py, type_dep_builder.py, lib_code_parser/__init__.py,
-# tests/). Plan 09 replaces this block with re-exports from the new primitives
-# subpackage.
+# Primitive surface — single source of truth lives in models/primitives/
+from lib_code_parser.models.primitives.callgraph import CallEdge, CallGraph
+from lib_code_parser.models.primitives.contracts import ContractInfo
+from lib_code_parser.models.primitives.functions import (
+    FunctionNode,
+    ParamInfo,
+    SourceRange,
+    TraceTag,
+)
+from lib_code_parser.models.primitives.type_deps import TypeDep
 
 
+# Infra surface — transitional stubs preserving v0.1.0 field surface. Plan 03
+# infrastructure/* provides hardened versions (frozen / extra="forbid" /
+# Generic[TContent]); Plan 09 finalizes the public re-exports.
 class ArtifactId(BaseModel):
     path: str
-
-
-class TraceTag(BaseModel):
-    tag: str
-    refs: list[str] = []
-
-
-class SourceRange(BaseModel):
-    start_line: int
-    end_line: int
-
-
-class ParamInfo(BaseModel):
-    name: str
-    type_annotation: str = ""
-
-
-class ContractInfo(BaseModel):
-    preconditions: list[str] = []
-    invariants: list[str] = []
-
-
-class FunctionNode(BaseModel):
-    node_id: str
-    kind: str  # "function" | "method" | "class"
-    params: list[ParamInfo] = []
-    return_type: str = ""
-    contracts: ContractInfo = ContractInfo()
-    docstring: str = ""
-    trace_tags: list[TraceTag] = []
-    source_range: SourceRange = SourceRange(start_line=0, end_line=0)
-
-
-class CallEdge(BaseModel):
-    caller: str
-    callee: str
-
-
-class CallGraph(BaseModel):
-    nodes: list[str] = []
-    edges: list[CallEdge] = []
-
-
-class TypeDep(BaseModel):
-    source: str
-    target: str
-    kind: str = "uses"
 
 
 class CodeContent(BaseModel):
@@ -99,15 +61,15 @@ class ParserConfig(BaseModel):
 
 __all__ = [
     "ArtifactId",
-    "TraceTag",
-    "SourceRange",
-    "ParamInfo",
-    "ContractInfo",
-    "FunctionNode",
     "CallEdge",
     "CallGraph",
-    "TypeDep",
     "CodeContent",
+    "ContractInfo",
+    "FunctionNode",
     "NormalizedArtifact",
+    "ParamInfo",
     "ParserConfig",
+    "SourceRange",
+    "TraceTag",
+    "TypeDep",
 ]
