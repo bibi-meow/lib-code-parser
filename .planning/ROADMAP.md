@@ -41,7 +41,7 @@ Decimal phases appear between their surrounding integers in numeric order.
     - [x] 01-07-adapters-base-PLAN.md — adapters/base.py subprocess hardening helper + ABC (ARC-03, DET-05)
     - [x] 01-08-docs-common-view-and-extending-PLAN.md — docs/08 + docs/09 (6 Open-Closed invariants) (ARC-04, DET-04 substrate)
   - Wave 2 (depends on Wave 1):
-    - [ ] 01-09-layout-migration-and-parity-PLAN.md — Lib __init__ rewrite + extractor shims + parity test (ARC-01, ARC-04, DET-04 finalizers)
+    - [x] 01-09-layout-migration-and-parity-PLAN.md — Lib __init__ rewrite + extractor shims + parity test (ARC-01, ARC-04, DET-04 finalizers)
   - Wave 3 (depends on Wave 2):
     - [ ] 01-10-sp3-spike-and-trace-matrix-PLAN.md — CI sp3-libclang-spike job + spike doc + docs/99-trace-matrix.md (TRC-01 + ROADMAP SC-5 SP-3 closure per D-22)
 
@@ -97,7 +97,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Architecture Foundation + Spec Correction | 8/10 | In Progress|  |
+| 1. Architecture Foundation + Spec Correction | 9/10 | In Progress|  |
 | 2. Python Frontend + AST Primitives + ACL-2 Adapters | 0/TBD | Not started | - |
 | 3. Python Diagram + Spec Extractors | 0/TBD | Not started | - |
 | 4. C++ Frontend + C++ Extractors | 0/TBD | Not started | - |
