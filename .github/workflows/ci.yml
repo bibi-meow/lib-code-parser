@@ -4,6 +4,7 @@ on: [push, pull_request]
 
 jobs:
   test:
+    name: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,3 +20,44 @@ jobs:
       - name: Format check
         run: ruff format --check .
 
+  sp3-libclang-spike:
+    name: SP-3 libclang macOS arm64 (best-effort)
+    runs-on: macos-14
+    continue-on-error: true   # D-22: Phase 1 close を結果 blocking しない
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          allow-prereleases: true   # 3.14 が pre-release の場合に必要
+      - name: Install with libclang pinned
+        run: |
+          pip install -e ".[dev]"
+          pip show libclang
+      - name: SP-3 (a) install succeeded — already passed if we got here
+        run: echo "SP-3 (a) PASS"
+      - name: SP-3 (b) dylib load + Index.create()
+        run: |
+          python -c "from clang.cindex import Index; idx = Index.create(); print('Index OK', idx)"
+      - name: SP-3 (c) library_path assertion
+        run: |
+          python -c "from clang.cindex import Config; lp = Config.library_path; print('library_path:', lp); assert lp, 'Config.library_path must be non-empty'"
+      - name: SP-3 (d) minimal C++ parse
+        run: |
+          python -c "
+          from clang.cindex import Index
+          idx = Index.create()
+          tu = idx.parse('test.cpp', args=['-x', 'c++', '-std=c++17'], unsaved_files=[('test.cpp', 'int main() { return 0; }')])
+          assert tu is not None
+          cursors = list(tu.cursor.get_children())
+          print(f'SP-3 (d) PASS - parsed {len(cursors)} top-level cursors')
+          "
+      - name: Record verdict
+        if: always()
+        run: |
+          echo '--- SP-3 verdict (Python ${{ matrix.python-version }} on macOS arm64) ---' >> $GITHUB_STEP_SUMMARY
+          # Job-level conclusion is recorded in .planning/spikes/SP-3-libclang-macos-arm64.md after the run
