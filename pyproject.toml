@@ -1,16 +1,28 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
+requires = ["setuptools>=77.0.3", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "lib-code-parser"
-version = "0.1.0"
-description = "Parse Python source files to extract function graphs, call graphs, type dependencies, and validator contracts"
+version = "0.2.0"
+description = "Deterministic Python/C++ source parser for AST primitives, diagrams, and specs (lib-diagram-parser compatible schema)"
 requires-python = ">=3.11"
-dependencies = ["pydantic>=2.0"]
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+dependencies = [
+    "pydantic>=2.13.0,<3.0",
+    "lib-diagram-parser>=0.1.0",
+]
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "pytest-cov", "ruff", "pyright"]
+dev = [
+    "pytest>=8",
+    "pytest-cov",
+    "ruff",
+    "pyright",
+    "pyright[nodejs]==1.1.409",
+    "libclang==18.1.1",
+]
 
 [tool.setuptools.packages.find]
 where = ["."]
