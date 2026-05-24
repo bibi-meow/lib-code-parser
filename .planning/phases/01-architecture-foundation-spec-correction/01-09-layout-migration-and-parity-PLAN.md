@@ -135,17 +135,7 @@ lib_code_parser/adapters/__init__.py — re-exports run_subprocess, SubprocessAd
     - Re-export primitives: `CallEdge`, `CallGraph` from `lib_code_parser.models.primitives.callgraph`; `ContractInfo` from `lib_code_parser.models.primitives.contracts`; `FunctionNode`, `ParamInfo`, `SourceRange`, `TraceTag` from `lib_code_parser.models.primitives.functions`; `TypeDep` from `lib_code_parser.models.primitives.type_deps`.
     - Re-export evaluations: `EdgeKind`, `GraphEdge`, `GraphModel`, `GraphNode`, `GuardExpr` from `lib_code_parser.models.evaluations.graph_base`.
     - Set `__version__ = "0.2.0"`.
-    - Set `__all__` as a list in this exact order (v0.1.0 13-name surface PRESERVED in original positional order, then v0.2.0 additions appended at the end):
-      ```
-      __all__ = [
-          # v0.1.0 compat — ORDER PRESERVED
-          "CodeParserExecutor", "ArtifactId", "CallEdge", "CallGraph", "CodeContent",
-          "ContractInfo", "FunctionNode", "NormalizedArtifact", "ParamInfo",
-          "ParserConfig", "SourceRange", "TraceTag", "TypeDep",
-          # v0.2.0 additions
-          "CAV", "EdgeKind", "GraphEdge", "GraphModel", "GraphNode", "GuardExpr",
-      ]
-      ```
+    - Define `__all__` as a list whose contents are FIXED by the v0.1.0 backward-compat contract (parity test in Task 3 enforces order and membership). The list MUST contain exactly 19 string entries in two segments. Segment A (v0.1.0 13-name compat — ORDER PRESERVED, positional order MUST match v0.1.0): `"CodeParserExecutor"`, then `"ArtifactId"`, `"CallEdge"`, `"CallGraph"`, `"CodeContent"`, `"ContractInfo"`, `"FunctionNode"`, `"NormalizedArtifact"`, `"ParamInfo"`, `"ParserConfig"`, `"SourceRange"`, `"TraceTag"`, `"TypeDep"`. Segment B (v0.2.0 additions appended AFTER Segment A): `"CAV"`, `"EdgeKind"`, `"GraphEdge"`, `"GraphModel"`, `"GraphNode"`, `"GuardExpr"`. Use a `# v0.1.0 compat — ORDER PRESERVED` comment immediately before Segment A and a `# v0.2.0 additions` comment immediately before Segment B so future maintainers see the contract at a glance. Do NOT alphabetize Segment A — the v0.1.0 positional order is the contract.
     - All imports MUST be absolute per CONVENTIONS.md.
 
     Step 2 — Delete `lib_code_parser/models.py`. Use git-aware delete: `git rm lib_code_parser/models.py` (or `Remove-Item` on Windows / `rm` on POSIX with stage). The symbols previously declared there are now provided by the `models/` subpackage; the `__init__.py` re-exports above make `from lib_code_parser import X` work identically.
