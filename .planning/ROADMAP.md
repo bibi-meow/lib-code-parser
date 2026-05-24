@@ -30,7 +30,20 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. `lib_code_parser/_dispatch.py` exists with explicit static `FRONTENDS` and `EXTRACTORS` dispatch dicts and `lib_code_parser/_paths.py:get_module_name()` is the single source of truth (no `_get_module_name` duplication anywhere in the codebase) — verifiable by `grep -r "_get_module_name" lib_code_parser/` returning only `_paths.py`
   4. `lib_code_parser/adapters/base.py` defines the subprocess hardening contract (`encoding="utf-8"`, `errors="replace"`, `env={...,"LC_ALL":"C","PYTHONHASHSEED":"0"}`, explicit `timeout`, explicit `cwd`, `capture_output=True`, `shell=False`) and ships an enforcement helper used by every subsequent adapter
   5. `lib-code-parser.md` spec doc no longer mentions `callgraph.py` or "ACL-2" (replaced by the internal call graph extractor description + `pyright` for type resolution); `pyproject.toml` declares `license = "Apache-2.0"` with `LICENSE` file shipped and `README.md` includes a "No GPL bundled" license summary (call graph internal, pyright MIT, libclang Apache-2.0 with LLVM exception); SP-3 libclang feasibility spike result is recorded (verdict: ship / ship-best-effort / defer) under `.planning/spikes/SP-3-libclang-macos-arm64.md`
-**Plans**: TBD
+**Plans**: 10 plans across 3 waves
+  - Wave 1 (8 parallel plans):
+    - [ ] 01-01-license-and-pyproject-PLAN.md — Apache-2.0 LICENSE + pyproject PEP 639 SPDX (DOC-04, DOC-03)
+    - [ ] 01-02-spec-doc-rewrite-PLAN.md — Full rewrite of lib-code-parser.md removing callgraph.py / ACL-2 (DOC-01, DOC-03)
+    - [ ] 01-03-models-infrastructure-PLAN.md — CAV + NormalizedArtifact[TContent] + typed ParserConfig (SCH-02, ARC-05, ARC-02)
+    - [ ] 01-04-models-primitives-PLAN.md — FunctionNode/CallGraph/TypeDep/ContractInfo + source_kind discriminator (SCH-02)
+    - [ ] 01-05-models-evaluations-PLAN.md — EdgeKind closed Literal (11 values) + GraphNode/Edge/Model/GuardExpr (SCH-01, SCH-03, SCH-02)
+    - [ ] 01-06-paths-and-dispatch-PLAN.md — _paths.py + _dispatch.py (ARC-04, DET-04)
+    - [ ] 01-07-adapters-base-PLAN.md — adapters/base.py subprocess hardening helper + ABC (ARC-03, DET-05)
+    - [ ] 01-08-docs-common-view-and-extending-PLAN.md — docs/08 + docs/09 (6 Open-Closed invariants) (ARC-04, DET-04 substrate)
+  - Wave 2 (depends on Wave 1):
+    - [ ] 01-09-layout-migration-and-parity-PLAN.md — Lib __init__ rewrite + extractor shims + parity test (ARC-01, ARC-04, DET-04 finalizers)
+  - Wave 3 (depends on Wave 2):
+    - [ ] 01-10-sp3-spike-and-trace-matrix-PLAN.md — CI sp3-libclang-spike job + spike doc + docs/99-trace-matrix.md (TRC-01 + ROADMAP SC-5 SP-3 closure per D-22)
 
 ### Phase 2: Python Frontend + AST Primitives + ACL-2 Adapters
 **Goal**: Implement the Python Frontend that parses a source file exactly once and emits the immutable Common AST View (CAV), then build the four pure-CAV aspect extractors (functions / internal call graph / type deps / contracts with Pydantic-validator vs. `__post_init__` discrimination) and the single `pyright[nodejs]==1.1.409` subprocess adapter living in `adapters/`. This phase delivers everything needed to produce v0.1.0-equivalent `NormalizedArtifact` for Python source from the new locked architecture (so v0.1.0 callers see no regression) plus pyright-resolved `TypeDep` and explicit Pydantic/dataclass contract discrimination.
@@ -84,7 +97,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Architecture Foundation + Spec Correction | 0/TBD | Not started | - |
+| 1. Architecture Foundation + Spec Correction | 0/10 | Planned | - |
 | 2. Python Frontend + AST Primitives + ACL-2 Adapters | 0/TBD | Not started | - |
 | 3. Python Diagram + Spec Extractors | 0/TBD | Not started | - |
 | 4. C++ Frontend + C++ Extractors | 0/TBD | Not started | - |
