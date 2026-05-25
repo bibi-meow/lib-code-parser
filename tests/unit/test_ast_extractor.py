@@ -27,11 +27,13 @@ class TestExtractAnnotation:
 
     def test_name_node(self) -> None:
         import ast
+
         node = ast.parse("x: str").body[0].annotation  # type: ignore[union-attr]
         assert _extract_annotation(node) == "str"
 
     def test_subscript(self) -> None:
         import ast
+
         node = ast.parse("x: list[str]").body[0].annotation  # type: ignore[union-attr]
         result = _extract_annotation(node)
         assert "list" in result

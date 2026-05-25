@@ -10,6 +10,7 @@ from lib_code_parser.ast_extractor import extract_functions
 @pytest.fixture
 def example_source() -> str:
     from tests.conftest import EXAMPLE_SOURCE
+
     return EXAMPLE_SOURCE
 
 
@@ -109,12 +110,15 @@ class TestTopLevelFunctionExtraction:
 class TestModuleNameFromPath:
     def test_nested_path(self) -> None:
         from lib_code_parser.ast_extractor import _get_module_name
+
         assert _get_module_name("src/order_service.py") == "order_service"
 
     def test_flat_path(self) -> None:
         from lib_code_parser.ast_extractor import _get_module_name
+
         assert _get_module_name("order_service.py") == "order_service"
 
     def test_deep_nested(self) -> None:
         from lib_code_parser.ast_extractor import _get_module_name
+
         assert _get_module_name("lib_code_parser/executor.py") == "executor"

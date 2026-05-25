@@ -10,6 +10,7 @@ from lib_code_parser.type_dep_builder import build_type_deps
 @pytest.fixture
 def example_source() -> str:
     from tests.conftest import EXAMPLE_SOURCE
+
     return EXAMPLE_SOURCE
 
 

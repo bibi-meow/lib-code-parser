@@ -10,6 +10,7 @@ from lib_code_parser.callgraph_builder import build_callgraph
 @pytest.fixture
 def example_source() -> str:
     from tests.conftest import EXAMPLE_SOURCE
+
     return EXAMPLE_SOURCE
 
 

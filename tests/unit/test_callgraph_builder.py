@@ -8,12 +8,14 @@ from lib_code_parser.callgraph_builder import _get_call_name, build_callgraph
 class TestGetCallName:
     def test_simple_name(self) -> None:
         import ast
+
         node = ast.parse("foo()").body[0].value  # type: ignore[union-attr]
         assert isinstance(node, ast.Call)
         assert _get_call_name(node.func) == "foo"
 
     def test_attribute_call(self) -> None:
         import ast
+
         node = ast.parse("self.bar()").body[0].value  # type: ignore[union-attr]
         assert isinstance(node, ast.Call)
         assert _get_call_name(node.func) == "bar"

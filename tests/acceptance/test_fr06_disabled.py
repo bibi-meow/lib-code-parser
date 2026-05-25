@@ -16,6 +16,7 @@ def executor() -> CodeParserExecutor:
 @pytest.fixture
 def example_raw() -> bytes:
     from tests.conftest import EXAMPLE_SOURCE
+
     return EXAMPLE_SOURCE.encode("utf-8")
 
 
@@ -83,9 +84,7 @@ class TestDisabledExecutor:
 
 
 class TestCppNotSupported:
-    def test_cpp_extension_returns_empty(
-        self, executor: CodeParserExecutor
-    ) -> None:
+    def test_cpp_extension_returns_empty(self, executor: CodeParserExecutor) -> None:
         config = ParserConfig(
             artifact_type="code",
             executor_lib="lib_code_parser",
@@ -95,9 +94,7 @@ class TestCppNotSupported:
         result = executor.execute(config, b"int main() {}", "src/main.cpp")
         assert result.content.functions == []
 
-    def test_cpp_language_param_returns_empty(
-        self, executor: CodeParserExecutor
-    ) -> None:
+    def test_cpp_language_param_returns_empty(self, executor: CodeParserExecutor) -> None:
         config = ParserConfig(
             artifact_type="code",
             executor_lib="lib_code_parser",

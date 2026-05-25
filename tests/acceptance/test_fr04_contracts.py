@@ -10,6 +10,7 @@ from lib_code_parser.contract_extractor import extract_contracts
 @pytest.fixture
 def example_source() -> str:
     from tests.conftest import EXAMPLE_SOURCE
+
     return EXAMPLE_SOURCE
 
 
@@ -23,23 +24,17 @@ class TestPydanticContracts:
         contracts = extract_contracts(example_source, example_path)
         assert "order_service.OrderModel" in contracts
 
-    def test_field_validator_is_precondition(
-        self, example_source: str, example_path: str
-    ) -> None:
+    def test_field_validator_is_precondition(self, example_source: str, example_path: str) -> None:
         contracts = extract_contracts(example_source, example_path)
         ci = contracts["order_service.OrderModel"]
         assert "validate_status" in ci.preconditions
 
-    def test_model_validator_is_invariant(
-        self, example_source: str, example_path: str
-    ) -> None:
+    def test_model_validator_is_invariant(self, example_source: str, example_path: str) -> None:
         contracts = extract_contracts(example_source, example_path)
         ci = contracts["order_service.OrderModel"]
         assert "check_total" in ci.invariants
 
-    def test_order_service_has_no_contracts(
-        self, example_source: str, example_path: str
-    ) -> None:
+    def test_order_service_has_no_contracts(self, example_source: str, example_path: str) -> None:
         contracts = extract_contracts(example_source, example_path)
         # OrderService has no validators
         assert "order_service.OrderService" not in contracts
@@ -47,11 +42,11 @@ class TestPydanticContracts:
 
 class TestPostInitContract:
     def test_post_init_is_precondition(self) -> None:
-        source = '''
+        source = """
 class MyData:
     def __post_init__(self):
         pass
-'''
+"""
         contracts = extract_contracts(source, "data.py")
         assert "data.MyData" in contracts
         assert "__post_init__" in contracts["data.MyData"].preconditions
@@ -68,7 +63,7 @@ class TestContractMinimal:
         assert "mod.Foo" not in contracts
 
     def test_validator_decorator_name(self) -> None:
-        source = '''
+        source = """
 from pydantic import validator
 
 class Foo:
@@ -76,7 +71,7 @@ class Foo:
     @classmethod
     def validate_field(cls, v):
         return v
-'''
+"""
         contracts = extract_contracts(source, "mod.py")
         assert "mod.Foo" in contracts
         assert "validate_field" in contracts["mod.Foo"].preconditions

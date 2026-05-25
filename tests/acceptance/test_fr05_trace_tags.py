@@ -10,6 +10,7 @@ from lib_code_parser.ast_extractor import extract_functions
 @pytest.fixture
 def example_source() -> str:
     from tests.conftest import EXAMPLE_SOURCE
+
     return EXAMPLE_SOURCE
 
 
@@ -24,9 +25,7 @@ def _nodes_by_id(source: str, path: str) -> dict:
 
 
 class TestClassTraceTags:
-    def test_order_service_has_trace_tags(
-        self, example_source: str, example_path: str
-    ) -> None:
+    def test_order_service_has_trace_tags(self, example_source: str, example_path: str) -> None:
         nodes = _nodes_by_id(example_source, example_path)
         tags = nodes["order_service.OrderService"].trace_tags
         assert len(tags) > 0
@@ -40,17 +39,13 @@ class TestClassTraceTags:
 
 
 class TestMethodTraceTags:
-    def test_create_order_trace_fr01(
-        self, example_source: str, example_path: str
-    ) -> None:
+    def test_create_order_trace_fr01(self, example_source: str, example_path: str) -> None:
         nodes = _nodes_by_id(example_source, example_path)
         tags = nodes["order_service.OrderService.create_order"].trace_tags
         all_refs = [ref for t in tags for ref in t.refs]
         assert "FR-01" in all_refs
 
-    def test_cancel_order_no_trace(
-        self, example_source: str, example_path: str
-    ) -> None:
+    def test_cancel_order_no_trace(self, example_source: str, example_path: str) -> None:
         nodes = _nodes_by_id(example_source, example_path)
         tags = nodes["order_service.OrderService.cancel_order"].trace_tags
         # cancel_order has no Traces: in its docstring
@@ -58,9 +53,7 @@ class TestMethodTraceTags:
 
 
 class TestFunctionTraceTags:
-    def test_process_payment_traces(
-        self, example_source: str, example_path: str
-    ) -> None:
+    def test_process_payment_traces(self, example_source: str, example_path: str) -> None:
         nodes = _nodes_by_id(example_source, example_path)
         tags = nodes["order_service.process_payment"].trace_tags
         all_refs = [ref for t in tags for ref in t.refs]

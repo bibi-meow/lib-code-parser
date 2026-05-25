@@ -14,36 +14,36 @@ class TestExtractContracts:
         assert "mod.Foo" not in extract_contracts(source, "mod.py")
 
     def test_field_validator(self) -> None:
-        source = '''
+        source = """
 class Foo:
     @field_validator("x")
     @classmethod
     def validate_x(cls, v):
         return v
-'''
+"""
         contracts = extract_contracts(source, "mod.py")
         assert "mod.Foo" in contracts
         assert "validate_x" in contracts["mod.Foo"].preconditions
 
     def test_validator_legacy(self) -> None:
-        source = '''
+        source = """
 class Bar:
     @validator("field")
     @classmethod
     def check_field(cls, v):
         return v
-'''
+"""
         contracts = extract_contracts(source, "mod.py")
         assert "mod.Bar" in contracts
         assert "check_field" in contracts["mod.Bar"].preconditions
 
     def test_model_validator(self) -> None:
-        source = '''
+        source = """
 class Baz:
     @model_validator(mode="after")
     def check_all(self):
         return self
-'''
+"""
         contracts = extract_contracts(source, "mod.py")
         assert "mod.Baz" in contracts
         assert "check_all" in contracts["mod.Baz"].invariants
@@ -55,17 +55,17 @@ class Baz:
         assert "__post_init__" in contracts["mod.D"].preconditions
 
     def test_module_name_from_path(self) -> None:
-        source = '''
+        source = """
 class MyModel:
     @field_validator("x")
     @classmethod
     def val_x(cls, v): return v
-'''
+"""
         contracts = extract_contracts(source, "src/my_module.py")
         assert "my_module.MyModel" in contracts
 
     def test_mixed_pre_and_invariants(self) -> None:
-        source = '''
+        source = """
 class Mixed:
     @field_validator("a")
     @classmethod
@@ -73,7 +73,7 @@ class Mixed:
 
     @model_validator(mode="after")
     def check_all(self): return self
-'''
+"""
         contracts = extract_contracts(source, "mod.py")
         ci = contracts["mod.Mixed"]
         assert "check_a" in ci.preconditions

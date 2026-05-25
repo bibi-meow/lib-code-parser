@@ -54,15 +54,13 @@ class TestExecutorBasic:
 
 
 class TestExecutorContracts:
-    def test_contracts_applied_when_enabled(
-        self, executor: CodeParserExecutor
-    ) -> None:
-        source = b'''
+    def test_contracts_applied_when_enabled(self, executor: CodeParserExecutor) -> None:
+        source = b"""
 class Foo:
     @field_validator("x")
     @classmethod
     def val_x(cls, v): return v
-'''
+"""
         config = ParserConfig(
             artifact_type="code",
             executor_lib="lib_code_parser",
@@ -70,21 +68,17 @@ class Foo:
             enabled=True,
         )
         result = executor.execute(config, source, "mod.py")
-        class_node = next(
-            (f for f in result.content.functions if f.node_id == "mod.Foo"), None
-        )
+        class_node = next((f for f in result.content.functions if f.node_id == "mod.Foo"), None)
         assert class_node is not None
         assert "val_x" in class_node.contracts.preconditions
 
-    def test_contracts_skipped_when_disabled(
-        self, executor: CodeParserExecutor
-    ) -> None:
-        source = b'''
+    def test_contracts_skipped_when_disabled(self, executor: CodeParserExecutor) -> None:
+        source = b"""
 class Foo:
     @field_validator("x")
     @classmethod
     def val_x(cls, v): return v
-'''
+"""
         config = ParserConfig(
             artifact_type="code",
             executor_lib="lib_code_parser",
@@ -92,24 +86,18 @@ class Foo:
             enabled=True,
         )
         result = executor.execute(config, source, "mod.py")
-        class_node = next(
-            (f for f in result.content.functions if f.node_id == "mod.Foo"), None
-        )
+        class_node = next((f for f in result.content.functions if f.node_id == "mod.Foo"), None)
         assert class_node is not None
         # contracts should be empty (default ContractInfo)
         assert class_node.contracts.preconditions == []
 
 
 class TestExecutorEdgeCases:
-    def test_empty_source(
-        self, executor: CodeParserExecutor, basic_config: ParserConfig
-    ) -> None:
+    def test_empty_source(self, executor: CodeParserExecutor, basic_config: ParserConfig) -> None:
         result = executor.execute(basic_config, b"", "mod.py")
         assert result.content.functions == []
 
-    def test_bytes_decoded(
-        self, executor: CodeParserExecutor, basic_config: ParserConfig
-    ) -> None:
+    def test_bytes_decoded(self, executor: CodeParserExecutor, basic_config: ParserConfig) -> None:
         source = "def foo(): pass\n".encode("utf-8")
         result = executor.execute(basic_config, source, "mod.py")
         ids = [f.node_id for f in result.content.functions]
