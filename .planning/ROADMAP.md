@@ -12,7 +12,7 @@ lib-code-parser v0.2.0 extends the shipped v0.1.0 AST baseline (commit `cf7e7ec`
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Architecture Foundation + Spec Correction** - Lock every cross-cutting contract (CAV, EdgeKind, schema compat layer, subprocess determinism, dispatch table, ACL-2/callgraph.py spec fix, Apache-2.0 license) before any extractor code is written; SP-3 libclang feasibility spike
+- [x] **Phase 1: Architecture Foundation + Spec Correction** - Lock every cross-cutting contract (CAV, EdgeKind, schema compat layer, subprocess determinism, dispatch table, ACL-2/callgraph.py spec fix, Apache-2.0 license) before any extractor code is written; SP-3 libclang feasibility spike (completed 2026-05-25)
 - [ ] **Phase 2: Python Frontend + AST Primitives + ACL-2 Adapters** - Build the Python Frontend (one parse per file producing CAV), the four pure-CAV aspect extractors (functions / call graph / type deps / contracts) and the `pyright` subprocess adapter with full canonicalization
 - [ ] **Phase 3: Python Diagram + Spec Extractors** - Emit five `lib-diagram-parser`-compatible diagrams (class / sequence / component / package / state) and function/class spec extractors from Python source; SP-1 (general control flow → state) and SP-2 (sequence branch fidelity) spikes
 - [ ] **Phase 4: C++ Frontend + C++ Extractors** - Bring up libclang-based C++ Frontend behind the locked CAV boundary, produce schema-parity output for AST primitives, diagrams, and Doxygen-driven specs; platform matrix incl. macOS arm64 best-effort
@@ -43,7 +43,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   - Wave 2 (depends on Wave 1):
     - [x] 01-09-layout-migration-and-parity-PLAN.md — Lib __init__ rewrite + extractor shims + parity test (ARC-01, ARC-04, DET-04 finalizers)
   - Wave 3 (depends on Wave 2):
-    - [ ] 01-10-sp3-spike-and-trace-matrix-PLAN.md — CI sp3-libclang-spike job + spike doc + docs/99-trace-matrix.md (TRC-01 + ROADMAP SC-5 SP-3 closure per D-22)
+    - [x] 01-10-sp3-spike-and-trace-matrix-PLAN.md — CI sp3-libclang-spike job + spike doc + docs/99-trace-matrix.md (TRC-01 + ROADMAP SC-5 SP-3 closure per D-22)
 
 ### Phase 2: Python Frontend + AST Primitives + ACL-2 Adapters
 **Goal**: Implement the Python Frontend that parses a source file exactly once and emits the immutable Common AST View (CAV), then build the four pure-CAV aspect extractors (functions / internal call graph / type deps / contracts with Pydantic-validator vs. `__post_init__` discrimination) and the single `pyright[nodejs]==1.1.409` subprocess adapter living in `adapters/`. This phase delivers everything needed to produce v0.1.0-equivalent `NormalizedArtifact` for Python source from the new locked architecture (so v0.1.0 callers see no regression) plus pyright-resolved `TypeDep` and explicit Pydantic/dataclass contract discrimination.
@@ -97,7 +97,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Architecture Foundation + Spec Correction | 9/10 | In Progress|  |
+| 1. Architecture Foundation + Spec Correction | 10/10 | Complete   | 2026-05-25 |
 | 2. Python Frontend + AST Primitives + ACL-2 Adapters | 0/TBD | Not started | - |
 | 3. Python Diagram + Spec Extractors | 0/TBD | Not started | - |
 | 4. C++ Frontend + C++ Extractors | 0/TBD | Not started | - |
