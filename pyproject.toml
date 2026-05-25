@@ -11,7 +11,11 @@ license = "Apache-2.0"
 license-files = ["LICENSE"]
 dependencies = [
     "pydantic>=2.13.0,<3.0",
-    "lib-diagram-parser>=0.1.0",
+    # Note: lib-diagram-parser is intentionally NOT a hard dependency in Phase 1.
+    # Per Plan 01-05 pre-resolved Open Question #5 and Plan 01-10 D-22 scope,
+    # Phase 1 graph_base.py is self-contained (structural compatibility only —
+    # no runtime import). Phase 3 (DIA-04) will re-add it when lib-diagram-parser
+    # is published to PyPI and runtime import becomes required.
 ]
 
 [project.optional-dependencies]
