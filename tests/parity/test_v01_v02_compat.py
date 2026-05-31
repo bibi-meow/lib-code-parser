@@ -1,22 +1,24 @@
-"""Wave 0 parity gate for the v0.1.0 -> v0.2.0 nested-layout migration.
+"""Parity gate for the v0.1.0 -> v0.2.0 migration (Phase 2 D-04 redesign).
 
-These tests lock the contract that closes ROADMAP §Phase 1:
-- Success Criterion 1: callers can write `from lib_code_parser import X` for
-  all 13 v0.1.0 names AND all 6 v0.2.0 additions (CAV, EdgeKind, GraphNode,
-  GraphEdge, GraphModel, GuardExpr).
-- Success Criterion 3 (hard gate): `_get_module_name` / `get_module_name` is
-  defined exactly once in `lib_code_parser/` — in `_paths.py`. The 4 v0.1.0
-  extractors are thin shims importing from `_paths`.
+These tests lock the v0.2.0 contract after the Phase 2 clean break (D-01 / D-02):
+- Surface importability: callers can write `from lib_code_parser import X` for
+  all 13 v0.1.0 names, all 6 v0.2.0 Phase 1 additions (CAV, EdgeKind, GraphNode,
+  GraphEdge, GraphModel, GuardExpr), and all 3 v0.2.0 Phase 2 additions
+  (PyrightAdapter, PyrightOutput, PyrightDiagnostic) — 22 names total.
+- ARC-04 / DET-04 hard gate: `_get_module_name` / `get_module_name` is defined
+  exactly once in `lib_code_parser/` — in `_paths.py`.
 - D-06 parity: `NormalizedArtifact[CodeContent](...).model_dump_json()` is
   byte-identical to `NormalizedArtifact(...).model_dump_json()`.
-- D-12 / ARC-05: the typed ParserConfig at
-  `lib_code_parser.models.infrastructure.config.ParserConfig` rejects unknown
-  fields (`extra="forbid"`). The barrel-level `lib_code_parser.ParserConfig`
-  retains the v0.1.0 parity stub shape (`params: dict[str, object]`) for the
-  Phase 1 transitional window; Phase 2's dispatch-driven executor rewrite
-  graduates the typed variant to the barrel.
+- D-01 / D-02 graduation: the barrel-level `lib_code_parser.ParserConfig` is now
+  the typed v0.2.0 variant (`extra="forbid"`); the v0.1.0 dict-style API
+  (`params={...}`) raises ValidationError — explicit break.
 - SCH-03: `GraphEdge(edge_type="uses")` raises ValidationError (closed
   EdgeKind Literal).
+
+D-04 redesign (Plan 02-07): the stub-based byte-identical JSON parity test and
+the legacy `b"def foo(): pass"` executor smoke test are DROPPED — the shipped
+v0.1.0 EXAMPLE_SOURCE snapshot in `test_snapshot_v01_fixture.py` now owns
+byte-identical output drift detection.
 """
 
 from __future__ import annotations
@@ -87,6 +89,18 @@ def test_v02_new_surface_present() -> None:
         "GuardExpr": GuardExpr,
     }.items():
         assert obj is not None, f"v0.2.0 name '{name}' resolved to None"
+
+
+def test_v02_phase2_surface_present() -> None:
+    """All 3 v0.2.0 Phase 2 additions importable from the top-level barrel."""
+    from lib_code_parser import PyrightAdapter, PyrightDiagnostic, PyrightOutput
+
+    for name, obj in {
+        "PyrightAdapter": PyrightAdapter,
+        "PyrightOutput": PyrightOutput,
+        "PyrightDiagnostic": PyrightDiagnostic,
+    }.items():
+        assert obj is not None, f"v0.2.0 Phase 2 name '{name}' resolved to None"
 
 
 def test_version_bumped() -> None:
@@ -168,65 +182,43 @@ def test_normalized_artifact_parameterized_works() -> None:
     assert '"artifact_type":"code"' in payload
 
 
-def test_normalized_artifact_json_byte_identical() -> None:
-    """D-06: unparameterized vs parameterized JSON serialization is byte-identical.
+# --- D-01 / D-02 typed ParserConfig graduation at the barrel -----------------
 
-    This is the live-test of the RESEARCH-confirmed Pydantic v2 Generic parity
-    promise. If this ever fails, NormalizedArtifact's contract has drifted.
+
+def test_parser_config_typed_at_barrel_rejects_unknown() -> None:
+    """D-01 / D-02: barrel-level ParserConfig is now the typed v0.2.0 variant.
+
+    After the Phase 2 clean break the barrel `lib_code_parser.ParserConfig` is
+    the same object as `lib_code_parser.models.infrastructure.config.ParserConfig`
+    and rejects unknown fields (`extra="forbid"`).
     """
-    from lib_code_parser import ArtifactId, CodeContent, NormalizedArtifact
-
-    args = dict(
-        artifact_id=ArtifactId(path="x"),
-        artifact_type="code",
-        content=CodeContent(),
-    )
-    a = NormalizedArtifact(**args).model_dump_json()
-    b = NormalizedArtifact[CodeContent](**args).model_dump_json()
-    assert a == b, f"D-06 byte-parity broken:\nunparam={a}\n  param={b}"
-
-
-# --- Executor end-to-end ------------------------------------------------------
-
-
-def test_executor_runs_on_example_source() -> None:
-    """Executor still produces FunctionNode entries on a trivial example.
-
-    Uses the v0.1.0-shape ParserConfig (which the barrel exposes for parity).
-    """
-    from lib_code_parser import CodeParserExecutor, ParserConfig
-
-    exe = CodeParserExecutor()
-    result = exe.execute(
-        ParserConfig(artifact_type="code", executor_lib="lib_code_parser"),
-        b"def foo(): pass\n",
-        "foo.py",
-    )
-    ids = [f.node_id for f in result.content.functions]
-    assert "foo.foo" in ids, f"Expected foo.foo in {ids}"
-
-
-# --- ARC-05 typed ParserConfig contract --------------------------------------
-
-
-def test_parser_config_unknown_field_raises() -> None:
-    """ARC-05 hard gate: the typed ParserConfig rejects unknown fields.
-
-    The typed v0.2.0 ParserConfig lives at
-    `lib_code_parser.models.infrastructure.config.ParserConfig` per the
-    Phase 1 layout (Plan 03). The barrel-level `lib_code_parser.ParserConfig`
-    remains the v0.1.0 parity stub for the Phase 1 transitional window; the
-    typed variant will graduate to the barrel in Phase 2 when the executor
-    is rewritten as dispatch-driven (D-12). This test asserts the contract at
-    the canonical typed location.
-    """
-    from lib_code_parser.models.infrastructure.config import ParserConfig
+    from lib_code_parser import ParserConfig
 
     with pytest.raises(ValidationError):
         ParserConfig(
             artifact_type="code",
             executor_lib="lib_code_parser",
             surprise=1,  # type: ignore[call-arg]  # intentional unknown field
+        )
+
+
+def test_parser_config_barrel_is_typed_identity() -> None:
+    """D-01: the barrel ParserConfig IS the typed infrastructure ParserConfig."""
+    from lib_code_parser import ParserConfig
+    from lib_code_parser.models.infrastructure.config import ParserConfig as Typed
+
+    assert ParserConfig is Typed
+
+
+def test_v01_params_dict_explicit_break() -> None:
+    """D-02 explicit break: the v0.1.0 dict-style ParserConfig API now raises."""
+    from lib_code_parser import ParserConfig
+
+    with pytest.raises(ValidationError):
+        ParserConfig(
+            artifact_type="code",
+            executor_lib="lib_code_parser",
+            params={"language": "python"},  # type: ignore[call-arg]
         )
 
 
