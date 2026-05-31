@@ -11,6 +11,9 @@ are never modified or removed. See docs/09-extending.md for the full
 
 Traces: ARC-04
 """
+# ruff: noqa: E402 -- Phase 2 registration imports live at module bottom by
+# design (append-only Open-Closed invariant #4); they are placed AFTER the
+# dispatch-dict declarations, which E402 would otherwise flag.
 
 from __future__ import annotations
 
@@ -30,14 +33,31 @@ PrimitiveFn = Callable[["CAV", "ParserConfig"], object]
 # EvaluationFn: (cav, config) -> evaluation model instance (concrete type per evaluation)
 EvaluationFn = Callable[["CAV", "ParserConfig"], object]
 
-# Phase 2 will add: 'python' (stdlib ast); Phase 4 will add: 'cpp' (libclang adapter).
+# Phase 2 adds: 'python' (stdlib ast); Phase 4 will add: 'cpp' (libclang adapter).
 FRONTENDS: dict[str, FrontendFn] = {}
 
-# Phase 2 will add 4 entries: functions, call_graph, type_deps, contracts.
+# Phase 2 adds 4 entries: functions, call_graph, type_deps, contracts.
 PRIMITIVES: dict[str, PrimitiveFn] = {}
 
 # Phase 3 will add 5 diagrams + 2 specs (7 entries total).
 EVALUATIONS: dict[str, EvaluationFn] = {}
+
+# Phase 2 (plan 02-06) registrations — append-only per Open-Closed invariant #4.
+# ============================================================================
+# NOTE: these imports are at module bottom (not top) intentionally — register
+# AFTER the empty dict declarations to make the append-only contract explicit.
+# Phase 3 will append diagram + spec entries to EVALUATIONS similarly.
+from lib_code_parser.extractors.primitives.callgraph import extract as _extract_callgraph
+from lib_code_parser.extractors.primitives.contracts import extract as _extract_contracts
+from lib_code_parser.extractors.primitives.functions import extract as _extract_functions
+from lib_code_parser.extractors.primitives.type_deps import extract as _extract_type_deps
+from lib_code_parser.frontends.python import build_cav as _build_cav_python
+
+FRONTENDS["python"] = _build_cav_python
+PRIMITIVES["functions"] = _extract_functions
+PRIMITIVES["call_graph"] = _extract_callgraph
+PRIMITIVES["type_deps"] = _extract_type_deps
+PRIMITIVES["contracts"] = _extract_contracts
 
 __all__ = [
     "FrontendFn",

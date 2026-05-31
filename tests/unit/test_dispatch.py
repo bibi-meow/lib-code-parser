@@ -22,16 +22,26 @@ from lib_code_parser._dispatch import (
 )
 
 
-class TestDispatchDictsEmpty:
-    """Phase 1 ships empty dicts; entries are added in Phase 2-4."""
+class TestDispatchDictsPopulated:
+    """Phase 2 (plan 02-06) populates FRONTENDS (1) + PRIMITIVES (4).
 
-    def test_frontends_dict_exists_and_empty(self) -> None:
+    EVALUATIONS stays empty until Phase 3. The Phase 1 "all dicts empty"
+    invariant was retired by plan 02-06's append-only registration deliverable.
+    """
+
+    def test_frontends_dict_has_python_entry(self) -> None:
         assert isinstance(FRONTENDS, dict)
-        assert len(FRONTENDS) == 0
+        assert "python" in FRONTENDS
 
-    def test_primitives_dict_exists_and_empty(self) -> None:
+    def test_primitives_dict_has_4_entries_in_append_only_order(self) -> None:
         assert isinstance(PRIMITIVES, dict)
-        assert len(PRIMITIVES) == 0
+        # Insertion order is the append-only registration order (D-12).
+        assert list(PRIMITIVES.keys()) == [
+            "functions",
+            "call_graph",
+            "type_deps",
+            "contracts",
+        ]
 
     def test_evaluations_dict_exists_and_empty(self) -> None:
         assert isinstance(EVALUATIONS, dict)
