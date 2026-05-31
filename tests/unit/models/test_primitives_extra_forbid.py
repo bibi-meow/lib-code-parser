@@ -65,7 +65,14 @@ def test_contract_info_rejects_extra() -> None:
         ContractInfo(node_id="x", surprise=1)
 
 
-def test_contract_info_source_kind_literal() -> None:
-    """ContractInfo.source_kind is a closed Literal (AST-04)."""
+def test_contract_entry_source_kind_literal() -> None:
+    """ContractEntry.source_kind is a closed Literal (AST-04).
+
+    Phase 2 D-12 restructure moved the source_kind discriminator from the
+    class-level ContractInfo to per-entry ContractEntry. The closed-Literal
+    guard now lives on ContractEntry.
+    """
+    from lib_code_parser.models.primitives import ContractEntry
+
     with pytest.raises(ValidationError):
-        ContractInfo(node_id="x", source_kind="bogus")
+        ContractEntry(name="x", source_kind="bogus", kind="precondition")
