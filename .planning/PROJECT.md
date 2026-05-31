@@ -172,4 +172,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-24 after research synthesis + 7 critical-decision incorporation + libclang feasibility verification*
+*Last updated: 2026-05-31 — Phase 2 complete: Python Frontend (CAV single-parse) + 4 pure-CAV extractors + opt-in pyright adapter + v0.1.0 clean break; 241 tests green*
