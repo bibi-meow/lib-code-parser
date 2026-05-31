@@ -1,0 +1,423 @@
+{
+  "artifact_id": {
+    "path": "src/order_service.py"
+  },
+  "artifact_type": "code",
+  "content": {
+    "functions": [
+      {
+        "node_id": "order_service.OrderService",
+        "kind": "class",
+        "params": [],
+        "return_type": "",
+        "contracts": {
+          "node_id": "",
+          "entries": [],
+          "preconditions": [],
+          "invariants": [],
+          "postconditions": []
+        },
+        "docstring": "Order management service.\n\nTraces: US-01, FR-02",
+        "trace_tags": [
+          {
+            "tag": "Traces",
+            "refs": [
+              "US-01",
+              "FR-02"
+            ]
+          }
+        ],
+        "source_range": {
+          "start_line": 6,
+          "end_line": 25
+        }
+      },
+      {
+        "node_id": "order_service.OrderService.create_order",
+        "kind": "method",
+        "params": [
+          {
+            "name": "items",
+            "type_annotation": "list[str]"
+          },
+          {
+            "name": "user_id",
+            "type_annotation": "str"
+          }
+        ],
+        "return_type": "dict",
+        "contracts": {
+          "node_id": "",
+          "entries": [],
+          "preconditions": [],
+          "invariants": [],
+          "postconditions": []
+        },
+        "docstring": "Create a new order.\n\nTraces: FR-01",
+        "trace_tags": [
+          {
+            "tag": "Traces",
+            "refs": [
+              "FR-01"
+            ]
+          }
+        ],
+        "source_range": {
+          "start_line": 12,
+          "end_line": 18
+        }
+      },
+      {
+        "node_id": "order_service.OrderService._calculate_total",
+        "kind": "method",
+        "params": [
+          {
+            "name": "items",
+            "type_annotation": "list[str]"
+          }
+        ],
+        "return_type": "float",
+        "contracts": {
+          "node_id": "",
+          "entries": [],
+          "preconditions": [],
+          "invariants": [],
+          "postconditions": []
+        },
+        "docstring": "",
+        "trace_tags": [],
+        "source_range": {
+          "start_line": 20,
+          "end_line": 21
+        }
+      },
+      {
+        "node_id": "order_service.OrderService.cancel_order",
+        "kind": "method",
+        "params": [
+          {
+            "name": "order_id",
+            "type_annotation": "str"
+          }
+        ],
+        "return_type": "bool",
+        "contracts": {
+          "node_id": "",
+          "entries": [],
+          "preconditions": [],
+          "invariants": [],
+          "postconditions": []
+        },
+        "docstring": "Cancel an existing order.",
+        "trace_tags": [],
+        "source_range": {
+          "start_line": 23,
+          "end_line": 25
+        }
+      },
+      {
+        "node_id": "order_service.OrderModel",
+        "kind": "class",
+        "params": [],
+        "return_type": "",
+        "contracts": {
+          "node_id": "order_service.OrderModel",
+          "entries": [
+            {
+              "name": "validate_status",
+              "source_kind": "pydantic_field_validator",
+              "kind": "precondition",
+              "decorator_name": "field_validator",
+              "line_no": 35
+            },
+            {
+              "name": "check_total",
+              "source_kind": "pydantic_model_validator",
+              "kind": "invariant",
+              "decorator_name": "model_validator",
+              "line_no": 41
+            }
+          ],
+          "preconditions": [
+            "validate_status"
+          ],
+          "invariants": [
+            "check_total"
+          ],
+          "postconditions": []
+        },
+        "docstring": "",
+        "trace_tags": [],
+        "source_range": {
+          "start_line": 28,
+          "end_line": 44
+        }
+      },
+      {
+        "node_id": "order_service.OrderModel.validate_status",
+        "kind": "method",
+        "params": [
+          {
+            "name": "v",
+            "type_annotation": "str"
+          }
+        ],
+        "return_type": "str",
+        "contracts": {
+          "node_id": "",
+          "entries": [],
+          "preconditions": [],
+          "invariants": [],
+          "postconditions": []
+        },
+        "docstring": "",
+        "trace_tags": [],
+        "source_range": {
+          "start_line": 35,
+          "end_line": 38
+        }
+      },
+      {
+        "node_id": "order_service.OrderModel.check_total",
+        "kind": "method",
+        "params": [],
+        "return_type": "'OrderModel'",
+        "contracts": {
+          "node_id": "",
+          "entries": [],
+          "preconditions": [],
+          "invariants": [],
+          "postconditions": []
+        },
+        "docstring": "",
+        "trace_tags": [],
+        "source_range": {
+          "start_line": 41,
+          "end_line": 44
+        }
+      },
+      {
+        "node_id": "order_service.process_payment",
+        "kind": "function",
+        "params": [
+          {
+            "name": "amount",
+            "type_annotation": "float"
+          },
+          {
+            "name": "method",
+            "type_annotation": "str"
+          }
+        ],
+        "return_type": "bool",
+        "contracts": {
+          "node_id": "",
+          "entries": [],
+          "preconditions": [],
+          "invariants": [],
+          "postconditions": []
+        },
+        "docstring": "Process payment.\n\nTraces: FR-03, US-22",
+        "trace_tags": [
+          {
+            "tag": "Traces",
+            "refs": [
+              "FR-03",
+              "US-22"
+            ]
+          }
+        ],
+        "source_range": {
+          "start_line": 47,
+          "end_line": 52
+        }
+      }
+    ],
+    "call_graph": {
+      "nodes": [
+        "order_service.OrderService",
+        "order_service.OrderService.create_order",
+        "order_service.OrderService._calculate_total",
+        "order_service.OrderService.cancel_order",
+        "order_service.OrderModel",
+        "order_service.OrderModel.validate_status",
+        "order_service.OrderModel.check_total",
+        "order_service.process_payment"
+      ],
+      "edges": [
+        {
+          "caller": "order_service.OrderModel.check_total",
+          "callee": "ValueError"
+        },
+        {
+          "caller": "order_service.OrderModel.validate_status",
+          "callee": "ValueError"
+        },
+        {
+          "caller": "order_service.OrderService._calculate_total",
+          "callee": "len"
+        },
+        {
+          "caller": "order_service.OrderService.create_order",
+          "callee": "_calculate_total"
+        }
+      ]
+    },
+    "type_deps": [
+      {
+        "source": "order_service",
+        "target": "bool",
+        "kind": "uses",
+        "resolved": true,
+        "source_line": 23
+      },
+      {
+        "source": "order_service",
+        "target": "bool",
+        "kind": "uses",
+        "resolved": true,
+        "source_line": 47
+      },
+      {
+        "source": "order_service",
+        "target": "dict",
+        "kind": "uses",
+        "resolved": true,
+        "source_line": 12
+      },
+      {
+        "source": "order_service",
+        "target": "float",
+        "kind": "uses",
+        "resolved": true,
+        "source_line": 20
+      },
+      {
+        "source": "order_service",
+        "target": "float",
+        "kind": "uses",
+        "resolved": true,
+        "source_line": 47
+      },
+      {
+        "source": "order_service",
+        "target": "list",
+        "kind": "uses",
+        "resolved": true,
+        "source_line": 12
+      },
+      {
+        "source": "order_service",
+        "target": "list",
+        "kind": "uses",
+        "resolved": true,
+        "source_line": 20
+      },
+      {
+        "source": "order_service",
+        "target": "pydantic.BaseModel",
+        "kind": "imports",
+        "resolved": true,
+        "source_line": 2
+      },
+      {
+        "source": "order_service",
+        "target": "pydantic.field_validator",
+        "kind": "imports",
+        "resolved": true,
+        "source_line": 2
+      },
+      {
+        "source": "order_service",
+        "target": "pydantic.model_validator",
+        "kind": "imports",
+        "resolved": true,
+        "source_line": 2
+      },
+      {
+        "source": "order_service",
+        "target": "str",
+        "kind": "uses",
+        "resolved": true,
+        "source_line": 12
+      },
+      {
+        "source": "order_service",
+        "target": "str",
+        "kind": "uses",
+        "resolved": true,
+        "source_line": 12
+      },
+      {
+        "source": "order_service",
+        "target": "str",
+        "kind": "uses",
+        "resolved": true,
+        "source_line": 20
+      },
+      {
+        "source": "order_service",
+        "target": "str",
+        "kind": "uses",
+        "resolved": true,
+        "source_line": 23
+      },
+      {
+        "source": "order_service",
+        "target": "str",
+        "kind": "uses",
+        "resolved": true,
+        "source_line": 35
+      },
+      {
+        "source": "order_service",
+        "target": "str",
+        "kind": "uses",
+        "resolved": true,
+        "source_line": 35
+      },
+      {
+        "source": "order_service",
+        "target": "str",
+        "kind": "uses",
+        "resolved": true,
+        "source_line": 47
+      },
+      {
+        "source": "order_service",
+        "target": "typing.Optional",
+        "kind": "imports",
+        "resolved": true,
+        "source_line": 3
+      }
+    ],
+    "contracts": {
+      "order_service.OrderModel": {
+        "node_id": "order_service.OrderModel",
+        "entries": [
+          {
+            "name": "validate_status",
+            "source_kind": "pydantic_field_validator",
+            "kind": "precondition",
+            "decorator_name": "field_validator",
+            "line_no": 35
+          },
+          {
+            "name": "check_total",
+            "source_kind": "pydantic_model_validator",
+            "kind": "invariant",
+            "decorator_name": "model_validator",
+            "line_no": 41
+          }
+        ],
+        "preconditions": [
+          "validate_status"
+        ],
+        "invariants": [
+          "check_total"
+        ],
+        "postconditions": []
+      }
+    }
+  }
+}
