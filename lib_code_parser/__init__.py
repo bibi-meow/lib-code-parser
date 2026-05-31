@@ -4,20 +4,25 @@ v0.2.0 introduces the nested module layout (`models/{infrastructure,primitives,
 evaluations}`, `frontends/`, `extractors/`, `adapters/`, `_paths`, `_dispatch`).
 The flat v0.1.0 import surface is preserved via re-exports below — any v0.1.0
 caller that wrote `from lib_code_parser import FunctionNode` continues to work
-unchanged. v0.2.0 adds six new names (`CAV`, `EdgeKind`, `GraphNode`,
-`GraphEdge`, `GraphModel`, `GuardExpr`) on the same barrel.
+unchanged. v0.2.0 Phase 1 added six names (`CAV`, `EdgeKind`, `GraphNode`,
+`GraphEdge`, `GraphModel`, `GuardExpr`); v0.2.0 Phase 2 adds three more
+(`PyrightAdapter`, `PyrightOutput`, `PyrightDiagnostic`) on the same barrel.
 
-ParserConfig parity note (Phase 1):
-    `lib_code_parser.ParserConfig` re-exports the v0.1.0 ParserConfig parity
-    stub from `lib_code_parser.models` (`params: dict[str, object]` field, no
-    `extra="forbid"`). The typed v0.2.0 ParserConfig (ARC-05) lives at
-    `lib_code_parser.models.infrastructure.config.ParserConfig`. Phase 2's
-    dispatch-driven executor rewrite (D-12) is the planned migration point
-    where the typed variant graduates to the barrel.
+Phase 2 graduation (Plan 02-07, D-01 / D-02):
+    `lib_code_parser.ParserConfig` is now the TYPED v0.2.0 variant
+    (`lib_code_parser.models.infrastructure.config.ParserConfig`, `extra="forbid"`
+    + typed `language` / `extract_contracts` / `python_version` / `compile_args`).
+    The v0.1.0 dict-style API `ParserConfig(..., params={...})` is explicitly
+    broken (raises `ValidationError`) — D-02 explicit break.
 
-Traces: ARC-01, ARC-04, DET-04, D-06.
+Traces: ARC-01, ARC-04, DET-04, D-01, D-02, D-06.
 """
 
+from lib_code_parser.adapters.pyright import (
+    PyrightAdapter,
+    PyrightDiagnostic,
+    PyrightOutput,
+)
 from lib_code_parser.executor import CodeParserExecutor
 from lib_code_parser.models import (
     CAV,
@@ -57,11 +62,15 @@ __all__ = [
     "SourceRange",
     "TraceTag",
     "TypeDep",
-    # v0.2.0 additions
+    # v0.2.0 Phase 1 additions
     "CAV",
     "EdgeKind",
     "GraphEdge",
     "GraphModel",
     "GraphNode",
     "GuardExpr",
+    # v0.2.0 Phase 2 additions
+    "PyrightAdapter",
+    "PyrightOutput",
+    "PyrightDiagnostic",
 ]

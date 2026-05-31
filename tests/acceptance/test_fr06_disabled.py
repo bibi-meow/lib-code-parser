@@ -1,11 +1,15 @@
-"""FR-06: enabled=False returns empty CodeContent."""
+"""FR-06: enabled=False returns empty CodeContent (Phase 2 v0.2.0 form).
+
+Consumes the typed ParserConfig + dispatch-driven executor through the public
+v0.2.0 surface. The v0.1.0 dict-style `params={...}` is gone (D-02 explicit
+break); `language` is now a typed top-level field.
+"""
 
 from __future__ import annotations
 
 import pytest
 
-from lib_code_parser.executor import CodeParserExecutor
-from lib_code_parser.models import ParserConfig
+from lib_code_parser import CodeParserExecutor, ParserConfig
 
 
 @pytest.fixture
@@ -27,7 +31,6 @@ class TestDisabledExecutor:
         config = ParserConfig(
             artifact_type="code",
             executor_lib="lib_code_parser",
-            params={"language": "python"},
             enabled=False,
         )
         result = executor.execute(config, example_raw, "src/order_service.py")
@@ -39,7 +42,6 @@ class TestDisabledExecutor:
         config = ParserConfig(
             artifact_type="code",
             executor_lib="lib_code_parser",
-            params={"language": "python"},
             enabled=False,
         )
         result = executor.execute(config, example_raw, "src/order_service.py")
@@ -52,7 +54,6 @@ class TestDisabledExecutor:
         config = ParserConfig(
             artifact_type="code",
             executor_lib="lib_code_parser",
-            params={"language": "python"},
             enabled=False,
         )
         result = executor.execute(config, example_raw, "src/order_service.py")
@@ -64,7 +65,6 @@ class TestDisabledExecutor:
         config = ParserConfig(
             artifact_type="code",
             executor_lib="lib_code_parser",
-            params={},
             enabled=False,
         )
         result = executor.execute(config, example_raw, "src/order_service.py")
@@ -76,7 +76,6 @@ class TestDisabledExecutor:
         config = ParserConfig(
             artifact_type="code",
             executor_lib="lib_code_parser",
-            params={},
             enabled=False,
         )
         result = executor.execute(config, example_raw, "src/order_service.py")
@@ -88,9 +87,10 @@ class TestCppNotSupported:
         config = ParserConfig(
             artifact_type="code",
             executor_lib="lib_code_parser",
-            params={"language": "python"},
+            language="python",
             enabled=True,
         )
+        # .cpp suffix forces language="cpp" -> not in FRONTENDS -> empty content.
         result = executor.execute(config, b"int main() {}", "src/main.cpp")
         assert result.content.functions == []
 
@@ -98,7 +98,7 @@ class TestCppNotSupported:
         config = ParserConfig(
             artifact_type="code",
             executor_lib="lib_code_parser",
-            params={"language": "cpp"},
+            language="cpp",
             enabled=True,
         )
         result = executor.execute(config, b"", "src/main.py")
