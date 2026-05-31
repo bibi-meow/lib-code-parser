@@ -85,15 +85,22 @@ Phase 1 で固定した foundation (CAV envelope / typed ParserConfig / `_dispat
   Rationale: `pyright[nodejs]==1.1.409` は本 lib の install dependency なので未インストールは
   caller 環境問題。silent 化は DET-01 byte-identical の前提を環境状態に依存させてしまい、
   Layer M bisimulation の前提が崩れる。
-- **D-07:** **JSON 正規化原則**:
-  - `pyright --outputjson` 出力のうち **`TypeDep` 生成に必要な subkey のみ抽出**
-    (`generalDiagnostics` は破棄)
-  - file path は **forward-slash 正規化** (`pathlib.PurePosixPath` 等で `\` → `/`)
-  - tmpdir prefix を strip して caller が渡した `path` 文字列のみを `TypeDep.path` に出力
-  - sort key は `(node_id, type_ref)` (DET-04 と整合)
-  - **具体的な pyright JSON subkey 名・抽出 algorithm は researcher 領域** (Phase 2 RESEARCH.md で
-    `gsd-phase-researcher` が pyright 1.1.409 の `--outputjson` schema を実機検証し、
-    `TypeDep` への mapping を確定する)
+- **D-07 (revised 2026-05-31 — RESEARCH.md §2.1 が原案前提を invalidate):** pyright 統合 algorithm:
+  - **前提逆転 (実機検証 by gsd-phase-researcher):** pyright 1.1.409 `--outputjson` の schema は
+    `{version, time, generalDiagnostics[], summary{}}` のみで、 型解決済み import / annotation データ
+    は一切返さない (microsoft/pyright command-line.md docs + basedpyright docs + GitHub
+    issue microsoft/pyright#6740 でクロス確認、 3 fixture で実機再現)。 原案 D-07 の
+    「`TypeDep` 生成に必要な subkey のみ抽出 / `generalDiagnostics` は破棄」前提は破綻。
+  - **採用 algorithm (RESEARCH.md §2.3):** stdlib `ast` walk で TypeDep raw 抽出 → pyright を
+    `reportMissingImports=error` モードで起動 → `generalDiagnostics[].rule == "reportMissingImports"`
+    が発火していない行 = `resolved=True`、 発火行 = `resolved=False` を各 TypeDep entry に annotate。
+    Layer M bisimulation の決定論性と「`pyright[nodejs]==1.1.409` で完結」 を両立する唯一の現実解。
+  - **JSON 正規化原則 (継続):** file path は forward-slash 正規化 (`pathlib.PurePosixPath`、 `\` → `/`)、
+    tmpdir prefix を strip して caller が渡した `path` 文字列のみを `TypeDep.path` に出力、
+    sort key は DET-04 と整合 (具体 sort key 構成は planner 判断)。
+  - **下位 implementation detail (model field 形状 / signature / helper 構造 / sort key 構成) は
+    Phase 2 planner が RESEARCH.md §2 / §7 を base に自律判断** (contract level に変更が必要に
+    なった場合のみ user に surface する)。
 - **D-08:** **pyright CLI フラグ・サブコマンド選定は researcher 領域** — `--outputjson` /
   `--verifytypes` / `--ignoreexternal` 等のうち、import 文 + 型注釈の type 解決済み一覧を
   最も忠実に返す組み合わせは RESEARCH.md で確定。CONTEXT.md には選定基準 (型解決済み /
