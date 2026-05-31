@@ -123,4 +123,8 @@ The executor's first file writes were accidentally placed in the **main repo** w
 
 None. The extractor is fully wired to `cav.payload`; dispatch registration is intentionally deferred to Plan 02-06 (exclusive owner of `_dispatch.PRIMITIVES`).
 
-## Self-Check: PENDING (appended below after verification)
+## Self-Check: PASSED
+
+- Created files all FOUND: `callgraph.py`, `test_callgraph_extractor.py`, `test_callgraph_sort.py`, `extractors/__init__.py`, `02-03-callgraph-extractor-SUMMARY.md`
+- Commits all FOUND: `586cb26`, `95e1a1e`, `8303aee`, `e1fd026`
+- No STATE.md / ROADMAP.md modifications committed (orchestrator-owned, untouched)
