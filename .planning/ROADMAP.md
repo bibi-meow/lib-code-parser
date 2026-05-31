@@ -98,7 +98,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Architecture Foundation + Spec Correction | 10/10 | Complete   | 2026-05-25 |
-| 2. Python Frontend + AST Primitives + ACL-2 Adapters | 5/7 | In Progress|  |
+| 2. Python Frontend + AST Primitives + ACL-2 Adapters | 6/7 | In Progress|  |
 | 3. Python Diagram + Spec Extractors | 0/TBD | Not started | - |
 | 4. C++ Frontend + C++ Extractors | 0/TBD | Not started | - |
 | 5. Cross-Cutting Integration + Acceptance | 0/TBD | Not started | - |

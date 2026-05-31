@@ -4,13 +4,13 @@ milestone: v0.1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 2 context gathered
-last_updated: "2026-05-31T12:04:00.691Z"
-last_activity: 2026-05-31 -- Phase 02 execution started
+last_updated: "2026-05-31T12:30:49.489Z"
+last_activity: 2026-05-31
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 17
-  completed_plans: 10
+  completed_plans: 16
   percent: 20
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-05-24)
 ## Current Position
 
 Phase: 02 (python-frontend-ast-primitives-acl-2-adapters) — EXECUTING
-Plan: 1 of 7
-Status: Executing Phase 02
-Last activity: 2026-05-31 -- Phase 02 execution started
+Plan: 2 of 7
+Status: Ready to execute
+Last activity: 2026-05-31
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [█████████░] 94%
 
 ## Performance Metrics
 
@@ -52,6 +52,7 @@ Progress: [░░░░░░░░░░] 0%
 - Trend: — (no data yet)
 
 *Updated after each plan completion*
+| Phase 02 P06 | 25 | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -67,6 +68,7 @@ Recent decisions affecting current work:
 - Phase 1: subprocess lives only in `adapters/` layer (no extractor may call `subprocess` directly); subprocess hardening (`LC_ALL=C`, `PYTHONHASHSEED=0`, `encoding="utf-8"`, explicit `timeout`/`cwd`) is enforced by `adapters/base.py`
 - Phase 1: Apache-2.0 license declared with `LICENSE` file shipped; no GPL bundled (call graph internal, pyright MIT, libclang Apache-2.0+LLVM exception)
 - Phase 3: `lib-diagram-parser` PR adding `node_type="package"` enum value is a sibling-lib coordination dependency (DIA-04 / SCH-01 require it)
+- [Phase ?]: Phase 2 Plan 06: executor rewritten as dispatch-dict walk (D-03) on typed ParserConfig; barrel ParserConfig graduation deferred to Plan 02-07
 
 ### Pending Todos
 
@@ -87,6 +89,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-05-29T00:00:56.718Z
+Last session: 2026-05-31T12:30:43.000Z
 Stopped at: Phase 2 context gathered
-Resume file: .planning/phases/02-python-frontend-ast-primitives-acl-2-adapters/02-CONTEXT.md
+Resume file: None

@@ -20,9 +20,9 @@
 
 - [ ] **AST-01**: Caller can extract function/method/class nodes (`FunctionNode`) with `kind`, `params`, `return_type`, `docstring`, `trace_tags`, `source_range` from Python source
 - [ ] **AST-02**: Caller can extract a deterministic `CallGraph` (nodes + caller→callee edges) from Python source via the lib's internal extractor — no GPL deps, no external subprocess
-- [ ] **AST-03**: Caller can extract type-resolved `TypeDep` list from Python source via `pyright` subprocess wrapper (handles import statements + annotation types)
+- [x] **AST-03**: Caller can extract type-resolved `TypeDep` list from Python source via `pyright` subprocess wrapper (handles import statements + annotation types)
 - [ ] **AST-04**: Caller can extract `ContractInfo` distinguishing Pydantic v2 validator decorators (`field_validator` / `model_validator` / `validator`) from `dataclass.__post_init__` blocks (separate `source_kind` discriminator)
-- [ ] **AST-05**: All AST primitive extractors operate on a single Common AST View (CAV) — file is parsed once per `execute()` call, not four times
+- [x] **AST-05**: All AST primitive extractors operate on a single Common AST View (CAV) — file is parsed once per `execute()` call, not four times
 
 ### Diagram extractors (7)
 
@@ -53,7 +53,7 @@
 
 - [ ] **ARC-01**: Each extractor module (`ast_extractor`, `callgraph_builder`, `type_dep_builder`, `contract_extractor`, `class_diagram`, `sequence_diagram`, `component_diagram`, `package_diagram`, `state_diagram`, `function_spec`, `class_spec`, `doxygen_extractor`) is lib-internal callable independently — importable and usable without instantiating `CodeParserExecutor`
 - [ ] **ARC-02**: Extractor modules communicate only via Pydantic model contracts — no direct cross-module function calls between extractors
-- [ ] **ARC-03**: All subprocess invocations (`pyright`) live in `lib_code_parser/adapters/` layer; adapter canonicalizes output (sort by composite keys, normalize paths to forward-slash, strip timestamps, force `LC_ALL=C`)
+- [x] **ARC-03**: All subprocess invocations (`pyright`) live in `lib_code_parser/adapters/` layer; adapter canonicalizes output (sort by composite keys, normalize paths to forward-slash, strip timestamps, force `LC_ALL=C`)
 - [ ] **ARC-04**: Module-name derivation is centralized in `lib_code_parser/_paths.py:get_module_name()` — no duplicated `_get_module_name` across extractor files
 - [ ] **ARC-05**: `ParserConfig.params: dict[str, object]` is replaced with typed Pydantic fields: `language: Literal["python", "cpp"]`, `extract_contracts: bool`, `compile_args: list[str]`, `python_version: str`
 
@@ -61,8 +61,8 @@
 
 - [ ] **DET-01**: Library output is byte-identical for the same `(raw_content, path, ParserConfig)` tuple across re-runs, machines, and OS — verified by snapshot tests that diff JSON dump of `NormalizedArtifact` between 3 consecutive runs
 - [ ] **DET-02**: `libclang==18.1.1` exact pin enforced; runtime ABI assertion at import rejects `Config.set_library_file` overrides and verifies the bundled library version via `cindex.Config.library_path`
-- [ ] **DET-03**: `pyright[nodejs]==1.1.409` exact pin; subprocess invocation sets `PYRIGHT_PYTHON_FORCE_VERSION=1.1.409` to prevent npm pyright drift
-- [ ] **DET-04**: All extractor outputs are sorted by stable composite keys before emission — `FunctionNode` by `node_id`, `CallGraph.edges` lexicographic by `(caller, callee)`, `TypeDep` by `(node_id, type_ref)`
+- [x] **DET-03**: `pyright[nodejs]==1.1.409` exact pin; subprocess invocation sets `PYRIGHT_PYTHON_FORCE_VERSION=1.1.409` to prevent npm pyright drift
+- [x] **DET-04**: All extractor outputs are sorted by stable composite keys before emission — `FunctionNode` by `node_id`, `CallGraph.edges` lexicographic by `(caller, callee)`, `TypeDep` by `(node_id, type_ref)`
 - [ ] **DET-05**: All subprocess calls (`pyright`, future tools) use `capture_output=True`, `encoding="utf-8"`, `env={..., "LC_ALL": "C", "PYTHONHASHSEED": "0"}`, `timeout=60`, and explicit `cwd` (no inherited `os.getcwd()`)
 
 ### Schema (4)
@@ -75,8 +75,8 @@
 ### Traceability (3)
 
 - [ ] **TRC-01**: Each requirement in this file maps to at least one US (US-01 / US-22 / US-25 / US-32) in the Traceability table below
-- [ ] **TRC-02**: Each extractor module's module-level docstring declares which REQ-IDs it implements (e.g., `"""Implements AST-01, AST-05."""`)
-- [ ] **TRC-03**: `TraceTag` extraction (`Traces: REQ-ID, US-NN` regex pattern from docstrings/Doxygen comments) is retained from v0.1.0 and works identically for both Python and C++ source
+- [x] **TRC-02**: Each extractor module's module-level docstring declares which REQ-IDs it implements (e.g., `"""Implements AST-01, AST-05."""`)
+- [x] **TRC-03**: `TraceTag` extraction (`Traces: REQ-ID, US-NN` regex pattern from docstrings/Doxygen comments) is retained from v0.1.0 and works identically for both Python and C++ source
 
 ### Documentation (4)
 
