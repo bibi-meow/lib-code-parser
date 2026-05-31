@@ -9,7 +9,12 @@ Traces: SCH-02, AST-04.
 from __future__ import annotations
 
 from lib_code_parser.models.primitives.callgraph import CallEdge, CallGraph
-from lib_code_parser.models.primitives.contracts import ContractInfo
+from lib_code_parser.models.primitives.contracts import (
+    ContractEntry,
+    ContractInfo,
+    ContractKind,
+    SourceKind,
+)
 from lib_code_parser.models.primitives.functions import (
     FunctionNode,
     ParamInfo,
@@ -27,4 +32,7 @@ __all__ = [
     "CallGraph",
     "TypeDep",
     "ContractInfo",
+    "ContractEntry",
+    "ContractKind",
+    "SourceKind",
 ]
