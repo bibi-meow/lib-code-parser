@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v0.1.0
 milestone_name: milestone
-status: planning
+status: executing
 stopped_at: Phase 2 context gathered
-last_updated: "2026-05-29T00:00:56.734Z"
-last_activity: 2026-05-25
+last_updated: "2026-05-31T12:04:00.691Z"
+last_activity: 2026-05-31 -- Phase 02 execution started
 progress:
   total_phases: 5
   completed_phases: 1
-  total_plans: 10
+  total_plans: 17
   completed_plans: 10
   percent: 20
 ---
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-24)
 
 **Core value:** コードから抽出する全アーキ表現が、`lib-diagram-parser` が spec から抽出するものと同形式・最大忠実度・決定論的に比較可能であること (Layer M bisimulation の物理側基盤)
-**Current focus:** Phase 2 — python frontend + ast primitives + acl 2 adapters
+**Current focus:** Phase 02 — python-frontend-ast-primitives-acl-2-adapters
 
 ## Current Position
 
-Phase: 2
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-05-25
+Phase: 02 (python-frontend-ast-primitives-acl-2-adapters) — EXECUTING
+Plan: 1 of 7
+Status: Executing Phase 02
+Last activity: 2026-05-31 -- Phase 02 execution started
 
 Progress: [░░░░░░░░░░] 0%
 
