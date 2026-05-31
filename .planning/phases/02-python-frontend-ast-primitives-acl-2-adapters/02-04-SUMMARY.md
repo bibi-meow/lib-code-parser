@@ -131,6 +131,6 @@ After (D-12 β): `entries: list[ContractEntry]` + 3× `@computed_field` helpers.
 - [x] D-13 mixed case auto-supported
 - [x] TRC-02 / TRC-03 docstring conventions established
 
-## Self-Check
+## Self-Check: PASSED
 
-(appended below after verification)
+All created/modified files exist on disk; both task commits (0c1c06e, a4181d8) present in git log.
