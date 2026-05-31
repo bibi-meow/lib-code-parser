@@ -13,7 +13,7 @@ lib-code-parser v0.2.0 extends the shipped v0.1.0 AST baseline (commit `cf7e7ec`
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Architecture Foundation + Spec Correction** - Lock every cross-cutting contract (CAV, EdgeKind, schema compat layer, subprocess determinism, dispatch table, ACL-2/callgraph.py spec fix, Apache-2.0 license) before any extractor code is written; SP-3 libclang feasibility spike (completed 2026-05-25)
-- [ ] **Phase 2: Python Frontend + AST Primitives + ACL-2 Adapters** - Build the Python Frontend (one parse per file producing CAV), the four pure-CAV aspect extractors (functions / call graph / type deps / contracts) and the `pyright` subprocess adapter with full canonicalization
+- [x] **Phase 2: Python Frontend + AST Primitives + ACL-2 Adapters** - Build the Python Frontend (one parse per file producing CAV), the four pure-CAV aspect extractors (functions / call graph / type deps / contracts) and the `pyright` subprocess adapter with full canonicalization (completed 2026-05-31)
 - [ ] **Phase 3: Python Diagram + Spec Extractors** - Emit five `lib-diagram-parser`-compatible diagrams (class / sequence / component / package / state) and function/class spec extractors from Python source; SP-1 (general control flow → state) and SP-2 (sequence branch fidelity) spikes
 - [ ] **Phase 4: C++ Frontend + C++ Extractors** - Bring up libclang-based C++ Frontend behind the locked CAV boundary, produce schema-parity output for AST primitives, diagrams, and Doxygen-driven specs; platform matrix incl. macOS arm64 best-effort
 - [ ] **Phase 5: Cross-Cutting Integration + Acceptance** - Snapshot determinism test, cross-lib schema compatibility test against `lib-diagram-parser`, full CI mandatory + best-effort matrices, README platform compat table, v0.2.0 release
@@ -98,7 +98,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Architecture Foundation + Spec Correction | 10/10 | Complete   | 2026-05-25 |
-| 2. Python Frontend + AST Primitives + ACL-2 Adapters | 6/7 | In Progress|  |
+| 2. Python Frontend + AST Primitives + ACL-2 Adapters | 7/7 | Complete   | 2026-05-31 |
 | 3. Python Diagram + Spec Extractors | 0/TBD | Not started | - |
 | 4. C++ Frontend + C++ Extractors | 0/TBD | Not started | - |
 | 5. Cross-Cutting Integration + Acceptance | 0/TBD | Not started | - |

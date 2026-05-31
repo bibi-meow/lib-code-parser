@@ -18,10 +18,10 @@
 
 ### AST primitives (5)
 
-- [ ] **AST-01**: Caller can extract function/method/class nodes (`FunctionNode`) with `kind`, `params`, `return_type`, `docstring`, `trace_tags`, `source_range` from Python source
-- [ ] **AST-02**: Caller can extract a deterministic `CallGraph` (nodes + caller→callee edges) from Python source via the lib's internal extractor — no GPL deps, no external subprocess
+- [x] **AST-01**: Caller can extract function/method/class nodes (`FunctionNode`) with `kind`, `params`, `return_type`, `docstring`, `trace_tags`, `source_range` from Python source
+- [x] **AST-02**: Caller can extract a deterministic `CallGraph` (nodes + caller→callee edges) from Python source via the lib's internal extractor — no GPL deps, no external subprocess
 - [x] **AST-03**: Caller can extract type-resolved `TypeDep` list from Python source via `pyright` subprocess wrapper (handles import statements + annotation types)
-- [ ] **AST-04**: Caller can extract `ContractInfo` distinguishing Pydantic v2 validator decorators (`field_validator` / `model_validator` / `validator`) from `dataclass.__post_init__` blocks (separate `source_kind` discriminator)
+- [x] **AST-04**: Caller can extract `ContractInfo` distinguishing Pydantic v2 validator decorators (`field_validator` / `model_validator` / `validator`) from `dataclass.__post_init__` blocks (separate `source_kind` discriminator)
 - [x] **AST-05**: All AST primitive extractors operate on a single Common AST View (CAV) — file is parsed once per `execute()` call, not four times
 
 ### Diagram extractors (7)
