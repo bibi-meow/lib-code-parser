@@ -1,5 +1,5 @@
 ---
-status: partial
+status: resolved
 phase: 02-python-frontend-ast-primitives-acl-2-adapters
 source: [02-VERIFICATION.md, 02-REVIEW.md]
 started: 2026-05-31T00:00:00Z
@@ -8,7 +8,7 @@ updated: 2026-05-31T00:00:00Z
 
 ## Current Test
 
-[awaiting human decision on CR-01 determinism policy]
+[resolved — CR-01 fixed via resolve_imports gate (Option B), plan 02-08]
 
 ## Tests
 
@@ -22,14 +22,16 @@ expected: `type_deps.extract()` の import 解決方針が PROJECT.md の HARD c
 - (A) 現状承認 — D-06 fail-loudly + `PYRIGHT_PYTHON_FORCE_VERSION=1.1.409` 固定で「条件付き決定論」として受け入れる。コード変更なし。
 - (B) Fix (gap closure) — `ParserConfig` に `resolve_imports: bool = False` を追加し、未設定時は pyright を起動せず AST-only で `resolved=True` 既定を返す。CR-01 / verifier 両者の推奨。additive・後方互換。
 
-result: [pending]
+result: resolved (Option B applied)
+
+ユーザーが Option B を承認し、plan 02-08 で gap closure を実装した。`ParserConfig.resolve_imports: bool = False` を additive field として追加し、`type_deps.extract()` をゲート化した。デフォルト経路 (`resolve_imports=False`) は pyright/subprocess を一切起動せず AST-only で `resolved=True` を返すため、`execute()` は `(raw_content, path, config)` の純粋関数に復帰した。opt-in 経路 (`resolve_imports=True`) は従来の RESEARCH §2.3 pyright-hybrid (D-06 fail-loudly) を維持。フルスイート 241 passed / 0 failed / 0 skipped、ruff clean。
 
 ## Summary
 
 total: 1
-passed: 0
+passed: 1
 issues: 0
-pending: 1
+pending: 0
 skipped: 0
 blocked: 0
 

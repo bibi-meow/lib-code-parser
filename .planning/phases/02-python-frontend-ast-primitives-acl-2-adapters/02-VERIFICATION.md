@@ -1,14 +1,26 @@
 ---
 phase: 02-python-frontend-ast-primitives-acl-2-adapters
 verified: 2026-05-31T00:00:00Z
-status: human_needed
+status: passed
 score: 8/8 must-haves verified
 overrides_applied: 0
 human_verification:
   - test: "CR-01 の resolve_imports ゲートなし設計がプロジェクト制約と整合するか人間判断を要求する"
     expected: "AST-03 要件の定義と PROJECT.md の決定論性制約が CR-01 に記された懸念を明示的に許容しているか確認"
     why_human: "CR-01 は設計上の意図的トレードオフとして記録された (D-06 fail-loudly + CONTEXT.md §G-2) が、PROJECT.md の 'LLM/network/clock/動的解析を一切使わない' という決定論性ハード制約との整合性は人間が最終判断すべき境界線にある"
+    resolution: "RESOLVED — ユーザーが Option B を承認し、plan 02-08 で resolve_imports ゲートを実装。デフォルト execute() 経路は pyright/subprocess なしの純粋関数に復帰。opt-in (resolve_imports=True) のみ pyright-hybrid。241 passed / ruff clean。"
 ---
+
+> **CR-01 RESOLVED (2026-05-31, plan 02-08):** 本レポートの唯一の human-needed 項目
+> (CR-01) は gap closure 済み。`ParserConfig.resolve_imports: bool = False` を
+> additive field として追加し、`type_deps.extract()` のデフォルト経路を
+> pyright/subprocess なしの AST-only 純粋経路 (`resolved=True` 既定) に変更した。
+> これにより `execute()` は PROJECT.md HARD constraint「出力は
+> `(raw_content, path, config)` の純粋関数」に復帰した。pyright-hybrid 解決
+> オラクル (D-06 fail-loudly) は `resolve_imports=True` の明示 opt-in 経路でのみ
+> 起動する。フルスイート 241 passed / 0 failed / 0 skipped、ruff clean。詳細は
+> `02-08-cr01-resolve-imports-gate-SUMMARY.md` を参照。ステータスを human_needed
+> → passed に更新。
 
 # フェーズ 2: Python Frontend + AST Primitives + ACL-2 Adapters 検証レポート
 
