@@ -69,11 +69,24 @@ def _collect_annotation_deps(
 def extract(cav: CAV, config: ParserConfig) -> list[TypeDep]:
     """AST-03 / AST-05 / DET-03 / DET-04: emit type_deps list from cav.
 
-    Algorithm (RESEARCH §2.3 hybrid):
+    Two paths, gated by ``config.resolve_imports`` (CR-01, Option B):
+
+    DEFAULT (``resolve_imports=False``) — PURE / deterministic:
         1. stdlib ast walk -> raw TypeDeps (v0.1.0 parity + source_line tracking)
+        2. emit each TypeDep with the optimistic default ``resolved=True``
+        3. sort by (source, target, kind, source_line) — DET-04
+        No subprocess, no network, no environment dependence; never raises on
+        missing pyright. This restores the PROJECT.md HARD constraint that
+        execute() is a pure function of (raw_content, path, config).
+
+    OPT-IN (``resolve_imports=True``) — RESEARCH §2.3 pyright-hybrid:
+        1. stdlib ast walk -> raw TypeDeps
         2. PyrightAdapter.analyze(cav.raw_content, cav.path) -> diagnostics
         3. annotate resolved=False for source_line in reportMissingImports range
         4. sort by (source, target, kind, source_line) — DET-04
+        D-06 fail-loudly: PyrightAdapter RuntimeError propagates. This path is
+        environment-dependent (pyright must be installed) and is therefore
+        opt-in only — the verifier's Layer M bisimulation enables it explicitly.
     """
     tree = cav.payload
     assert isinstance(tree, ast.Module), (
@@ -125,6 +138,12 @@ def extract(cav: CAV, config: ParserConfig) -> list[TypeDep]:
                     node.returns.lineno,
                     raw_deps,
                 )
+
+    # DEFAULT pure path (CR-01 Option B): no pyright. resolved stays at the
+    # optimistic TypeDep default (True); deterministic DET-04 sort only.
+    if not config.resolve_imports:
+        raw_deps.sort(key=lambda d: (d.source, d.target, d.kind, d.source_line))
+        return raw_deps
 
     # Step 2: pyright diagnostics — fail-loudly per D-06 (RuntimeError propagates)
     adapter = PyrightAdapter(python_version=config.python_version)

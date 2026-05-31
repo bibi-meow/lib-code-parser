@@ -1,37 +1,19 @@
 """FR-03: Type dependency extraction acceptance tests (Phase 2 v0.2.0 form).
 
 Consumes the typed ParserConfig + dispatch-driven executor through the public
-v0.2.0 surface. The type_deps extractor invokes the PyrightAdapter subprocess
-to annotate the `resolved` flag (CONTEXT.md D-07-revised), so the whole module
-is skipped when pyright is not installed (end-to-end acceptance fidelity).
+v0.2.0 surface. CR-01 (Option B): the DEFAULT execute() path is pure & pyright-
+free (``resolve_imports=False``), so these acceptance tests run WITHOUT any
+pyright dependence — all deps carry the optimistic default ``resolved=True``.
+The pyright-hybrid resolution oracle is exercised separately via the opt-in
+``resolve_imports=True`` config (and unit tests with a mocked adapter).
 """
 
 from __future__ import annotations
-
-import subprocess
 
 import pytest
 
 from lib_code_parser import CodeParserExecutor, ParserConfig
 from tests.conftest import EXAMPLE_PATH, EXAMPLE_SOURCE
-
-
-def _has_pyright() -> bool:
-    try:
-        subprocess.run(
-            ["pyright", "--version"],
-            capture_output=True,
-            timeout=30.0,
-            check=False,
-        )
-        return True
-    except (FileNotFoundError, subprocess.TimeoutExpired):
-        return False
-
-
-pytestmark = pytest.mark.skipif(
-    not _has_pyright(), reason="pyright not installed (type_deps extractor requires it)"
-)
 
 
 def _type_deps(source: str, path: str):
@@ -78,7 +60,8 @@ class TestResolvedFlag:
             assert isinstance(d.resolved, bool)
 
     def test_clean_source_all_resolved(self, example_deps) -> None:
-        """Clean source (pydantic / typing installed) resolves all imports."""
+        """Default path (resolve_imports=False): every dep is optimistically
+        resolved=True (no pyright invoked)."""
         assert all(d.resolved for d in example_deps)
 
 
