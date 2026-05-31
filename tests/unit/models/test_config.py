@@ -66,3 +66,21 @@ def test_parser_config_language_literal() -> None:
 def test_parser_config_no_params_dict_field() -> None:
     """ARC-05 hard gate: the v0.1.0 untyped `params: dict[str, object]` field must be ABSENT."""
     assert "params" not in ParserConfig.model_fields
+
+
+def test_parser_config_resolve_imports_default_false() -> None:
+    """CR-01 (Option B): resolve_imports is an additive field defaulting to False,
+    so the default execute() path is pure & pyright-free (deterministic).
+    """
+    cfg = ParserConfig(artifact_type="code", executor_lib="lib_code_parser")
+    assert cfg.resolve_imports is False
+
+
+def test_parser_config_resolve_imports_opt_in() -> None:
+    """resolve_imports=True opts into the pyright-hybrid resolution oracle."""
+    cfg = ParserConfig(
+        artifact_type="code",
+        executor_lib="lib_code_parser",
+        resolve_imports=True,
+    )
+    assert cfg.resolve_imports is True

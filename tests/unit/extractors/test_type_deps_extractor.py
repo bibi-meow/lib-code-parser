@@ -22,7 +22,12 @@ from lib_code_parser.extractors.primitives.type_deps import extract
 from lib_code_parser.models.infrastructure.cav import CAV
 from lib_code_parser.models.infrastructure.config import ParserConfig
 
+# Default config (resolve_imports=False) -> pure AST-only path, no pyright.
 _CONFIG = ParserConfig(artifact_type="code", executor_lib="lib_code_parser")
+# Opt-in config (resolve_imports=True) -> RESEARCH §2.3 pyright-hybrid path.
+_CONFIG_RESOLVE = ParserConfig(
+    artifact_type="code", executor_lib="lib_code_parser", resolve_imports=True
+)
 
 
 def _build_cav(source: str, path: str = "m.py") -> CAV:
@@ -115,7 +120,7 @@ def test_extract_marks_unresolved_when_pyright_diagnostic_fires(
     )
     _patch_pyright(monkeypatch, _MockPyright(output=out))
     cav = _build_cav("import nonexistent_pkg\n")
-    deps = extract(cav, _CONFIG)
+    deps = extract(cav, _CONFIG_RESOLVE)
     assert len(deps) == 1
     assert deps[0].resolved is False
 
@@ -138,7 +143,7 @@ def test_extract_keeps_resolved_when_diagnostic_is_different_rule(
     )
     _patch_pyright(monkeypatch, _MockPyright(output=out))
     cav = _build_cav("import os\n")
-    deps = extract(cav, _CONFIG)
+    deps = extract(cav, _CONFIG_RESOLVE)
     assert deps[0].resolved is True
 
 
@@ -157,7 +162,7 @@ def test_extract_pyright_runtime_error_propagates(monkeypatch: pytest.MonkeyPatc
     _patch_pyright(monkeypatch, _MockPyright(exc=RuntimeError("pyright timed out")))
     cav = _build_cav("import os\n")
     with pytest.raises(RuntimeError, match="pyright timed out"):
-        extract(cav, _CONFIG)
+        extract(cav, _CONFIG_RESOLVE)
 
 
 def test_extract_isolated_import_no_executor(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -174,3 +179,83 @@ def test_extract_isolated_import_no_executor(monkeypatch: pytest.MonkeyPatch) ->
         text = fh.read()
     assert "from lib_code_parser.executor" not in text
     assert "import lib_code_parser.executor" not in text
+
+
+# --- CR-01 (Option B): resolve_imports gate — pure default path ---------------
+
+
+def test_default_path_never_constructs_pyright(monkeypatch: pytest.MonkeyPatch) -> None:
+    """CR-01: default ParserConfig (resolve_imports=False) must NOT construct
+    PyrightAdapter at all — the execute() path stays pure & subprocess-free.
+    """
+    constructed: list[bool] = []
+
+    def _boom(**kw: object) -> object:
+        constructed.append(True)
+        raise AssertionError("PyrightAdapter must not be constructed on default path")
+
+    monkeypatch.setattr(
+        "lib_code_parser.extractors.primitives.type_deps.PyrightAdapter",
+        _boom,
+    )
+    cav = _build_cav("import os\nimport nonexistent_xyz\n")
+    deps = extract(cav, _CONFIG)
+    assert constructed == []
+    # All deps optimistically resolved=True on the deterministic default path.
+    assert len(deps) == 2
+    assert all(d.resolved is True for d in deps)
+
+
+def test_default_path_never_raises_when_pyright_unavailable(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """CR-01: even if PyrightAdapter would raise (pyright absent), the default
+    path must never reach it — no RuntimeError, deterministic output.
+    """
+
+    def _raise(**kw: object) -> object:
+        raise RuntimeError("pyright executable not found")
+
+    monkeypatch.setattr(
+        "lib_code_parser.extractors.primitives.type_deps.PyrightAdapter",
+        _raise,
+    )
+    cav = _build_cav("import os\n")
+    deps = extract(cav, _CONFIG)  # must not raise
+    assert len(deps) == 1
+    assert deps[0].resolved is True
+
+
+def test_default_path_still_sorted_and_deduped_shape(monkeypatch: pytest.MonkeyPatch) -> None:
+    """CR-01: default path keeps DET-04 sort identical to the opt-in path."""
+
+    def _boom(**kw: object) -> object:
+        raise AssertionError("PyrightAdapter must not be constructed on default path")
+
+    monkeypatch.setattr(
+        "lib_code_parser.extractors.primitives.type_deps.PyrightAdapter",
+        _boom,
+    )
+    cav = _build_cav("import zlib\nimport abc\nfrom os import path\n")
+    deps = extract(cav, _CONFIG)
+    keys = [(d.source, d.target, d.kind, d.source_line) for d in deps]
+    assert keys == sorted(keys)
+
+
+def test_opt_in_path_constructs_pyright(monkeypatch: pytest.MonkeyPatch) -> None:
+    """CR-01: resolve_imports=True keeps the pyright-hybrid path (adapter used)."""
+    used: list[bool] = []
+
+    class _Tracking(_MockPyright):
+        def analyze(self, raw_content: bytes, path: str) -> PyrightOutput:
+            used.append(True)
+            return super().analyze(raw_content, path)
+
+    monkeypatch.setattr(
+        "lib_code_parser.extractors.primitives.type_deps.PyrightAdapter",
+        lambda **kw: _Tracking(),
+    )
+    cav = _build_cav("import os\n")
+    deps = extract(cav, _CONFIG_RESOLVE)
+    assert used == [True]
+    assert deps[0].resolved is True
