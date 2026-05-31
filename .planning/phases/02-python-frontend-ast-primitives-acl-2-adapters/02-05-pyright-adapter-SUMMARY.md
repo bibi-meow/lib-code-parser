@@ -129,6 +129,14 @@ The implementation followed the plan's RESEARCH §Code Examples §例 2 template
 
 None. PyrightAdapter is fully wired: `analyze()` runs real pyright, `parse_output()` extracts real diagnostics. The deferred `__init__.py` barrel re-export is an intentional cross-plan boundary (Plan 02-07 owns it), not a stub.
 
-## Self-Check
+## Self-Check: PASSED
 
-(appended below)
+Created files verified present in worktree:
+- FOUND: lib_code_parser/adapters/pyright.py
+- FOUND: tests/unit/test_pyright_adapter.py
+- FOUND: .planning/phases/02-python-frontend-ast-primitives-acl-2-adapters/02-05-pyright-adapter-SUMMARY.md
+
+Commits verified present:
+- FOUND: 4fdc5fa (test RED gate)
+- FOUND: 5d9a0c4 (feat GREEN gate)
+- FOUND: a94955c (docs SUMMARY)
