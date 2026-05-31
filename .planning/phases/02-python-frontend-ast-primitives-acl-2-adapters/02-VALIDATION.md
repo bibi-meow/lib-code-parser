@@ -1,10 +1,12 @@
 ---
 phase: 2
 slug: python-frontend-ast-primitives-acl-2-adapters
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: approved
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-05-31
+approved: 2026-05-31
+plan_checker_verdict: PASS-WITH-CONCERNS
 ---
 
 # Phase 2 — Validation Strategy
@@ -87,4 +89,13 @@ created: 2026-05-31
 - [ ] Feedback latency < 30s for quick gate (`pytest tests/parity -x -q`)
 - [ ] `nyquist_compliant: true` set in frontmatter (after gsd-plan-checker pass)
 
-**Approval:** pending (planner が PLAN.md 完成後に gsd-plan-checker による Nyquist gate を pass させ、 ここを `approved YYYY-MM-DD` に更新する)
+**Approval:** approved 2026-05-31
+
+**Wave 0 timing note (plan-checker C5):** 3 of the 6 Wave 0 files (`test_trc_02_docstring.py`, `test_snapshot_v01_fixture.py`, `v01_snapshot.json`) are necessarily created in Wave 3 (Plan 02-07) rather than literally before Wave 1, because they depend on (a) all extractor modules existing (TRC-02 grep needs targets) and (b) the executor running end-to-end with pyright (snapshot fixture is regression baseline). The "Wave 0" classification in this template means "test infrastructure not present in the v0.1.0 baseline" rather than literal pre-Wave-1 timing. Sequencing is correct per goal-backward analysis.
+
+**Plan-checker concerns recorded (non-blocking, agent-autonomous to resolve during execution):**
+- C1/C2: Plan 02-06 Task 3 and Plan 02-07 Task 1 bundle multiple sub-changes per task; executor will commit as a single atomic unit per task as designed
+- C3: Plan 02-03 Task 2 action narrative mentions `tests/unit/extractors/__init__.py` creation but Plan 02-02 owns the file per frontmatter; executor reads frontmatter as authoritative
+- C4: Plan 02-06 Task 2 line-indexing (pyright 1-based → TypeDep 1-based) is internally consistent but couples to pyright 1.1.409 schema; regression test recommended at execute time
+- C6: Plan 02-04 Task 1 ContractInfo restructure verified by dedicated `python -c` lazy-import check
+- C7: Plan 02-06 Task 3 executor `if name == "..."` slot routing is a soft Open-Closed #6 violation rationalized by typed CodeContent slots; docs/09-extending.md formalization deferred to Phase 3
