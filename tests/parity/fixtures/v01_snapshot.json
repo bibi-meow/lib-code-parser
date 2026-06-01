@@ -418,6 +418,33 @@
         ],
         "postconditions": []
       }
-    }
+    },
+    "class_diagram": {
+      "nodes": [],
+      "edges": [],
+      "guards": []
+    },
+    "sequence_diagram": {
+      "nodes": [],
+      "edges": [],
+      "guards": []
+    },
+    "component_diagram": {
+      "nodes": [],
+      "edges": [],
+      "guards": []
+    },
+    "package_diagram": {
+      "nodes": [],
+      "edges": [],
+      "guards": []
+    },
+    "state_diagram": {
+      "nodes": [],
+      "edges": [],
+      "guards": []
+    },
+    "function_spec": [],
+    "class_spec": []
   }
 }
