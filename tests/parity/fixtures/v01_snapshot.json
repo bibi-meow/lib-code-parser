@@ -447,8 +447,108 @@
       "guards": []
     },
     "sequence_diagram": {
-      "nodes": [],
-      "edges": [],
+      "nodes": [
+        {
+          "node_id": "ValueError",
+          "node_type": "participant",
+          "label": "ValueError",
+          "attributes": {}
+        },
+        {
+          "node_id": "_calculate_total",
+          "node_type": "participant",
+          "label": "_calculate_total",
+          "attributes": {}
+        },
+        {
+          "node_id": "len",
+          "node_type": "participant",
+          "label": "len",
+          "attributes": {}
+        },
+        {
+          "node_id": "order_service.OrderModel",
+          "node_type": "participant",
+          "label": "order_service.OrderModel",
+          "attributes": {}
+        },
+        {
+          "node_id": "order_service.OrderModel.check_total",
+          "node_type": "participant",
+          "label": "order_service.OrderModel.check_total",
+          "attributes": {}
+        },
+        {
+          "node_id": "order_service.OrderModel.validate_status",
+          "node_type": "participant",
+          "label": "order_service.OrderModel.validate_status",
+          "attributes": {}
+        },
+        {
+          "node_id": "order_service.OrderService",
+          "node_type": "participant",
+          "label": "order_service.OrderService",
+          "attributes": {}
+        },
+        {
+          "node_id": "order_service.OrderService._calculate_total",
+          "node_type": "participant",
+          "label": "order_service.OrderService._calculate_total",
+          "attributes": {}
+        },
+        {
+          "node_id": "order_service.OrderService.cancel_order",
+          "node_type": "participant",
+          "label": "order_service.OrderService.cancel_order",
+          "attributes": {}
+        },
+        {
+          "node_id": "order_service.OrderService.create_order",
+          "node_type": "participant",
+          "label": "order_service.OrderService.create_order",
+          "attributes": {}
+        },
+        {
+          "node_id": "order_service.process_payment",
+          "node_type": "participant",
+          "label": "order_service.process_payment",
+          "attributes": {}
+        }
+      ],
+      "edges": [
+        {
+          "source": "order_service.OrderModel.check_total",
+          "target": "ValueError",
+          "edge_type": "calls",
+          "label": "alt",
+          "physical_module": null,
+          "source_unresolved": false
+        },
+        {
+          "source": "order_service.OrderModel.validate_status",
+          "target": "ValueError",
+          "edge_type": "calls",
+          "label": "alt",
+          "physical_module": null,
+          "source_unresolved": false
+        },
+        {
+          "source": "order_service.OrderService._calculate_total",
+          "target": "len",
+          "edge_type": "calls",
+          "label": "",
+          "physical_module": null,
+          "source_unresolved": false
+        },
+        {
+          "source": "order_service.OrderService.create_order",
+          "target": "_calculate_total",
+          "edge_type": "calls",
+          "label": "",
+          "physical_module": null,
+          "source_unresolved": false
+        }
+      ],
       "guards": []
     },
     "component_diagram": {

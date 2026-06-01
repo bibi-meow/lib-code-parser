@@ -73,8 +73,12 @@ from lib_code_parser.extractors.evaluations.component_diagram import (  # noqa: 
 from lib_code_parser.extractors.evaluations.package_diagram import (  # noqa: E402
     extract as _extract_package_diagram,
 )
+from lib_code_parser.extractors.evaluations.sequence_diagram import (  # noqa: E402
+    extract as _extract_sequence_diagram,
+)
 
 EVALUATIONS["class_diagram"] = _extract_class_diagram
+EVALUATIONS["sequence_diagram"] = _extract_sequence_diagram
 EVALUATIONS["component_diagram"] = _extract_component_diagram
 EVALUATIONS["package_diagram"] = _extract_package_diagram
 

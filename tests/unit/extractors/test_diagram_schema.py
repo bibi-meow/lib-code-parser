@@ -112,6 +112,22 @@ class TestDia07RealOutputs:
         model = extract(_cav(_DIA_SOURCE, _DIA_PATH), _config())
         assert_valid_graphmodel(model)
 
+    def test_sequence_diagram_output_valid(self) -> None:
+        from lib_code_parser.extractors.evaluations.sequence_diagram import extract
+
+        # Source with calls + control-flow frames so the sequence output has
+        # both `calls` edges and alt/loop/par labels to validate.
+        seq_source = (
+            "def f(items):\n"
+            "    setup()\n"
+            "    if items:\n"
+            "        notify()\n"
+            "    for it in items:\n"
+            "        handle(it)\n"
+        )
+        model = extract(_cav(seq_source, "src/pkg/seq.py"), _config())
+        assert_valid_graphmodel(model)
+
     def test_all_edges_use_closed_edgekinds(self) -> None:
         from lib_code_parser.extractors.evaluations.class_diagram import (
             extract as class_extract,
