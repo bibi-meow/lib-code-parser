@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import pathlib
 
-from lib_code_parser._dispatch import FRONTENDS, PRIMITIVES
+from lib_code_parser._dispatch import EVALUATIONS, FRONTENDS, PRIMITIVES
 from lib_code_parser.models.infrastructure.artifact import (
     ArtifactId,
     CodeContent,
@@ -47,7 +47,16 @@ class CodeParserExecutor:
               |
             ContractInfo merger -> FunctionNode.contracts
               |
+            for each evaluation in EVALUATIONS -> eval(cav, config) -> setattr CodeContent slot
+              |
             NormalizedArtifact[CodeContent]
+
+        EVALUATIONS gating (invariant #6): run-all-registered. ParserConfig
+        exposes no per-evaluation enable flag, so every registered evaluation
+        runs unconditionally and its result is set into the same-named
+        CodeContent slot. Adding a future evaluation needs ONLY a _dispatch.py
+        registration — this executor body never changes. EVALUATIONS is empty
+        until Plans 02-06 register the 5 diagrams + 2 specs.
 
         Disabled / C++ extension early returns preserve v0.1.0 parity.
         """
@@ -98,13 +107,21 @@ class CodeParserExecutor:
             if fn.node_id in contracts_dict:
                 fn.contracts = contracts_dict[fn.node_id]
 
+        content = CodeContent(
+            functions=functions,
+            call_graph=call_graph,
+            type_deps=type_deps,
+            contracts=contracts_dict,
+        )
+
+        # EVALUATIONS walk (invariant #6, run-all-registered): each registered
+        # evaluation produces its slot value, set by matching name. Empty today;
+        # Plans 02-06 append the 5 diagrams + 2 specs append-only.
+        for name, eval_fn in EVALUATIONS.items():
+            setattr(content, name, eval_fn(cav, config))
+
         return NormalizedArtifact[CodeContent](
             artifact_id=ArtifactId(path=path),
             artifact_type="code",
-            content=CodeContent(
-                functions=functions,
-                call_graph=call_graph,
-                type_deps=type_deps,
-                contracts=contracts_dict,
-            ),
+            content=content,
         )

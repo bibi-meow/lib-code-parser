@@ -16,10 +16,23 @@ if TYPE_CHECKING:  # pragma: no cover — forward-ref carriers
     # Imports referenced only by string annotations on CodeContent fields.
     # Plan 04 owns the primitives subpackage; using TYPE_CHECKING avoids a
     # hard import-time dependency on Plan 04 so Plan 03 can ship independently.
+    from lib_code_parser.models.evaluations.graph_base import GraphModel
+    from lib_code_parser.models.evaluations.spec import ClassSpec, FunctionSpec
     from lib_code_parser.models.primitives.callgraph import CallGraph
     from lib_code_parser.models.primitives.contracts import ContractInfo
     from lib_code_parser.models.primitives.functions import FunctionNode
     from lib_code_parser.models.primitives.type_deps import TypeDep
+
+
+def _empty_graph_model() -> object:
+    """Default factory for CodeContent diagram slots — an inert empty GraphModel.
+
+    Imported lazily so the infrastructure layer does not force the evaluations
+    layer at module-import time (mirrors ``_lazy_callgraph_default``).
+    """
+    from lib_code_parser.models.evaluations.graph_base import GraphModel
+
+    return GraphModel()
 
 
 TContent = TypeVar("TContent", bound=BaseModel)
@@ -69,6 +82,19 @@ class CodeContent(BaseModel):
     type_deps: list["TypeDep"] = Field(default_factory=list)
     contracts: dict[str, "ContractInfo"] = Field(default_factory=dict)
 
+    # Phase 3 additive evaluation slots (invariant #3). Slot KEY names equal the
+    # _dispatch.EVALUATIONS dict keys so the executor can ``setattr(content,
+    # name, ...)`` dict-driven. All defaults are inert (empty GraphModel /
+    # empty list) so CodeContent() with no args still constructs and v0.1.0
+    # callers are unaffected. Plans 02-06 register the EVALUATIONS that fill them.
+    class_diagram: "GraphModel" = Field(default_factory=_empty_graph_model)
+    sequence_diagram: "GraphModel" = Field(default_factory=_empty_graph_model)
+    component_diagram: "GraphModel" = Field(default_factory=_empty_graph_model)
+    package_diagram: "GraphModel" = Field(default_factory=_empty_graph_model)
+    state_diagram: "GraphModel" = Field(default_factory=_empty_graph_model)
+    function_spec: list["FunctionSpec"] = Field(default_factory=list)
+    class_spec: list["ClassSpec"] = Field(default_factory=list)
+
 
 class NormalizedArtifact(BaseModel, Generic[TContent]):
     """Generic envelope for parsed artifacts.
@@ -107,5 +133,13 @@ except ImportError:
         FunctionNode,
         TypeDep,
     )
+
+# Phase 3 evaluation slot forward refs — the evaluations layer always ships
+# alongside infrastructure (no separate-plan ordering concern post-Phase-2).
+from lib_code_parser.models.evaluations.graph_base import GraphModel  # noqa: E402, F401
+from lib_code_parser.models.evaluations.spec import (  # noqa: E402, F401
+    ClassSpec,
+    FunctionSpec,
+)
 
 CodeContent.model_rebuild()
