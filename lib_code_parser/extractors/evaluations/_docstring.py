@@ -79,16 +79,27 @@ def _detect_dialect(lines: list[str]) -> Dialect:
 
 
 def _summary(lines: list[str]) -> str:
-    """Leading prose before the first blank line / section header."""
+    """Leading prose before the first blank line / section header.
+
+    CR-05: skip LEADING blank lines first (a triple-quoted docstring whose
+    text starts on the second line begins with an empty ``splitlines()``
+    entry). Stop at the first blank line AFTER prose has started, or at a
+    section header. Previously the very first blank line broke immediately,
+    dropping the summary for every dialect.
+    """
     collected: list[str] = []
+    started = False
     for line in lines:
         stripped = line.strip()
         if not stripped:
-            break
+            if started:
+                break
+            continue  # skip leading blank lines
         if _GOOGLE_HEADER_RE.match(stripped) or _NUMPY_HEADER_RE.match(line):
             break
         if _SPHINX_FIELD_RE.match(line):
             break
+        started = True
         collected.append(stripped)
     return " ".join(collected).strip()
 

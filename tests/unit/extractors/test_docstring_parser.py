@@ -113,6 +113,25 @@ class TestPrePostHeuristic:
         assert gpo == npo == spo
 
 
+class TestCR05LeadingBlankSummary:
+    """CR-05: a docstring whose prose begins after a leading blank line must
+    still produce a summary section in every dialect (previously dropped)."""
+
+    def test_google_leading_blank_keeps_summary(self) -> None:
+        doc = "\nThis function does X.\n\nArgs:\n    x: value\n"
+        sections, _, _ = parse(doc)
+        summaries = [s for s in sections if s.kind == "summary"]
+        assert len(summaries) == 1
+        assert summaries[0].text == "This function does X."
+
+    def test_numpy_leading_blank_keeps_summary(self) -> None:
+        doc = "\nThis function does X.\n\nParameters\n----------\nx : int\n    value\n"
+        sections, _, _ = parse(doc)
+        summaries = [s for s in sections if s.kind == "summary"]
+        assert len(summaries) == 1
+        assert summaries[0].text == "This function does X."
+
+
 class TestEdgeCases:
     """Empty / unstructured docstrings."""
 
