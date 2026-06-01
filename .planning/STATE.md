@@ -4,13 +4,13 @@ milestone: v0.1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 3 context gathered
-last_updated: "2026-06-01T17:26:43.888Z"
+last_updated: "2026-06-01T17:38:41.541Z"
 last_activity: 2026-06-01
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 23
-  completed_plans: 20
+  completed_plans: 21
   percent: 40
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-05-24)
 ## Current Position
 
 Phase: 03 (python-diagram-spec-extractors) — EXECUTING
-Plan: 3 of 6
+Plan: 4 of 6
 Status: Ready to execute
 Last activity: 2026-06-01
 
-Progress: [█████████░] 87%
+Progress: [█████████░] 91%
 
 ## Performance Metrics
 
@@ -57,6 +57,7 @@ Progress: [█████████░] 87%
 | Phase 02 P07 | 25 | 3 tasks | 20 files |
 | Phase 03 P01 | 6 | 4 tasks | 11 files |
 | Phase 03 P02 | 14 | 2 tasks | 15 files |
+| Phase 03 P03 | 12 | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -78,6 +79,9 @@ Recent decisions affecting current work:
 - Phase 3 Plan 02: DIA-04 package containment via GraphNode.attributes['parent_package'] confirmed sufficient — NO 'contains' EdgeKind added, graph_base.py untouched this plan; DIA-04 completed entirely in-lib (no sibling-lib PR dependency)
 - Phase 3 Plan 02: DIA-01 known-class resolution is structural (module ClassDefs + imported class-like names); unknown annotation names → associates fallback, never a 'uses'/fabricated edge (T-03-03); Optional/X|None/container of known class → aggregates, direct known class → composes, builtins skipped
 - Phase 3 Plan 02: D-03 edges keep this lib's own vocabulary (inherits/composes/aggregates/associates/imports), NOT renamed to sibling lib-diagram-parser spelling — verifier resolves the physical↔logical gap
+- [Phase ?]: Phase 3 Plan 03: SP-2 verdict = SHIP (D-08) — sequence branch fidelity (alt/loop/par) is a deterministic pure-AST rule; ships in v0.2.0, DIA-02-FULL NOT created
+- [Phase ?]: Phase 3 Plan 03: DIA-02 branch frames encoded on GraphEdge.label (alt/loop/par) — no new EdgeKind, edge_type stays 'calls'; label is part of the DET-04 sort key; deepest-frame-wins, awaited call always 'par'
+- [Phase ?]: Phase 3 Plan 03: DIA-02 participants inherit Phase 2 callgraph representation verbatim; Phase 2 deferred CallGraph resolution expansion re-evaluated and NOT needed for linear correctness
 
 ### Pending Todos
 
@@ -98,6 +102,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-01T17:26:43.876Z
+Last session: 2026-06-01T17:38:05.021Z
 Stopped at: Phase 3 context gathered
 Resume file: None

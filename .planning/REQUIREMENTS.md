@@ -27,7 +27,7 @@
 ### Diagram extractors (7)
 
 - [x] **DIA-01**: Caller can extract class diagram (class nodes + inheritance + composition/aggregation/association edges; composition vs aggregation via type-annotation rule, `association` fallback when undecidable)
-- [ ] **DIA-02**: Caller can extract sequence diagram with linear call flow from call graph (branch fidelity `alt`/`loop`/`par` is SP-2 spike — falls back to v2 if spike fails)
+- [x] **DIA-02**: Caller can extract sequence diagram with linear call flow from call graph (branch fidelity `alt`/`loop`/`par` is SP-2 spike — falls back to v2 if spike fails)
 - [x] **DIA-03**: Caller can extract component diagram (file/module-level component nodes + import-derived dependency edges)
 - [x] **DIA-04**: Caller can extract package diagram (directory/namespace hierarchy with **`node_type="package"`** — multiple packages per project supported; sibling lib `lib-diagram-parser` enum gets new value)
 - [ ] **DIA-05**: Caller can extract state diagram from FSM explicit patterns: (a) library-anchored AST detection for `transitions.Machine(...)` and `python-statemachine.StateMachine`, (b) native `Enum` + transition-method pattern
