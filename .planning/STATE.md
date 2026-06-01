@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v0.1.0
 milestone_name: milestone
-status: executing
+status: verifying
 stopped_at: Phase 3 context gathered
-last_updated: "2026-06-01T18:02:16.971Z"
+last_updated: "2026-06-01T18:12:24.815Z"
 last_activity: 2026-06-01
 progress:
   total_phases: 5
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 23
-  completed_plans: 23
-  percent: 40
+  completed_plans: 24
+  percent: 60
 ---
 
 # Project State
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-05-24)
 
 Phase: 03 (python-diagram-spec-extractors) — EXECUTING
 Plan: 6 of 6
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-06-01
 
 Progress: [██████████] 100%
@@ -60,6 +60,7 @@ Progress: [██████████] 100%
 | Phase 03 P03 | 12 | 2 tasks | 10 files |
 | Phase 03 P04 | 18 | 3 tasks | 12 files |
 | Phase 03 P05 | 6min | 2 tasks | 8 files |
+| Phase 03 P06 | 6min | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -90,6 +91,9 @@ Recent decisions affecting current work:
 - [Phase ?]: D-09 honored: SPC-01 docstring parsing is a stdlib-only internal state machine (Google/NumPy/Sphinx); zero external library, grep gate=0
 - [Phase ?]: Three-dialect equivalence is the SPC-01 determinism contract: same function documented 3 ways -> byte-identical normalized output (golden fixture)
 - [Phase ?]: function_spec registered append-only at canonical EVALUATIONS #6; parity snapshot regenerated (function_spec slot only)
+- [Phase ?]: Phase 3 Plan 06: SPC-04 markers detection-only (D-10) via parameterized import-provenance over (icontract,deal); decoy require() not flagged (T-03-13); lambdas ast.unparse'd never executed (T-03-14)
+- [Phase ?]: Phase 3 Plan 06: class_spec registered final EVALUATIONS #7; all 7 in canonical order; ClassSpec.invariants holds SPC-04 markers only (Phase-2 contracts stay in CodeContent.contracts; frozen contracts.py + shipped spec.py untouched)
+- [Phase ?]: Phase 3 Plan 06: v01 parity snapshot regenerated (class_spec slot [] -> 2 ClassSpec for EXAMPLE_SOURCE); all other slots byte-identical
 
 ### Pending Todos
 
@@ -110,6 +114,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-01T18:01:55.044Z
+Last session: 2026-06-01T18:12:05.715Z
 Stopped at: Phase 3 context gathered
 Resume file: None

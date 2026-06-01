@@ -37,9 +37,9 @@
 ### Spec extractors (4)
 
 - [x] **SPC-01**: Caller can extract function spec (signature + structured docstring + pre/post conditions) from Python source — supports Sphinx Napoleon / Google / NumPy docstring styles
-- [ ] **SPC-02**: Caller can extract class spec (class definition + members + invariants) from Python source
+- [x] **SPC-02**: Caller can extract class spec (class definition + members + invariants) from Python source
 - [ ] **SPC-03**: Caller can extract function/class spec from C++ source via Doxygen `\pre` / `\post` / `\invariant` markers (Python/C++ symmetric output schema)
-- [ ] **SPC-04**: Caller can extract auxiliary Python contract markers from `icontract` / `deal` decorators and PEP-316 `pre:` / `post:` docstring keywords (supplementary to Pydantic / dataclass)
+- [x] **SPC-04**: Caller can extract auxiliary Python contract markers from `icontract` / `deal` decorators and PEP-316 `pre:` / `post:` docstring keywords (supplementary to Pydantic / dataclass)
 
 ### Language support (5)
 

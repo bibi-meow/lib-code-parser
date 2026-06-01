@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
  (completed 2026-05-25)
 - [x] **Phase 2: Python Frontend + AST Primitives + ACL-2 Adapters** - Build the Python Frontend (one parse per file producing CAV), the four pure-CAV aspect extractors (functions / call graph / type deps / contracts) and the `pyright` subprocess adapter with full canonicalization
  (completed 2026-05-31)
-- [ ] **Phase 3: Python Diagram + Spec Extractors** - Emit five `lib-diagram-parser`-compatible diagrams (class / sequence / component / package / state) and function/class spec extractors from Python source; SP-1 (general control flow → state) and SP-2 (sequence branch fidelity) spikes
+- [x] **Phase 3: Python Diagram + Spec Extractors** - Emit five `lib-diagram-parser`-compatible diagrams (class / sequence / component / package / state) and function/class spec extractors from Python source; SP-1 (general control flow → state) and SP-2 (sequence branch fidelity) spikes (completed 2026-06-01)
 - [ ] **Phase 4: C++ Frontend + C++ Extractors** - Bring up libclang-based C++ Frontend behind the locked CAV boundary, produce schema-parity output for AST primitives, diagrams, and Doxygen-driven specs; platform matrix incl. macOS arm64 best-effort
 - [ ] **Phase 5: Cross-Cutting Integration + Acceptance** - Snapshot determinism test, cross-lib schema compatibility test against `lib-diagram-parser`, full CI mandatory + best-effort matrices, README platform compat table, v0.2.0 release
 
@@ -80,7 +80,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   - Wave 4:
     - [x] 03-05-PLAN.md — SPC-01 function spec + stdlib-only Google/NumPy/Sphinx docstring parser
   - Wave 5:
-    - [ ] 03-06-PLAN.md — SPC-02 class spec + SPC-04 icontract/deal/PEP-316 marker detection (final EVALUATIONS entry)
+    - [x] 03-06-PLAN.md — SPC-02 class spec + SPC-04 icontract/deal/PEP-316 marker detection (final EVALUATIONS entry)
 **UI hint**: yes
 
 ### Phase 4: C++ Frontend + C++ Extractors
@@ -113,6 +113,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Architecture Foundation + Spec Correction | 10/10 | Complete   | 2026-05-25 |
 | 2. Python Frontend + AST Primitives + ACL-2 Adapters | 7/7 | Complete   | 2026-05-31 |
-| 3. Python Diagram + Spec Extractors | 5/6 | In Progress|  |
+| 3. Python Diagram + Spec Extractors | 6/6 | Complete   | 2026-06-01 |
 | 4. C++ Frontend + C++ Extractors | 0/TBD | Not started | - |
 | 5. Cross-Cutting Integration + Acceptance | 0/TBD | Not started | - |
