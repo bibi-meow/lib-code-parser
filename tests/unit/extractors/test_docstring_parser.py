@@ -113,6 +113,25 @@ class TestPrePostHeuristic:
         assert gpo == npo == spo
 
 
+class TestWR04GoogleMultiLineParam:
+    """WR-04: Google param descriptions spanning multiple (indented)
+    continuation lines must be captured in full, not truncated to the first
+    line. NumPy already accumulates continuations; Google must match."""
+
+    def test_continuation_lines_joined_into_description(self) -> None:
+        doc = (
+            "Summary.\n\n"
+            "Args:\n"
+            "    x (int): This is a long\n"
+            "        description spanning lines.\n"
+        )
+        sections, _, _ = parse(doc)
+        params = [s for s in sections if s.kind == "params"]
+        assert len(params) == 1
+        assert params[0].name == "x"
+        assert params[0].text == "This is a long description spanning lines."
+
+
 class TestCR05LeadingBlankSummary:
     """CR-05: a docstring whose prose begins after a leading blank line must
     still produce a summary section in every dialect (previously dropped)."""

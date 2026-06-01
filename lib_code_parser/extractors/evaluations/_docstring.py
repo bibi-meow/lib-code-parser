@@ -154,12 +154,33 @@ def _parse_google(lines: list[str]) -> list[DocstringSection]:
 
 
 def _split_google_params(body: list[str]) -> list[tuple[str, str, str]]:
-    """Split a Google Args block into (name, type, desc) — one per parameter."""
+    """Split a Google Args block into (name, type, desc) — one per parameter.
+
+    WR-04: a parameter description may span multiple indented continuation
+    lines; accumulate them into the current entry's text (joined with a single
+    space) until the next ``name (type): ...`` header. Previously only the
+    first line was kept, dropping multi-line descriptions.
+    """
     entries: list[tuple[str, str, str]] = []
+    cur_name: str | None = None
+    cur_type = ""
+    cur_desc: list[str] = []
+
+    def _flush() -> None:
+        if cur_name is not None:
+            entries.append((cur_name, cur_type, " ".join(cur_desc).strip()))
+
     for line in body:
         m = _GOOGLE_PARAM_RE.match(line.strip())
         if m:
-            entries.append((m.group(1), (m.group(2) or "").strip(), m.group(3).strip()))
+            _flush()
+            cur_name = m.group(1)
+            cur_type = (m.group(2) or "").strip()
+            cur_desc = [m.group(3).strip()] if m.group(3).strip() else []
+        elif cur_name is not None and line.strip():
+            # Continuation line of the current parameter's description.
+            cur_desc.append(line.strip())
+    _flush()
     return entries
 
 
