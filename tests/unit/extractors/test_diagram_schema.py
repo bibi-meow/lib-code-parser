@@ -56,6 +56,77 @@ def assert_valid_graphmodel(model: object) -> None:
             )
 
 
+def _cav(source: str, path: str) -> object:
+    import ast
+
+    from lib_code_parser.models.infrastructure.cav import CAV
+
+    return CAV(
+        language="python",
+        path=path,
+        payload=ast.parse(source),
+        raw_content=source.encode("utf-8"),
+    )
+
+
+def _config() -> object:
+    from lib_code_parser.models.infrastructure.config import ParserConfig
+
+    return ParserConfig(artifact_type="code", executor_lib="lib_code_parser")
+
+
+# Source exercising all three Plan 03-02 diagrams at once: imports (component),
+# a directory path (package), and a class hierarchy with relationships (class).
+_DIA_SOURCE = (
+    "from typing import Optional\n"
+    "import os\n"
+    "class Engine:\n"
+    "    pass\n"
+    "class Car(Engine):\n"
+    "    motor: Engine\n"
+    "    spare: Optional[Engine]\n"
+    "    gizmo: Unknown\n"
+)
+_DIA_PATH = "src/pkg/auto.py"
+
+
+class TestDia07RealOutputs:
+    """DIA-07: every Plan 03-02 diagram output validates as a GraphModel and
+    leaks no non-physical_/source_ metadata onto edges."""
+
+    def test_class_diagram_output_valid(self) -> None:
+        from lib_code_parser.extractors.evaluations.class_diagram import extract
+
+        model = extract(_cav(_DIA_SOURCE, _DIA_PATH), _config())
+        assert_valid_graphmodel(model)
+
+    def test_component_diagram_output_valid(self) -> None:
+        from lib_code_parser.extractors.evaluations.component_diagram import extract
+
+        model = extract(_cav(_DIA_SOURCE, _DIA_PATH), _config())
+        assert_valid_graphmodel(model)
+
+    def test_package_diagram_output_valid(self) -> None:
+        from lib_code_parser.extractors.evaluations.package_diagram import extract
+
+        model = extract(_cav(_DIA_SOURCE, _DIA_PATH), _config())
+        assert_valid_graphmodel(model)
+
+    def test_all_edges_use_closed_edgekinds(self) -> None:
+        from lib_code_parser.extractors.evaluations.class_diagram import (
+            extract as class_extract,
+        )
+        from lib_code_parser.extractors.evaluations.component_diagram import (
+            extract as comp_extract,
+        )
+
+        allowed = {"inherits", "composes", "aggregates", "associates", "imports"}
+        for extract_fn in (class_extract, comp_extract):
+            model = extract_fn(_cav(_DIA_SOURCE, _DIA_PATH), _config())
+            for edge in model.edges:
+                assert edge.edge_type in allowed, edge.edge_type
+
+
 class TestSchemaHelperOnEmptyModel:
     """The DIA-07 helper accepts an inert empty GraphModel (Wave-0 baseline)."""
 

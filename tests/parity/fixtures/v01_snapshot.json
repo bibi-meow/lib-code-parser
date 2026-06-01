@@ -420,8 +420,30 @@
       }
     },
     "class_diagram": {
-      "nodes": [],
-      "edges": [],
+      "nodes": [
+        {
+          "node_id": "OrderModel",
+          "node_type": "class",
+          "label": "OrderModel",
+          "attributes": {}
+        },
+        {
+          "node_id": "OrderService",
+          "node_type": "class",
+          "label": "OrderService",
+          "attributes": {}
+        }
+      ],
+      "edges": [
+        {
+          "source": "OrderModel",
+          "target": "BaseModel",
+          "edge_type": "inherits",
+          "label": "",
+          "physical_module": null,
+          "source_unresolved": false
+        }
+      ],
       "guards": []
     },
     "sequence_diagram": {

@@ -62,7 +62,11 @@ PRIMITIVES["contracts"] = _extract_contracts
 # Phase 3 (plan 03-02) EVALUATIONS registrations — append-only, canonical order
 # (class_diagram, sequence_diagram, component_diagram, package_diagram, ...).
 # sequence_diagram (Plan 03-03) and the FSM/spec entries register later; the
-# append-only test asserts subset-in-canonical-order, not contiguity.
+# append-only test asserts subset-in-canonical-order, not contiguity. The dict
+# keys are kept in canonical order, so class_diagram is registered first (#1).
+from lib_code_parser.extractors.evaluations.class_diagram import (  # noqa: E402
+    extract as _extract_class_diagram,
+)
 from lib_code_parser.extractors.evaluations.component_diagram import (  # noqa: E402
     extract as _extract_component_diagram,
 )
@@ -70,6 +74,7 @@ from lib_code_parser.extractors.evaluations.package_diagram import (  # noqa: E4
     extract as _extract_package_diagram,
 )
 
+EVALUATIONS["class_diagram"] = _extract_class_diagram
 EVALUATIONS["component_diagram"] = _extract_component_diagram
 EVALUATIONS["package_diagram"] = _extract_package_diagram
 
