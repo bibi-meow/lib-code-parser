@@ -10,6 +10,12 @@ from lib_code_parser.models.evaluations.graph_base import (
     GraphNode,
     GuardExpr,
 )
+from lib_code_parser.models.evaluations.spec import (
+    ClassSpec,
+    DocstringSection,
+    FunctionSpec,
+    SpecCondition,
+)
 
 __all__ = [
     "EdgeKind",
@@ -17,4 +23,8 @@ __all__ = [
     "GraphEdge",
     "GraphModel",
     "GuardExpr",
+    "FunctionSpec",
+    "ClassSpec",
+    "DocstringSection",
+    "SpecCondition",
 ]
