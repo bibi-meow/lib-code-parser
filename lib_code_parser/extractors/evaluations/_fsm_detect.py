@@ -72,8 +72,13 @@ def resolve_aliases(module: ast.Module, target_pkgs: frozenset[str]) -> dict[str
     ``target_pkgs`` is in scope, so a same-name symbol from another library is
     never falsely classified (T-03-08).
     """
+    # WR-02: scan MODULE-LEVEL imports only (not ast.walk). A
+    # `if TYPE_CHECKING: from transitions import Machine` is never executed at
+    # runtime, so resolving it as provenance would falsely classify a bare
+    # `Machine(...)` call as an FSM (T-03-08 provenance violation). Restricting
+    # to module.body mirrors contracts.py's provenance discipline.
     aliases: dict[str, str] = {}
-    for node in ast.walk(module):
+    for node in module.body:
         if isinstance(node, ast.ImportFrom):
             mod = node.module or ""
             top = mod.split(".")[0]
@@ -87,8 +92,11 @@ def resolve_aliases(module: ast.Module, target_pkgs: frozenset[str]) -> dict[str
 
 def _imported_packages(module: ast.Module, target_pkgs: frozenset[str]) -> dict[str, str]:
     """Build ``{bound_name: package}`` from ``import <target_pkg>[ as alias]``."""
+    # WR-02: module-level imports only (parity with resolve_aliases) so a
+    # TYPE_CHECKING-guarded `import transitions` is not treated as runtime
+    # provenance.
     bound: dict[str, str] = {}
-    for node in ast.walk(module):
+    for node in module.body:
         if isinstance(node, ast.Import):
             for alias in node.names:
                 top = alias.name.split(".")[0]

@@ -14,7 +14,12 @@ from __future__ import annotations
 
 import ast
 
-from lib_code_parser.extractors.evaluations._fsm_detect import detect_native_enum
+from lib_code_parser.extractors.evaluations._fsm_detect import (
+    _TRANSITIONS_PKGS,
+    detect_native_enum,
+    detect_transitions_machine,
+    resolve_aliases,
+)
 from lib_code_parser.extractors.evaluations._substitution import resolve_substitution_edges
 
 # Outer class with a nested Inner class whose method does the state assignment.
@@ -72,6 +77,44 @@ class TestCR03NativeEnumNestedScope:
         machines = detect_native_enum(ast.parse(src))
         assert len(machines) == 1
         assert machines[0].states == ["A"]
+
+
+TYPE_CHECKING_IMPORT = """
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from transitions import Machine
+
+
+def make():
+    return Machine(states=['a', 'b'], transitions=[['go', 'a', 'b']])
+"""
+
+MODULE_LEVEL_IMPORT = """
+from transitions import Machine
+
+
+def make():
+    return Machine(states=['a', 'b'], transitions=[['go', 'a', 'b']])
+"""
+
+
+class TestWR02TypeCheckingProvenance:
+    """WR-02: imports under `if TYPE_CHECKING:` are never executed at runtime,
+    so a `Machine(...)` call must NOT be classified as an FSM via a
+    TYPE_CHECKING-only import (T-03-08 provenance defense)."""
+
+    def test_type_checking_import_is_not_provenance(self) -> None:
+        mod = ast.parse(TYPE_CHECKING_IMPORT)
+        assert resolve_aliases(mod, _TRANSITIONS_PKGS) == {}
+        assert detect_transitions_machine(mod) == []
+
+    def test_module_level_import_still_provenance(self) -> None:
+        mod = ast.parse(MODULE_LEVEL_IMPORT)
+        assert resolve_aliases(mod, _TRANSITIONS_PKGS) == {"Machine": "Machine"}
+        machines = detect_transitions_machine(mod)
+        assert len(machines) == 1
+        assert machines[0].states == ["a", "b"]
 
 
 class TestCR02SubstitutionNestedScope:
