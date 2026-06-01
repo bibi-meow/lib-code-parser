@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v0.1.0
 milestone_name: milestone
-status: verifying
-stopped_at: Phase 3 context gathered
-last_updated: "2026-06-01T18:12:24.815Z"
+status: ready_to_plan
+stopped_at: Phase 03 complete (6/6) — ready to discuss Phase 4
+last_updated: 2026-06-01T18:51:41.008Z
 last_activity: 2026-06-01
 progress:
   total_phases: 5
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-24)
 
 **Core value:** コードから抽出する全アーキ表現が、`lib-diagram-parser` が spec から抽出するものと同形式・最大忠実度・決定論的に比較可能であること (Layer M bisimulation の物理側基盤)
-**Current focus:** Phase 03 — python-diagram-spec-extractors
+**Current focus:** Phase 4 — c++ frontend + c++ extractors
 
 ## Current Position
 
-Phase: 03 (python-diagram-spec-extractors) — EXECUTING
-Plan: 6 of 6
-Status: Phase complete — ready for verification
+Phase: 4
+Plan: Not started
+Status: Ready to plan
 Last activity: 2026-06-01
 
 Progress: [██████████] 100%
@@ -36,7 +36,7 @@ Progress: [██████████] 100%
 
 **Velocity:**
 
-- Total plans completed: 18
+- Total plans completed: 24
 - Average duration: — min
 - Total execution time: 0.0 hours
 
@@ -46,6 +46,7 @@ Progress: [██████████] 100%
 |-------|-------|-------|----------|
 | 01 | 10 | - | - |
 | 02 | 8 | - | - |
+| 03 | 6 | - | - |
 
 **Recent Trend:**
 
