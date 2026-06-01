@@ -55,8 +55,8 @@ class CodeParserExecutor:
         exposes no per-evaluation enable flag, so every registered evaluation
         runs unconditionally and its result is set into the same-named
         CodeContent slot. Adding a future evaluation needs ONLY a _dispatch.py
-        registration — this executor body never changes. EVALUATIONS is empty
-        until Plans 02-06 register the 5 diagrams + 2 specs.
+        registration — this executor body never changes. Phase 3 registers 7
+        evaluations (5 diagrams + 2 specs); see _dispatch.py.
 
         Disabled / C++ extension early returns preserve v0.1.0 parity.
         """
@@ -115,8 +115,9 @@ class CodeParserExecutor:
         )
 
         # EVALUATIONS walk (invariant #6, run-all-registered): each registered
-        # evaluation produces its slot value, set by matching name. Empty today;
-        # Plans 02-06 append the 5 diagrams + 2 specs append-only.
+        # evaluation produces its slot value, set by matching name. Phase 3
+        # registered 7 evaluations (5 diagrams + 2 specs), append-only; the
+        # name→slot correspondence is guarded at import time in _dispatch.py.
         for name, eval_fn in EVALUATIONS.items():
             setattr(content, name, eval_fn(cav, config))
 

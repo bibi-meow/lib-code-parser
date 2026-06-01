@@ -282,7 +282,13 @@ def detect_python_statemachine(module: ast.Module) -> list[MachineModel]:
 # Family C — native Enum-typed state attr + literal self.state = Enum.MEMBER
 # ---------------------------------------------------------------------------
 def _enum_classes(module: ast.Module) -> dict[str, list[str]]:
-    """Map ``{EnumClassName: [member, ...]}`` for classes subclassing Enum."""
+    """Map ``{EnumClassName: [member, ...]}`` for TOP-LEVEL Enum classes only.
+
+    IN-02: nested Enum definitions (inside functions or other classes) are
+    intentionally excluded — ``detect_native_enum``'s transition scanner also
+    operates at module-body / direct-method scope (see CR-03), so widening
+    only this registry would create an asymmetry. Keep both module-body scoped.
+    """
     enums: dict[str, list[str]] = {}
     for node in module.body:
         if not isinstance(node, ast.ClassDef):
