@@ -30,6 +30,12 @@ from pydantic import BaseModel, ConfigDict, Field
 #   instantiates    — A constructs B (`new B()` / `B()`)
 #   calls           — A method calls B method (sequence + callgraph)
 #   transitions_to  — FSM: state A → state B
+#   imports         — module A imports module B (explicit semantic, not catch-all)
+#
+# Phase 3 D-01: "imports" appended as an explicit-semantic value (the existing
+# 11 values are immutable). "contains" is intentionally NOT added — DIA-04
+# package containment is expressed via GraphNode.attributes={"parent_package": ...}
+# unless Plan 02's DIA-04 task proves a containment EDGE is strictly required.
 EdgeKind = Literal[
     "inherits",
     "implements",
@@ -42,6 +48,7 @@ EdgeKind = Literal[
     "instantiates",
     "calls",
     "transitions_to",
+    "imports",
 ]
 
 
@@ -72,6 +79,12 @@ class GraphEdge(BaseModel):
     that physical (code-side) extractors may attach. The verifier ignores any
     field prefixed with physical_ when diffing against logical (spec-side)
     GraphEdge instances. Default None keeps lib-diagram-parser parity.
+
+    source_unresolved is the DIA-06 marker home (RESEARCH Pitfall 1): an
+    optional verifier-invisible flag (SCH-02 source_ prefix) that the FSM
+    return-value-substitution path sets when a transition target could not be
+    statically resolved. Default False preserves lib-diagram-parser parity when
+    omitted.
     """
 
     model_config = ConfigDict(extra="forbid")
@@ -81,6 +94,7 @@ class GraphEdge(BaseModel):
     edge_type: EdgeKind
     label: str = ""
     physical_module: str | None = None
+    source_unresolved: bool = False
 
 
 class GuardExpr(BaseModel):

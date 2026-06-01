@@ -33,13 +33,16 @@ CANONICAL_EDGE_KINDS = {
     "instantiates",
     "calls",
     "transitions_to",
+    "imports",
 }
 
 
 class TestEdgeKindLiteral:
-    def test_edge_kind_has_eleven_values(self) -> None:
+    def test_edge_kind_has_twelve_values(self) -> None:
+        # Phase 3 D-01 appends "imports" as an explicit semantic value (not a
+        # catch-all); the 11 existing values stay immutable.
         values = get_args(EdgeKind)
-        assert len(values) == 11, f"expected 11 values, got {len(values)}: {values}"
+        assert len(values) == 12, f"expected 12 values, got {len(values)}: {values}"
 
     def test_edge_kind_value_set(self) -> None:
         values = set(get_args(EdgeKind))
@@ -65,6 +68,32 @@ class TestEdgeKindLiteral:
         for kind in get_args(EdgeKind):
             edge = GraphEdge(source="A", target="B", edge_type=kind)
             assert edge.edge_type == kind
+
+    def test_edge_kind_accepts_imports(self) -> None:
+        # D-01: "imports" is an explicit semantic value, not a catch-all.
+        edge = GraphEdge(source="A", target="B", edge_type="imports")
+        assert edge.edge_type == "imports"
+
+    def test_edge_kind_rejects_depends(self) -> None:
+        # D-01: catch-alls remain banned even after appending "imports".
+        with pytest.raises(ValidationError):
+            GraphEdge(source="A", target="B", edge_type="depends")  # type: ignore[arg-type]
+
+
+class TestGraphEdgeSourceUnresolved:
+    def test_source_unresolved_default_false(self) -> None:
+        # DIA-06 marker home: default False keeps lib-diagram-parser parity.
+        edge = GraphEdge(source="A", target="B", edge_type="transitions_to")
+        assert edge.source_unresolved is False
+
+    def test_source_unresolved_settable_under_extra_forbid(self) -> None:
+        edge = GraphEdge(
+            source="A",
+            target="B",
+            edge_type="transitions_to",
+            source_unresolved=True,
+        )
+        assert edge.source_unresolved is True
 
 
 class TestGraphNode:
