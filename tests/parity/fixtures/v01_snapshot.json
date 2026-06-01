@@ -637,7 +637,95 @@
       "edges": [],
       "guards": []
     },
-    "function_spec": [],
+    "function_spec": [
+      {
+        "node_id": "order_service.OrderModel.check_total",
+        "signature": "check_total() -> 'OrderModel'",
+        "docstring_sections": [],
+        "preconditions": [],
+        "postconditions": [],
+        "source_range": {
+          "start_line": 41,
+          "end_line": 44
+        }
+      },
+      {
+        "node_id": "order_service.OrderModel.validate_status",
+        "signature": "validate_status(v: str) -> str",
+        "docstring_sections": [],
+        "preconditions": [],
+        "postconditions": [],
+        "source_range": {
+          "start_line": 35,
+          "end_line": 38
+        }
+      },
+      {
+        "node_id": "order_service.OrderService._calculate_total",
+        "signature": "_calculate_total(items: list[str]) -> float",
+        "docstring_sections": [],
+        "preconditions": [],
+        "postconditions": [],
+        "source_range": {
+          "start_line": 20,
+          "end_line": 21
+        }
+      },
+      {
+        "node_id": "order_service.OrderService.cancel_order",
+        "signature": "cancel_order(order_id: str) -> bool",
+        "docstring_sections": [
+          {
+            "kind": "summary",
+            "name": "",
+            "type_ref": "",
+            "text": "Cancel an existing order."
+          }
+        ],
+        "preconditions": [],
+        "postconditions": [],
+        "source_range": {
+          "start_line": 23,
+          "end_line": 25
+        }
+      },
+      {
+        "node_id": "order_service.OrderService.create_order",
+        "signature": "create_order(items: list[str], user_id: str) -> dict",
+        "docstring_sections": [
+          {
+            "kind": "summary",
+            "name": "",
+            "type_ref": "",
+            "text": "Create a new order."
+          }
+        ],
+        "preconditions": [],
+        "postconditions": [],
+        "source_range": {
+          "start_line": 12,
+          "end_line": 18
+        }
+      },
+      {
+        "node_id": "order_service.process_payment",
+        "signature": "process_payment(amount: float, method: str) -> bool",
+        "docstring_sections": [
+          {
+            "kind": "summary",
+            "name": "",
+            "type_ref": "",
+            "text": "Process payment."
+          }
+        ],
+        "preconditions": [],
+        "postconditions": [],
+        "source_range": {
+          "start_line": 47,
+          "end_line": 52
+        }
+      }
+    ],
     "class_spec": []
   }
 }

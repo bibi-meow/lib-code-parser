@@ -70,6 +70,9 @@ from lib_code_parser.extractors.evaluations.class_diagram import (  # noqa: E402
 from lib_code_parser.extractors.evaluations.component_diagram import (  # noqa: E402
     extract as _extract_component_diagram,
 )
+from lib_code_parser.extractors.evaluations.function_spec import (  # noqa: E402
+    extract as _extract_function_spec,
+)
 from lib_code_parser.extractors.evaluations.package_diagram import (  # noqa: E402
     extract as _extract_package_diagram,
 )
@@ -85,6 +88,8 @@ EVALUATIONS["sequence_diagram"] = _extract_sequence_diagram
 EVALUATIONS["component_diagram"] = _extract_component_diagram
 EVALUATIONS["package_diagram"] = _extract_package_diagram
 EVALUATIONS["state_diagram"] = _extract_state_diagram
+# Plan 03-05: SPC-01 function_spec at canonical position #6 (append-only).
+EVALUATIONS["function_spec"] = _extract_function_spec
 
 __all__ = [
     "FrontendFn",
