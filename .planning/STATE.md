@@ -4,13 +4,13 @@ milestone: v0.1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 3 context gathered
-last_updated: "2026-06-01T00:38:01.684Z"
-last_activity: 2026-06-01 -- Phase 03 planning complete
+last_updated: "2026-06-01T17:11:18.407Z"
+last_activity: 2026-06-01
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 23
-  completed_plans: 18
+  completed_plans: 19
   percent: 40
 ---
 
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-24)
 
 **Core value:** コードから抽出する全アーキ表現が、`lib-diagram-parser` が spec から抽出するものと同形式・最大忠実度・決定論的に比較可能であること (Layer M bisimulation の物理側基盤)
-**Current focus:** Phase 3 — python diagram + spec extractors
+**Current focus:** Phase 03 — python-diagram-spec-extractors
 
 ## Current Position
 
-Phase: 3
-Plan: Not started
+Phase: 03 (python-diagram-spec-extractors) — EXECUTING
+Plan: 2 of 6
 Status: Ready to execute
-Last activity: 2026-06-01 -- Phase 03 planning complete
+Last activity: 2026-06-01
 
-Progress: [██████████] 100%
+Progress: [████████░░] 83%
 
 ## Performance Metrics
 
@@ -55,6 +55,7 @@ Progress: [██████████] 100%
 *Updated after each plan completion*
 | Phase 02 P06 | 25 | 3 tasks | 8 files |
 | Phase 02 P07 | 25 | 3 tasks | 20 files |
+| Phase 03 P01 | 6 | 4 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -71,6 +72,8 @@ Recent decisions affecting current work:
 - Phase 1: Apache-2.0 license declared with `LICENSE` file shipped; no GPL bundled (call graph internal, pyright MIT, libclang Apache-2.0+LLVM exception)
 - Phase 3: `lib-diagram-parser` PR adding `node_type="package"` enum value is a sibling-lib coordination dependency (DIA-04 / SCH-01 require it)
 - [Phase ?]: Phase 2 Plan 06: executor rewritten as dispatch-dict walk (D-03) on typed ParserConfig; barrel ParserConfig graduation deferred to Plan 02-07
+- [Phase ?]: Phase 3 Plan 01: D-01 sub-decision — add ONLY 'imports' to EdgeKind; DIA-04 package containment via GraphNode.attributes['parent_package'], not a 'contains' edge
+- [Phase ?]: Phase 3 Plan 01: DIA-06 marker = GraphEdge.source_unresolved (source_ prefix); SPC-04 taxonomy in evaluations/spec.py (frozen contracts.py untouched); EVALUATIONS gating = run-all-registered
 
 ### Pending Todos
 
@@ -91,6 +94,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-05-31T16:35:16.712Z
+Last session: 2026-06-01T17:10:56.943Z
 Stopped at: Phase 3 context gathered
-Resume file: .planning/phases/03-python-diagram-spec-extractors/03-CONTEXT.md
+Resume file: None

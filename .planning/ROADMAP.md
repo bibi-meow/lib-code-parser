@@ -70,7 +70,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   5. Caller can extract `FunctionSpec(signature, docstring_sections, preconditions, postconditions)` from Sphinx Napoleon / Google / NumPy docstring styles and `ClassSpec(definition, members, invariants)` from Python source, plus auxiliary contract markers from `icontract` / `deal` decorators and PEP-316 `pre:` / `post:` docstring keywords (supplementary to Pydantic / dataclass already captured in Phase 2); all 5 diagram outputs validate against the shared `GraphNode` / `GraphEdge` / `GraphModel` schema with `physical_*` / `source_*` prefix fields used for physical-side-only metadata
 **Plans**: 6 plans across 6 sequential waves (plans serialized because every extractor plan registers into the shared `_dispatch.py` EVALUATIONS dict + DIA-07 schema test — same-file ownership forces sequential waves)
   - Wave 0:
-    - [ ] 03-01-PLAN.md — Foundation: EdgeKind+=imports / GraphEdge.source_unresolved / spec.py (FunctionSpec/ClassSpec) / CodeContent 7 slots / executor EVALUATIONS walk / Wave-0 fixtures+conftest (closes 4 integration gaps)
+    - [x] 03-01-PLAN.md — Foundation: EdgeKind+=imports / GraphEdge.source_unresolved / spec.py (FunctionSpec/ClassSpec) / CodeContent 7 slots / executor EVALUATIONS walk / Wave-0 fixtures+conftest (closes 4 integration gaps)
   - Wave 1:
     - [ ] 03-02-PLAN.md — DIA-01 class + DIA-03 component + DIA-04 package diagrams (+ DIA-07 schema conformance)
   - Wave 2:
@@ -113,6 +113,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Architecture Foundation + Spec Correction | 10/10 | Complete   | 2026-05-25 |
 | 2. Python Frontend + AST Primitives + ACL-2 Adapters | 7/7 | Complete   | 2026-05-31 |
-| 3. Python Diagram + Spec Extractors | 0/6 | Not started | - |
+| 3. Python Diagram + Spec Extractors | 1/6 | In Progress|  |
 | 4. C++ Frontend + C++ Extractors | 0/TBD | Not started | - |
 | 5. Cross-Cutting Integration + Acceptance | 0/TBD | Not started | - |
