@@ -45,12 +45,12 @@ class TestDispatchDictsPopulated:
         ]
 
     def test_evaluations_registered_append_only(self) -> None:
-        # Forward-compatible (integration gap d): passes now with 0 entries AND
-        # after each later plan (02-06) registers in canonical order. The keys
-        # present must be a prefix-preserving subsequence of the canonical
-        # 7-in-order list — mirroring the PRIMITIVES append-only assertion.
+        # Plan 03-06 registers the FINAL (7th) entry class_spec. All 7
+        # EVALUATIONS are now present in canonical registration order — the
+        # forward-compatible subsequence assertion graduates to full equality
+        # (mirroring test_primitives_dict_has_4_entries_in_append_only_order).
         assert isinstance(EVALUATIONS, dict)
-        canonical = [
+        assert list(EVALUATIONS.keys()) == [
             "class_diagram",
             "sequence_diagram",
             "component_diagram",
@@ -59,15 +59,6 @@ class TestDispatchDictsPopulated:
             "function_spec",
             "class_spec",
         ]
-        present = list(EVALUATIONS.keys())
-        # Every present key must be canonical.
-        assert set(present) <= set(canonical), (
-            f"non-canonical EVALUATIONS keys: {set(present) - set(canonical)}"
-        )
-        # Present keys must preserve canonical relative order (append-only).
-        canonical_index = {name: i for i, name in enumerate(canonical)}
-        indices = [canonical_index[name] for name in present]
-        assert indices == sorted(indices), f"EVALUATIONS keys out of canonical order: {present}"
 
 
 class TestDispatchModuleDocstring:

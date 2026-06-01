@@ -67,6 +67,9 @@ PRIMITIVES["contracts"] = _extract_contracts
 from lib_code_parser.extractors.evaluations.class_diagram import (  # noqa: E402
     extract as _extract_class_diagram,
 )
+from lib_code_parser.extractors.evaluations.class_spec import (  # noqa: E402
+    extract as _extract_class_spec,
+)
 from lib_code_parser.extractors.evaluations.component_diagram import (  # noqa: E402
     extract as _extract_component_diagram,
 )
@@ -90,6 +93,8 @@ EVALUATIONS["package_diagram"] = _extract_package_diagram
 EVALUATIONS["state_diagram"] = _extract_state_diagram
 # Plan 03-05: SPC-01 function_spec at canonical position #6 (append-only).
 EVALUATIONS["function_spec"] = _extract_function_spec
+# Plan 03-06: SPC-02/04 class_spec at canonical position #7 — the FINAL entry.
+EVALUATIONS["class_spec"] = _extract_class_spec
 
 __all__ = [
     "FrontendFn",

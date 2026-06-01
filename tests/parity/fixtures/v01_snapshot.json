@@ -726,6 +726,29 @@
         }
       }
     ],
-    "class_spec": []
+    "class_spec": [
+      {
+        "node_id": "order_service.OrderModel",
+        "definition": "class OrderModel(BaseModel)",
+        "members": [
+          "check_total",
+          "order_id",
+          "status",
+          "total",
+          "validate_status"
+        ],
+        "invariants": []
+      },
+      {
+        "node_id": "order_service.OrderService",
+        "definition": "class OrderService",
+        "members": [
+          "_calculate_total",
+          "cancel_order",
+          "create_order"
+        ],
+        "invariants": []
+      }
+    ]
   }
 }
