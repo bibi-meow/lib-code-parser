@@ -202,8 +202,10 @@ def resolve_substitution_edges(module: ast.Module) -> tuple[list[str], list[Grap
             # non-Call RHS (variables, etc.) are not state transitions here.
             if not isinstance(node.value, ast.Call):
                 continue
-            if _literal_enum_member(node.value, enum_names) is not None:
-                continue  # (Call that is somehow a literal member — defensive.)
+            # WR-05: no literal-member overlap check is needed here. A literal
+            # `EnumClass.MEMBER` is an ast.Attribute (handled by
+            # detect_native_enum), never an ast.Call, so the RHS being a Call
+            # already excludes the literal form.
 
             callee = _self_method_call(node.value)
             if callee is not None:
