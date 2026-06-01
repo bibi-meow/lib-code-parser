@@ -113,6 +113,41 @@ class TestPrePostHeuristic:
         assert gpo == npo == spo
 
 
+class TestWR07RaisesClassification:
+    """WR-07: only `raises` clauses that read like conditional/precondition
+    failures (contain 'if'/precondition keywords) become preconditions;
+    unconditional postcondition-failure modes (e.g. network errors) do not."""
+
+    def test_conditional_raise_is_precondition(self) -> None:
+        doc = "Do thing.\n\nRaises:\n    ValueError: if x is negative\n"
+        _, pre, _ = parse(doc)
+        assert any("ValueError" in c.text for c in pre)
+        assert all(c.kind == "precondition" for c in pre)
+
+    def test_unconditional_raise_not_precondition(self) -> None:
+        # A bare RuntimeError with no conditional cue is NOT a precondition.
+        doc = "Do thing.\n\nRaises:\n    RuntimeError: the connection dropped\n"
+        _, pre, _ = parse(doc)
+        assert not any("RuntimeError" in c.text for c in pre)
+
+
+class TestIN01PreconditionWordBoundary:
+    """IN-01: precondition keyword matching uses word boundaries so benign
+    prose substrings don't trigger false-positive preconditions."""
+
+    def test_substring_not_none_does_not_false_match(self) -> None:
+        # "cannot none-the-less" contains the substring "not none" but is NOT a
+        # 'not none' precondition; word-boundary matching must reject it.
+        doc = "Do thing.\n\nArgs:\n    x (int): this cannot none-the-less be passed\n"
+        _, pre, _ = parse(doc)
+        assert not any("x:" in c.text for c in pre)
+
+    def test_genuine_not_none_still_matches(self) -> None:
+        doc = "Do thing.\n\nArgs:\n    x (int): must be not none for the call\n"
+        _, pre, _ = parse(doc)
+        assert any("x:" in c.text for c in pre)
+
+
 class TestWR04GoogleMultiLineParam:
     """WR-04: Google param descriptions spanning multiple (indented)
     continuation lines must be captured in full, not truncated to the first

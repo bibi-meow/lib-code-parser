@@ -50,15 +50,19 @@ _HEADER_KIND: dict[str, str] = {
     "raises": "raises",
 }
 
-# Fixed precondition keyword set (RESEARCH §pre/post). Substring/word match only.
-_PRECONDITION_KEYWORDS = (
-    "must be",
-    "non-negative",
-    "> 0",
-    ">0",
-    "not none",
-    "required",
+# Fixed precondition keyword set (RESEARCH §pre/post). IN-01: word-boundary
+# matching (not raw substring) so benign prose like "cannot none-the-less" or
+# "note: none of" does not false-match "not none". The numeric cues (> 0) keep
+# their own anchored alternation since \b does not apply cleanly to symbols.
+_PRECONDITION_KW_RE = re.compile(
+    r"(\bmust be\b|\bnon-negative\b|>\s*0\b|\bnot none\b|\brequired\b)",
+    re.IGNORECASE,
 )
+
+
+def _has_precondition_keyword(text: str) -> bool:
+    """True iff the text carries a fixed precondition cue (word-boundary)."""
+    return _PRECONDITION_KW_RE.search(text) is not None
 
 
 def _detect_dialect(lines: list[str]) -> Dialect:
@@ -344,8 +348,7 @@ def _derive_conditions(
     post: list[SpecCondition] = []
     for sec in sections:
         if sec.kind == "params":
-            lowered = sec.text.lower()
-            if any(kw in lowered for kw in _PRECONDITION_KEYWORDS):
+            if _has_precondition_keyword(sec.text):
                 pre.append(
                     SpecCondition(
                         kind="precondition",
@@ -354,9 +357,17 @@ def _derive_conditions(
                     )
                 )
         elif sec.kind == "raises":
-            # Raises: → a documented precondition-failure mode.
-            label = f"{sec.name}: {sec.text}".strip(": ").strip()
-            pre.append(SpecCondition(kind="precondition", text=label, source_kind="docstring"))
+            # WR-07: only CONDITIONAL raises (those reading like a
+            # precondition-failure mode — "if ...", or a fixed precondition
+            # keyword) become preconditions. Unconditional postcondition-failure
+            # modes (e.g. "the connection dropped") are NOT preconditions: the
+            # caller cannot prevent them by checking an input.
+            lowered = sec.text.lower()
+            if "if " in lowered or _has_precondition_keyword(sec.text):
+                label = f"{sec.name}: {sec.text}".strip(": ").strip()
+                pre.append(
+                    SpecCondition(kind="precondition", text=label, source_kind="docstring")
+                )
         elif sec.kind == "returns" and (sec.text or sec.type_ref):
             label = f"{sec.type_ref}: {sec.text}".strip(": ").strip()
             post.append(SpecCondition(kind="postcondition", text=label, source_kind="docstring"))
