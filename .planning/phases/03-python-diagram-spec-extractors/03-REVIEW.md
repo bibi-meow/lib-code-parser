@@ -27,7 +27,19 @@ findings:
   warning: 7
   info: 3
   total: 15
-status: issues_found
+status: resolved
+resolution:
+  fixed: 15
+  rejected_false_positive: 0
+  resolved_at: 2026-06-02
+  note: >
+    All 15 findings were verified against the actual code and fixed (TDD
+    red-first). None were rejected as false positives, BUT several findings
+    contained self-contradicting analysis and one (CR-01) proposed an INCORRECT
+    fix; the real root cause was fixed instead. See per-finding resolution
+    notes below. Full suite green (447 tests, +24 new) including tests/parity,
+    and stable under PYTHONHASHSEED=random / 1 / 7 / 99. No parity snapshot
+    regeneration was required (no fix changed EXAMPLE_SOURCE output).
 ---
 
 # Phase 03: Code Review Report
@@ -35,7 +47,8 @@ status: issues_found
 **Reviewed:** 2026-06-02
 **Depth:** standard
 **Files Reviewed:** 18
-**Status:** issues_found
+**Status:** resolved (15/15 fixed, 0 rejected) — see frontmatter `resolution`
+and the per-finding **Resolution:** notes below.
 
 ## Summary
 
@@ -57,6 +70,21 @@ output for plain (no-dialect) docstrings.
 ### CR-01: Sequence-diagram frame queue is nondeterministic when a callee is called multiple times from different callers
 
 **File:** `lib_code_parser/extractors/evaluations/sequence_diagram.py:181`
+
+**Resolution:** FIXED — but the review's diagnosis and proposed fix were WRONG.
+The genuine bug is NOT the `ast.Await` descend-into-args. The real root cause:
+the callgraph primitive's `_collect_calls` collects callees via `ast.walk`
+which is **breadth-first** (deque-based), while `_frames_for_body` used a
+recursive `ast.iter_child_nodes` walk which is **depth-first**. For calls at
+different AST depths within ONE statement (e.g. `await go() + go()`: the
+shallow linear `go` is at BinOp depth 1, the awaited `par` `go` is at depth 2),
+BFS and DFS visit them in OPPOSITE order, swapping the per-(caller, callee)
+frame queue so the `par` frame was popped for the wrong edge. The review's
+proposed fix (remove the await descend) would have BROKEN the aligned nested
+cases and not touched this divergence. Fixed by precomputing each Call's frame
+via DFS (keyed by node identity), then emitting in `ast.walk` BFS order to
+match callgraph exactly. RED test:
+`test_same_callee_mixed_frames_align_with_callgraph`.
 
 **Issue:** `frame_queues` is keyed by `(caller_id, callee_name)` where `callee_name`
 is the bare function/method name (e.g. `"connect"`). The callgraph primitive's
@@ -144,6 +172,14 @@ if isinstance(node, ast.Await) and isinstance(node.value, ast.Call):
 
 **File:** `lib_code_parser/extractors/evaluations/_substitution.py:182-188`
 
+**Resolution:** FIXED. The review text rambles through several non-bugs before
+landing on the real one (the `ast.walk(class_node)` nested-class descent). The
+genuine bug is confirmed: an inner class's `self.state = self._compute()`
+resolved `_compute` against the OUTER class's methods dict (a different
+`self`), emitting a phantom edge for the outer class. Fixed by scanning only
+the class's DIRECT method bodies. RED test:
+`test_inner_self_call_does_not_resolve_against_outer_methods`.
+
 **Issue:** The filter that identifies `self.<attr> = ...` assignments uses:
 
 ```python
@@ -204,6 +240,13 @@ for method in methods.values():
 
 **File:** `lib_code_parser/extractors/evaluations/_fsm_detect.py:284-306`
 
+**Resolution:** FIXED. The titled symptom (AnnAssign unreachable) is a non-bug,
+but the review correctly identifies the real defect in its body: `ast.walk(node)`
+in `detect_native_enum` descends into nested ClassDefs, so an inner class's
+`self.state = State.A` made the OUTER class a phantom FSM. Fixed by scanning
+only the outer class's DIRECT method bodies. RED test:
+`test_nested_class_literal_assign_does_not_make_outer_an_fsm`.
+
 **Issue:** `_enum_classes` at line 284 correctly collects both `ast.Assign` and
 `ast.AnnAssign` members for an Enum class (lines 298-304). However,
 `detect_native_enum` at line 339 scans for `ast.Assign` nodes only (not
@@ -245,6 +288,14 @@ for item in node.body:
 ### CR-04: `_classify_annotation_from_text` incorrectly splits multi-segment forward-ref strings and emits wrong edges
 
 **File:** `lib_code_parser/extractors/evaluations/class_diagram.py:144-158`
+
+**Resolution:** FIXED. Confirmed: `"list[Engine] | None"` produced
+`("associates", "list[Engine]")` and `"Optional[Engine]"` produced
+`("associates", "Optional[Engine]")` — useless composite-string targets.
+`_classify_text_token` now strips the container subscript and extracts the
+inner class (→ aggregates). RED tests:
+`test_string_list_of_known_aggregates_inner`,
+`test_string_optional_of_known_aggregates_inner`.
 
 **Issue:** `_classify_annotation_from_text` handles string-annotation forward refs
 like `"Engine | None"`. The split at line 148 is:
@@ -297,6 +348,15 @@ return None
 ### CR-05: `_summary()` in `_docstring.py` uses `_GOOGLE_HEADER_RE.match(stripped)` but `_NUMPY_HEADER_RE.match(line)` (unstripped), creating a dialect-sensitive inconsistency that causes summary truncation
 
 **File:** `lib_code_parser/extractors/evaluations/_docstring.py:88`
+
+**Resolution:** FIXED. The review's title (Google/NumPy match asymmetry) is a
+non-bug, but its body correctly identifies the real defect: a leading blank
+line made `_summary` break immediately and drop the summary section for the
+Google/NumPy/Sphinx dialects. Fixed by skipping leading blank lines in
+`_summary` (break only after prose starts). The dialect-sensitive
+`match(stripped)` vs `match(line)` asymmetry was left as-is (harmless — the
+NumPy regex is already `^\s*`-anchored). RED tests:
+`test_google_leading_blank_keeps_summary`, `test_numpy_leading_blank_keeps_summary`.
 
 **Issue:** The `_summary` helper at line 81 is called by all three dialect parsers
 to extract the leading prose. Line 88 is:
@@ -386,6 +446,13 @@ def _summary(lines: list[str]) -> str:
 
 **File:** `lib_code_parser/executor.py:121`
 
+**Resolution:** FIXED (defensive). Added an import-time guard in `_dispatch.py`
+(`_CONTENT_FIELDS` check) that raises if any EVALUATIONS key lacks a matching
+CodeContent slot, so a misspelled key fails fast at import rather than as an
+opaque Pydantic `extra="forbid"` runtime error. Tests:
+`test_every_evaluation_key_is_a_codecontent_field`,
+`test_guard_constant_matches_codecontent_fields`.
+
 **Issue:** The EVALUATIONS walk uses `setattr(content, name, eval_fn(cav, config))`
 to assign evaluation results. Pydantic v2 models with `model_config =
 ConfigDict(extra="forbid")` do validate fields on initial construction, but
@@ -417,6 +484,13 @@ for _key in EVALUATIONS:
 ### WR-02: `resolve_aliases` in `_fsm_detect.py` misses bare `import transitions` / `import statemachine` package bindings for Family A & B
 
 **File:** `lib_code_parser/extractors/evaluations/_fsm_detect.py:67-85`
+
+**Resolution:** FIXED. The review meanders through several non-bugs before the
+real one: `resolve_aliases`/`_imported_packages` used `ast.walk`, picking up
+imports under `if TYPE_CHECKING:` (never executed at runtime), so a
+TYPE_CHECKING-only `from transitions import Machine` falsely classified a bare
+`Machine(...)` as an FSM (T-03-08 violation). Fixed by scanning `module.body`
+only. RED test: `test_type_checking_import_is_not_provenance`.
 
 **Issue:** `detect_transitions_machine` calls both `resolve_aliases` (for
 `from transitions import Machine`) and `_imported_packages` (for `import transitions`).
@@ -481,6 +555,14 @@ for node in module.body:  # module-level only, not ast.walk
 ### WR-03: `_classify_union` in `class_diagram.py` only classifies the first non-None, non-primitive operand — `X | Y` unions emit only one edge
 
 **File:** `lib_code_parser/extractors/evaluations/class_diagram.py:161-184`
+
+**Resolution:** FIXED (full fix, not the minimal one). Implemented the full
+refactor flagged as optional in the review: `_classify_annotation` and its
+sub-classifiers now return `list[tuple[str, str]]`, and the `extract` caller
+iterates, so `X | Y` of two known classes emits one `aggregates` edge per
+operand. `Wheel | None` still yields a single edge. RED tests:
+`test_union_of_two_known_classes_emits_both`,
+`test_union_with_none_still_aggregates_single`.
 
 **Issue:** `_classify_union` flattens `X | Y | None` into operands and returns at
 the first non-None, non-primitive element (line 177: `return "aggregates", name` or
@@ -580,6 +662,12 @@ before starting a new parameter entry.
 
 **File:** `lib_code_parser/extractors/evaluations/_substitution.py:193-195`
 
+**Resolution:** FIXED (dead-code cleanup). Confirmed dead: `_literal_enum_member`
+returns non-None only for `ast.Attribute`, never `ast.Call`, so the guard after
+the `isinstance(node.value, ast.Call)` check was unreachable. Removed and
+replaced with a clarifying comment. No behavioral change (covered by existing
+substitution tests).
+
 **Issue:** Lines 193-196:
 
 ```python
@@ -610,6 +698,13 @@ if not isinstance(node.value, ast.Call):
 ### WR-06: `_collect_known_classes` in `class_diagram.py` conflates module-level `ast.walk` with class-definition scanning, admitting uppercase-named modules as "known classes"
 
 **File:** `lib_code_parser/extractors/evaluations/class_diagram.py:70-94`
+
+**Resolution:** FIXED. Confirmed: `ClassVar`, `Type`, `Final` etc. became
+`composes` edges. Added a `_TYPING_NAMES` exclusion set, checked in the
+bare-Name / Attribute / union / subscript classification paths so typing
+special forms never produce an edge. (`Optional`/`Union`/`List`/... remain in
+`_AGGREGATING_CONTAINERS` and are handled by the subscript path.) RED test:
+`test_classvar_type_final_no_edge`.
 
 **Issue:** `_collect_known_classes` at line 81:
 
@@ -665,6 +760,12 @@ Then in `_classify_annotation`, check `_TYPING_NAMES` before falling through to 
 
 **File:** `lib_code_parser/extractors/evaluations/_docstring.py:324-327`
 
+**Resolution:** FIXED. `raises` clauses are now classified as preconditions
+ONLY when conditional (text contains `if ` or a fixed precondition keyword);
+unconditional postcondition-failure modes (e.g. "the connection dropped") are
+no longer miscategorized. RED tests: `test_conditional_raise_is_precondition`,
+`test_unconditional_raise_not_precondition`.
+
 **Issue:** Lines 324-327:
 
 ```python
@@ -714,6 +815,12 @@ elif sec.kind == "raises":
 
 **File:** `lib_code_parser/extractors/evaluations/_docstring.py:54-61`
 
+**Resolution:** FIXED. Replaced the substring keyword tuple with a
+word-boundary regex (`_PRECONDITION_KW_RE`) used by `_has_precondition_keyword`,
+so benign prose like "cannot none-the-less" or "note: none of" no longer
+false-matches "not none". RED tests:
+`test_substring_not_none_does_not_false_match`, `test_genuine_not_none_still_matches`.
+
 **Issue:** The precondition keyword set uses `any(kw in lowered for kw in ...)`.
 The keyword `"not none"` would match any text containing that substring, including
 benign phrases like `"Note: none of the above"` or `"cannot none of"`. The match
@@ -740,6 +847,10 @@ _PRECONDITION_KW_RE = re.compile(
 
 **File:** `lib_code_parser/extractors/evaluations/_fsm_detect.py:284-306`
 
+**Resolution:** FIXED (documentation). Added a docstring to `_enum_classes`
+documenting the deliberate top-level-only scope and its symmetry with the
+(now direct-method-scoped, per CR-03) transition scanner.
+
 **Issue:** `_enum_classes` at line 287 iterates `module.body` (top-level only).
 Enum classes defined inside functions or other classes are invisible to both the
 Enum registry and the transition scanner. This is a deliberate limitation
@@ -763,6 +874,11 @@ def _enum_classes(module: ast.Module) -> dict[str, list[str]]:
 ### IN-03: `executor.py` comment at line 57-59 is stale — it says EVALUATIONS is "empty until Plans 02-06 register", but by the time this code ships, EVALUATIONS has 7 entries
 
 **File:** `lib_code_parser/executor.py:57-59`
+
+**Resolution:** FIXED (documentation). Updated the executor docstring and the
+EVALUATIONS-walk comment to describe the current state (7 registered
+evaluations + the import-time slot guard) instead of the stale "empty until
+Plans 02-06" claim.
 
 **Issue:** The docstring comment reads:
 
