@@ -78,7 +78,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   - Wave 3:
     - [x] 03-04-PLAN.md — DIA-05 FSM (3 families + negative case) + DIA-06 return-value substitution + SP-1 spike verdict
   - Wave 4:
-    - [ ] 03-05-PLAN.md — SPC-01 function spec + stdlib-only Google/NumPy/Sphinx docstring parser
+    - [x] 03-05-PLAN.md — SPC-01 function spec + stdlib-only Google/NumPy/Sphinx docstring parser
   - Wave 5:
     - [ ] 03-06-PLAN.md — SPC-02 class spec + SPC-04 icontract/deal/PEP-316 marker detection (final EVALUATIONS entry)
 **UI hint**: yes
@@ -113,6 +113,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Architecture Foundation + Spec Correction | 10/10 | Complete   | 2026-05-25 |
 | 2. Python Frontend + AST Primitives + ACL-2 Adapters | 7/7 | Complete   | 2026-05-31 |
-| 3. Python Diagram + Spec Extractors | 4/6 | In Progress|  |
+| 3. Python Diagram + Spec Extractors | 5/6 | In Progress|  |
 | 4. C++ Frontend + C++ Extractors | 0/TBD | Not started | - |
 | 5. Cross-Cutting Integration + Acceptance | 0/TBD | Not started | - |

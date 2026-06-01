@@ -4,13 +4,13 @@ milestone: v0.1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 3 context gathered
-last_updated: "2026-06-01T17:53:01.677Z"
+last_updated: "2026-06-01T18:02:16.971Z"
 last_activity: 2026-06-01
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 23
-  completed_plans: 22
+  completed_plans: 23
   percent: 40
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-05-24)
 ## Current Position
 
 Phase: 03 (python-diagram-spec-extractors) — EXECUTING
-Plan: 5 of 6
+Plan: 6 of 6
 Status: Ready to execute
 Last activity: 2026-06-01
 
-Progress: [██████████] 96%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -59,6 +59,7 @@ Progress: [██████████] 96%
 | Phase 03 P02 | 14 | 2 tasks | 15 files |
 | Phase 03 P03 | 12 | 2 tasks | 10 files |
 | Phase 03 P04 | 18 | 3 tasks | 12 files |
+| Phase 03 P05 | 6min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -86,6 +87,9 @@ Recent decisions affecting current work:
 - [Phase ?]: Phase 3 Plan 04: SP-1 verdict = DEFER (D-08) — general control-flow→state is NOT deterministic (state identity ambiguous without explicit state var; two valid rules disagree on same source); DIA-05-FULL deferred to v0.3.0, explicit FSM families ship regardless (D-07)
 - [Phase ?]: Phase 3 Plan 04: DIA-06 unresolved marker = GraphEdge.source_unresolved; unresolvable mutation (external call / cycle dead-end / non-literal) emits exactly ONE placeholder edge
 - [Phase ?]: Phase 3 Plan 04: FSM detection via import-provenance parameterized per target pkg — user's own Machine/State without import NOT detected (T-03-08); target libs detected by AST never imported (D-10)
+- [Phase ?]: D-09 honored: SPC-01 docstring parsing is a stdlib-only internal state machine (Google/NumPy/Sphinx); zero external library, grep gate=0
+- [Phase ?]: Three-dialect equivalence is the SPC-01 determinism contract: same function documented 3 ways -> byte-identical normalized output (golden fixture)
+- [Phase ?]: function_spec registered append-only at canonical EVALUATIONS #6; parity snapshot regenerated (function_spec slot only)
 
 ### Pending Todos
 
@@ -106,6 +110,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-01T17:52:24.778Z
+Last session: 2026-06-01T18:01:55.044Z
 Stopped at: Phase 3 context gathered
 Resume file: None
