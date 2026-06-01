@@ -61,6 +61,25 @@ class TestDispatchDictsPopulated:
         ]
 
 
+class TestWR01EvaluationKeyGuard:
+    """WR-01: every EVALUATIONS key must correspond to a declared CodeContent
+    slot, enforced at import time so a misspelled key fails fast rather than
+    surfacing as an opaque Pydantic extra='forbid' error at runtime."""
+
+    def test_every_evaluation_key_is_a_codecontent_field(self) -> None:
+        from lib_code_parser.models.infrastructure.artifact import CodeContent
+
+        content_fields = set(CodeContent.model_fields.keys())
+        for key in EVALUATIONS:
+            assert key in content_fields, f"EVALUATIONS key {key!r} has no CodeContent slot"
+
+    def test_guard_constant_matches_codecontent_fields(self) -> None:
+        from lib_code_parser._dispatch import _CONTENT_FIELDS
+        from lib_code_parser.models.infrastructure.artifact import CodeContent
+
+        assert _CONTENT_FIELDS == frozenset(CodeContent.model_fields.keys())
+
+
 class TestDispatchModuleDocstring:
     """Append-only invariant is documentary (D-13 #4, code review gate)."""
 

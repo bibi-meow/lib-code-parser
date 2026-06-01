@@ -96,6 +96,21 @@ EVALUATIONS["function_spec"] = _extract_function_spec
 # Plan 03-06: SPC-02/04 class_spec at canonical position #7 — the FINAL entry.
 EVALUATIONS["class_spec"] = _extract_class_spec
 
+# WR-01: registration-time guard. The executor assigns each evaluation result
+# into the same-named CodeContent slot via setattr; a misspelled EVALUATIONS
+# key would otherwise surface only at runtime as an opaque Pydantic
+# extra="forbid" error. Assert at import time that every key has a declared
+# CodeContent field so a typo fails fast and clearly.
+from lib_code_parser.models.infrastructure.artifact import CodeContent  # noqa: E402
+
+_CONTENT_FIELDS = frozenset(CodeContent.model_fields.keys())
+for _eval_key in EVALUATIONS:
+    if _eval_key not in _CONTENT_FIELDS:
+        raise AssertionError(
+            f"EVALUATIONS key {_eval_key!r} has no matching CodeContent slot; "
+            f"declared slots: {sorted(_CONTENT_FIELDS)}"
+        )
+
 __all__ = [
     "FrontendFn",
     "PrimitiveFn",
