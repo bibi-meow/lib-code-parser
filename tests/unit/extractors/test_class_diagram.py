@@ -98,6 +98,69 @@ class TestRelationshipRule:
         assert ("Car", "Wheel", "aggregates") in edges  # self.spare: "Wheel | None"
 
 
+class TestCR04ForwardRefSubscript:
+    """CR-04: string forward-ref annotations must extract the inner class from
+    subscripted generics and Optional, not emit the literal composite string."""
+
+    def test_string_list_of_known_aggregates_inner(self) -> None:
+        # `"list[Engine] | None"` → aggregates Engine (not associates the
+        # literal "list[Engine]").
+        src = (
+            "class Engine:\n    pass\n"
+            "class Car:\n    parts: 'list[Engine] | None'\n"
+        )
+        edges = _edges(src)
+        assert ("Car", "Engine", "aggregates") in edges
+        assert not any(t == "list[Engine]" for _, t, _ in edges)
+
+    def test_string_optional_of_known_aggregates_inner(self) -> None:
+        src = (
+            "class Engine:\n    pass\n"
+            "class Car:\n    motor: 'Optional[Engine]'\n"
+        )
+        edges = _edges(src)
+        assert ("Car", "Engine", "aggregates") in edges
+        assert not any(t == "Optional[Engine]" for _, t, _ in edges)
+
+
+class TestWR03UnionBothOperands:
+    """WR-03: `X | Y` of two known classes must emit an edge for EACH operand."""
+
+    def test_union_of_two_known_classes_emits_both(self) -> None:
+        src = (
+            "class Engine:\n    pass\n"
+            "class Wheel:\n    pass\n"
+            "class Car:\n    part: Engine | Wheel\n"
+        )
+        edges = _edges(src)
+        assert ("Car", "Engine", "aggregates") in edges
+        assert ("Car", "Wheel", "aggregates") in edges
+
+    def test_union_with_none_still_aggregates_single(self) -> None:
+        src = (
+            "class Wheel:\n    pass\n"
+            "class Car:\n    spare: Wheel | None\n"
+        )
+        edges = _edges(src)
+        assert ("Car", "Wheel", "aggregates") in edges
+
+
+class TestWR06TypingNamesNotEdges:
+    """WR-06: typing special forms (ClassVar/Type/Final/...) are not classes
+    and must not produce composes/associates edges."""
+
+    def test_classvar_type_final_no_edge(self) -> None:
+        src = (
+            "from typing import ClassVar, Type, Final\n"
+            "class Foo:\n"
+            "    a: ClassVar\n"
+            "    b: Type\n"
+            "    c: Final\n"
+        )
+        edges = _edges(src)
+        assert not any(t in {"ClassVar", "Type", "Final"} for _, t, _ in edges)
+
+
 class TestClassNodes:
     def test_class_nodes_emitted(self) -> None:
         model = extract(_build_cav("class A:\n    pass\nclass B(A):\n    pass\n", "m.py"), _CONFIG)

@@ -32,6 +32,7 @@ Traces: DIA-01, DIA-07, US-25, US-32
 from __future__ import annotations
 
 import ast
+import re
 
 from lib_code_parser._paths import get_module_name
 from lib_code_parser.models.evaluations.graph_base import GraphEdge, GraphModel, GraphNode
@@ -66,6 +67,32 @@ _PRIMITIVE_NAMES: frozenset[str] = frozenset(
     {"int", "str", "float", "bool", "bytes", "complex", "None", "Any", "object"}
 )
 
+# WR-06: typing special forms that are NOT classes — they must never produce a
+# composes/associates edge (e.g. `x: ClassVar`, `y: Type`). The aggregating
+# container forms (Optional/Union/List/...) are handled by the subscript path
+# in _AGGREGATING_CONTAINERS; these are the non-container typing names that
+# would otherwise leak through the bare-Name / Attribute branches.
+_TYPING_NAMES: frozenset[str] = frozenset(
+    {
+        "Type",
+        "ClassVar",
+        "Final",
+        "Annotated",
+        "TypeVar",
+        "Protocol",
+        "Callable",
+        "Awaitable",
+        "Generator",
+        "AsyncGenerator",
+        "ContextManager",
+        "AsyncContextManager",
+        "Generic",
+        "NoReturn",
+        "Never",
+        "Self",
+    }
+)
+
 
 def _collect_known_classes(tree: ast.Module, module_name: str) -> set[str]:
     """Class-like names resolvable in this module (ClassDefs + imported classes).
@@ -94,27 +121,36 @@ def _collect_known_classes(tree: ast.Module, module_name: str) -> set[str]:
     return known
 
 
-def _classify_annotation(annotation: ast.expr, known: set[str]) -> tuple[str, str] | None:
-    """Return (edge_type, target_class) for an annotation, or None to skip.
+def _classify_name(name: str, known: set[str]) -> list[tuple[str, str]]:
+    """Classify a single resolved identifier into zero or one edge.
+
+      • builtin / primitive / typing special form → [] (plain field, no edge)
+      • direct known class                         → [("composes", name)]
+      • undecidable / unknown name                 → [("associates", name)]
+    """
+    if name in _PRIMITIVE_NAMES or name in _TYPING_NAMES:
+        return []
+    if name in known:
+        return [("composes", name)]
+    return [("associates", name)]
+
+
+def _classify_annotation(annotation: ast.expr, known: set[str]) -> list[tuple[str, str]]:
+    """Return the list of (edge_type, target_class) edges for an annotation.
 
     Decision rule (RESEARCH §composition-vs-aggregation):
-      • direct known class            → ("composes", name)
+      • direct known class            → [("composes", name)]
       • Optional[X] / X | None / list[X] / set[X] / dict[K,V] of a known class
-                                       → ("aggregates", inner)
-      • builtin / primitive           → None (plain field, no edge)
-      • undecidable / unknown name    → ("associates", name)
+                                       → [("aggregates", inner)]
+      • X | Y union of classes        → one edge per resolvable operand (WR-03)
+      • builtin / primitive / typing   → [] (plain field, no edge)
+      • undecidable / unknown name    → [("associates", name)]
     """
     # Direct name: `x: Engine` or `n: int`.
     if isinstance(annotation, ast.Name):
-        name = annotation.id
-        if name in _PRIMITIVE_NAMES:
-            return None
-        if name in known:
-            return "composes", name
-        # Unknown bare name → undecidable → association fallback.
-        return "associates", name
+        return _classify_name(annotation.id, known)
 
-    # Forward-ref string: `w: "Engine"` / `w: "Unknown"`.
+    # Forward-ref string: `w: "Engine"` / `w: "list[Engine] | None"`.
     if isinstance(annotation, ast.Constant) and isinstance(annotation.value, str):
         inner = annotation.value.strip()
         return _classify_annotation_from_text(inner, known)
@@ -129,40 +165,71 @@ def _classify_annotation(annotation: ast.expr, known: set[str]) -> tuple[str, st
 
     # Attribute form `mod.Engine`: use the attribute name.
     if isinstance(annotation, ast.Attribute):
-        name = annotation.attr
-        if name in _PRIMITIVE_NAMES:
-            return None
-        if name in known:
-            return "composes", name
-        return "associates", name
+        return _classify_name(annotation.attr, known)
 
     # Anything else (Tuple-of-types without subscript, complex exprs) → skip
     # rather than fabricate an edge.
-    return None
+    return []
 
 
-def _classify_annotation_from_text(text: str, known: set[str]) -> tuple[str, str] | None:
-    """Classify a forward-ref string annotation by its leading identifier."""
-    # `Wheel | None` inside a string.
+def _classify_text_token(
+    token: str, known: set[str], *, in_union: bool
+) -> list[tuple[str, str]]:
+    """Classify one token from a forward-ref string, handling `container[Inner]`.
+
+    CR-04: a string forward-ref like ``"list[Engine]"`` must extract the inner
+    class ``Engine`` (→ aggregates), not emit the literal composite string.
+
+    ``in_union``: a token that is one operand of a ``|`` union is has-a
+    (Optional-equivalent), so a bare known class resolves to ``aggregates``
+    rather than ``composes`` (parity with the AST union path and v0.1.0).
+    """
+    token = token.strip()
+    if not token or token == "None" or token in _PRIMITIVE_NAMES or token in _TYPING_NAMES:
+        return []
+    base = token.split("[", 1)[0].strip()
+    if "[" in token and base in _AGGREGATING_CONTAINERS:
+        inner = token[len(base):].strip().lstrip("[").rstrip("]").strip()
+        # Inner may itself be a union or comma list — take the first resolvable.
+        for piece in re.split(r"[|,]", inner):
+            piece = piece.strip()
+            if not piece or piece == "None" or piece in _PRIMITIVE_NAMES:
+                continue
+            inner_base = piece.split("[", 1)[0].strip()
+            if inner_base in known:
+                return [("aggregates", inner_base)]
+            if inner_base and inner_base not in _TYPING_NAMES:
+                return [("associates", inner_base)]
+        return []
+    # Non-aggregating subscript or bare name: classify by the base identifier.
+    if base in known:
+        # Bare known class: composes for a direct forward-ref, aggregates when
+        # it is a union operand or carries a subscript (has-a semantics).
+        aggregating = in_union or "[" in token
+        return [("aggregates" if aggregating else "composes", base)]
+    if base in _PRIMITIVE_NAMES or base in _TYPING_NAMES:
+        return []
+    return [("associates", base)]
+
+
+def _classify_annotation_from_text(text: str, known: set[str]) -> list[tuple[str, str]]:
+    """Classify a forward-ref string annotation (handles unions + subscripts)."""
+    # `Wheel | None` / `Engine | Wheel` inside a string → one edge per operand.
     if "|" in text:
-        for part in (p.strip() for p in text.split("|")):
-            if part and part != "None" and part not in _PRIMITIVE_NAMES:
-                if part in known:
-                    return "aggregates", part
-                return "associates", part
-        return None
-    if text in _PRIMITIVE_NAMES:
-        return None
-    if text in known:
-        return "composes", text
-    return "associates", text
+        results: list[tuple[str, str]] = []
+        for part in text.split("|"):
+            results.extend(_classify_text_token(part, known, in_union=True))
+        return results
+    return _classify_text_token(text, known, in_union=False)
 
 
-def _classify_union(node: ast.BinOp, known: set[str]) -> tuple[str, str] | None:
-    """`X | None` / `X | Y` → aggregates the first non-None known class.
+def _classify_union(node: ast.BinOp, known: set[str]) -> list[tuple[str, str]]:
+    """`X | None` / `X | Y` → one ``aggregates``/``associates`` edge per operand.
 
-    A union with None (Optional-equivalent) is has-a → aggregates. The inner
-    class is the first non-None operand.
+    A union is has-a (no shared lifetime) → ``aggregates`` for known classes.
+    WR-03: ALL non-None, non-primitive operands produce an edge (previously
+    only the first operand was emitted, silently dropping ``Wheel`` in
+    ``Engine | Wheel``).
     """
     operands: list[ast.expr] = []
 
@@ -174,40 +241,41 @@ def _classify_union(node: ast.BinOp, known: set[str]) -> tuple[str, str] | None:
             operands.append(expr)
 
     _flatten(node)
+    results: list[tuple[str, str]] = []
     for operand in operands:
         name = _name_of(operand)
-        if name is None or name == "None" or name in _PRIMITIVE_NAMES:
+        if name is None or name == "None" or name in _PRIMITIVE_NAMES or name in _TYPING_NAMES:
             continue
-        if name in known:
-            return "aggregates", name
-        return "associates", name
-    return None
+        results.append(("aggregates" if name in known else "associates", name))
+    return results
 
 
-def _classify_subscript(node: ast.Subscript, known: set[str]) -> tuple[str, str] | None:
+def _classify_subscript(node: ast.Subscript, known: set[str]) -> list[tuple[str, str]]:
     """Optional[X] / list[X] / dict[K, V] → aggregates the inner known class."""
     container = _name_of(node.value)
     if container not in _AGGREGATING_CONTAINERS:
         # Unknown generic / parametrized unknown → undecidable → associates by
         # the container name (do not fabricate composition).
-        if container is not None and container not in _PRIMITIVE_NAMES:
-            if container in known:
-                return "composes", container
-            return "associates", container
-        return None
+        if (
+            container is not None
+            and container not in _PRIMITIVE_NAMES
+            and container not in _TYPING_NAMES
+        ):
+            return [("composes" if container in known else "associates", container)]
+        return []
 
     inner_names = _subscript_inner_names(node.slice)
     for name in inner_names:
         if name in (None, "None") or name in _PRIMITIVE_NAMES:
             continue
         if name in known:
-            return "aggregates", name
+            return [("aggregates", name)]
     # Container of unknown / builtin only → undecidable: associate the first
     # non-primitive unknown if present, else skip.
     for name in inner_names:
         if name and name != "None" and name not in _PRIMITIVE_NAMES:
-            return "associates", name
-    return None
+            return [("associates", name)]
+    return []
 
 
 def _subscript_inner_names(slice_node: ast.expr) -> list[str | None]:
@@ -282,15 +350,13 @@ def extract(cav: CAV, config: ParserConfig) -> GraphModel:
             if base_name and base_name != "object":
                 edges.append(GraphEdge(source=class_name, target=base_name, edge_type="inherits"))
 
-        # Relationship edges from declared attribute annotations.
+        # Relationship edges from declared attribute annotations. One annotation
+        # may yield multiple edges (e.g. a `X | Y` union — WR-03).
         for annotation in _class_attr_annotations(class_node):
-            classified = _classify_annotation(annotation, known)
-            if classified is None:
-                continue
-            edge_type, target = classified
-            edges.append(
-                GraphEdge(source=class_name, target=target, edge_type=edge_type)  # type: ignore[arg-type]
-            )
+            for edge_type, target in _classify_annotation(annotation, known):
+                edges.append(
+                    GraphEdge(source=class_name, target=target, edge_type=edge_type)  # type: ignore[arg-type]
+                )
 
     node_ids = list(dict.fromkeys(node_ids))
     nodes = [GraphNode(node_id=nid, node_type="class", label=nid) for nid in node_ids]
