@@ -105,19 +105,13 @@ class TestCR04ForwardRefSubscript:
     def test_string_list_of_known_aggregates_inner(self) -> None:
         # `"list[Engine] | None"` → aggregates Engine (not associates the
         # literal "list[Engine]").
-        src = (
-            "class Engine:\n    pass\n"
-            "class Car:\n    parts: 'list[Engine] | None'\n"
-        )
+        src = "class Engine:\n    pass\nclass Car:\n    parts: 'list[Engine] | None'\n"
         edges = _edges(src)
         assert ("Car", "Engine", "aggregates") in edges
         assert not any(t == "list[Engine]" for _, t, _ in edges)
 
     def test_string_optional_of_known_aggregates_inner(self) -> None:
-        src = (
-            "class Engine:\n    pass\n"
-            "class Car:\n    motor: 'Optional[Engine]'\n"
-        )
+        src = "class Engine:\n    pass\nclass Car:\n    motor: 'Optional[Engine]'\n"
         edges = _edges(src)
         assert ("Car", "Engine", "aggregates") in edges
         assert not any(t == "Optional[Engine]" for _, t, _ in edges)
@@ -137,10 +131,7 @@ class TestWR03UnionBothOperands:
         assert ("Car", "Wheel", "aggregates") in edges
 
     def test_union_with_none_still_aggregates_single(self) -> None:
-        src = (
-            "class Wheel:\n    pass\n"
-            "class Car:\n    spare: Wheel | None\n"
-        )
+        src = "class Wheel:\n    pass\nclass Car:\n    spare: Wheel | None\n"
         edges = _edges(src)
         assert ("Car", "Wheel", "aggregates") in edges
 

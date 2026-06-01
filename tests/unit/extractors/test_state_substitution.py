@@ -95,7 +95,9 @@ class TestUnresolvableSubstitution:
             for e in model.edges
             if e.edge_type == "transitions_to" and not e.source_unresolved
         }
-        assert "A" not in concrete or all(e.source_unresolved for e in model.edges if e.target == "compute")
+        assert "A" not in concrete or all(
+            e.source_unresolved for e in model.edges if e.target == "compute"
+        )
 
 
 class TestSubstitutionDeterminism:

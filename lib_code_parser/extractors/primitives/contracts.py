@@ -149,8 +149,7 @@ def extract(cav: CAV, config: ParserConfig) -> dict[str, ContractInfo]:
     """
     tree = cav.payload
     assert isinstance(tree, ast.Module), (
-        f"contracts extractor requires Python CAV (ast.Module payload), "
-        f"got {type(tree).__name__}"
+        f"contracts extractor requires Python CAV (ast.Module payload), got {type(tree).__name__}"
     )
     module_name = get_module_name(cav.path)
     aliases = _resolve_decorator_aliases(tree)

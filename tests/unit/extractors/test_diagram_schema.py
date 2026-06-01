@@ -51,8 +51,7 @@ def assert_valid_graphmodel(model: object) -> None:
             if field_name in _logical_edge_fields:
                 continue
             assert field_name.startswith(_PHYSICAL_PREFIXES), (
-                f"non-logical edge field {field_name!r} must use a "
-                f"physical_*/source_* prefix"
+                f"non-logical edge field {field_name!r} must use a physical_*/source_* prefix"
             )
 
 

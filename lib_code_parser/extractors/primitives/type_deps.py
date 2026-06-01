@@ -90,8 +90,7 @@ def extract(cav: CAV, config: ParserConfig) -> list[TypeDep]:
     """
     tree = cav.payload
     assert isinstance(tree, ast.Module), (
-        f"type_deps extractor requires Python CAV (ast.Module payload), "
-        f"got {type(tree).__name__}"
+        f"type_deps extractor requires Python CAV (ast.Module payload), got {type(tree).__name__}"
     )
     module_name = get_module_name(cav.path)
     raw_deps: list[TypeDep] = []

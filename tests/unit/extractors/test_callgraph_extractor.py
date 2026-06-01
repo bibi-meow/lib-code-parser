@@ -61,12 +61,7 @@ def test_duplicate_callee_not_deduped(config):
 
 def test_nested_function_flattened_to_outer(config):
     """CG4: nested inner()'s leaf() flattens to outer; inner is not a node."""
-    src = (
-        "def outer():\n"
-        "    def inner():\n"
-        "        leaf()\n"
-        "    inner()\n"
-    )
+    src = "def outer():\n    def inner():\n        leaf()\n    inner()\n"
     cav = _build_cav(src)
     cg = extract(cav, config)
     pairs = [(e.caller, e.callee) for e in cg.edges]
@@ -109,13 +104,7 @@ def test_edges_lex_sorted_by_caller_callee(config):
 
 def test_nodes_insertion_order_with_dedup(config):
     """Nodes use dict.fromkeys: insertion order preserved, duplicates removed."""
-    src = (
-        "class Foo:\n"
-        "    def bar(self):\n"
-        "        pass\n"
-        "def top():\n"
-        "    pass\n"
-    )
+    src = "class Foo:\n    def bar(self):\n        pass\ndef top():\n    pass\n"
     cg = extract(_build_cav(src), config)
     assert cg.nodes == ["m.Foo", "m.Foo.bar", "m.top"]
     assert len(cg.nodes) == len(set(cg.nodes))

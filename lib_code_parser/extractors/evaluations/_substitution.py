@@ -180,11 +180,7 @@ def resolve_substitution_edges(module: ast.Module) -> tuple[list[str], list[Grap
         # class's `self.state = self._compute()` would resolve `_compute`
         # against the OUTER class's methods dict (a different `self`),
         # emitting a phantom resolved/placeholder edge for the outer class.
-        method_nodes = (
-            node
-            for method in methods.values()
-            for node in ast.walk(method)
-        )
+        method_nodes = (node for method in methods.values() for node in ast.walk(method))
         for node in method_nodes:
             if not isinstance(node, ast.Assign):
                 continue

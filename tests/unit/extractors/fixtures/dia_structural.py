@@ -45,7 +45,7 @@ CLASS_HIERARCHY_PATH = "src/shapes.py"
 
 # __init__ self-attribute annotations fixture: relationships declared inside
 # __init__ via `self.x: T = ...` rather than class-body AnnAssign.
-INIT_ATTRS_SOURCE = '''
+INIT_ATTRS_SOURCE = """
 class Wheel:
     pass
 
@@ -54,6 +54,6 @@ class Car:
     def __init__(self) -> None:
         self.wheel: Wheel = Wheel()      # composes
         self.spare: "Wheel | None" = None  # aggregates (X | None)
-'''
+"""
 
 INIT_ATTRS_PATH = "src/auto.py"

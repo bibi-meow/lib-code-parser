@@ -39,9 +39,7 @@ def _state_nodes(model: GraphModel) -> list[str]:
 
 
 def _transitions(model: GraphModel) -> set[tuple[str, str, str]]:
-    return {
-        (e.source, e.target, e.label) for e in model.edges if e.edge_type == "transitions_to"
-    }
+    return {(e.source, e.target, e.label) for e in model.edges if e.edge_type == "transitions_to"}
 
 
 class TestFamilyATransitionsMachine:

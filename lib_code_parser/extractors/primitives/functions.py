@@ -29,9 +29,7 @@ from lib_code_parser.models.primitives.functions import (
 
 __all__ = ["extract"]
 
-_TRACE_TAGS_RE = re.compile(
-    r"Traces:\s*([A-Z]+-\d+(?:\s*,\s*[A-Z]+-\d+)*)", re.MULTILINE
-)
+_TRACE_TAGS_RE = re.compile(r"Traces:\s*([A-Z]+-\d+(?:\s*,\s*[A-Z]+-\d+)*)", re.MULTILINE)
 
 
 def _extract_annotation(node: ast.expr | None) -> str:
@@ -82,8 +80,7 @@ def extract(cav: CAV, config: ParserConfig) -> list[FunctionNode]:
     """
     tree = cav.payload  # ast.Module — declared opaque in CAV
     assert isinstance(tree, ast.Module), (
-        f"functions extractor requires Python CAV (ast.Module payload), "
-        f"got {type(tree).__name__}"
+        f"functions extractor requires Python CAV (ast.Module payload), got {type(tree).__name__}"
     )
     module_name = get_module_name(cav.path)
     functions: list[FunctionNode] = []

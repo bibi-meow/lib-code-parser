@@ -124,9 +124,9 @@ def _collect_known_classes(tree: ast.Module, module_name: str) -> set[str]:
 def _classify_name(name: str, known: set[str]) -> list[tuple[str, str]]:
     """Classify a single resolved identifier into zero or one edge.
 
-      • builtin / primitive / typing special form → [] (plain field, no edge)
-      • direct known class                         → [("composes", name)]
-      • undecidable / unknown name                 → [("associates", name)]
+    • builtin / primitive / typing special form → [] (plain field, no edge)
+    • direct known class                         → [("composes", name)]
+    • undecidable / unknown name                 → [("associates", name)]
     """
     if name in _PRIMITIVE_NAMES or name in _TYPING_NAMES:
         return []
@@ -172,9 +172,7 @@ def _classify_annotation(annotation: ast.expr, known: set[str]) -> list[tuple[st
     return []
 
 
-def _classify_text_token(
-    token: str, known: set[str], *, in_union: bool
-) -> list[tuple[str, str]]:
+def _classify_text_token(token: str, known: set[str], *, in_union: bool) -> list[tuple[str, str]]:
     """Classify one token from a forward-ref string, handling `container[Inner]`.
 
     CR-04: a string forward-ref like ``"list[Engine]"`` must extract the inner
@@ -189,7 +187,7 @@ def _classify_text_token(
         return []
     base = token.split("[", 1)[0].strip()
     if "[" in token and base in _AGGREGATING_CONTAINERS:
-        inner = token[len(base):].strip().lstrip("[").rstrip("]").strip()
+        inner = token[len(base) :].strip().lstrip("[").rstrip("]").strip()
         # Inner may itself be a union or comma list — take the first resolvable.
         for piece in re.split(r"[|,]", inner):
             piece = piece.strip()

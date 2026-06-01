@@ -26,7 +26,7 @@ def _build_cav(source: str, path: str) -> CAV:
 
 def test_c1_simple_validator() -> None:
     """C1: @validator("x") (simple Name) → pydantic_validator/precondition."""
-    source = '''
+    source = """
 from pydantic import validator
 
 class Foo:
@@ -34,7 +34,7 @@ class Foo:
     @classmethod
     def val_x(cls, v):
         return v
-'''
+"""
     result = extract(_build_cav(source, "mod.py"), _CONFIG)
     ci = result["mod.Foo"]
     assert len(ci.entries) == 1
@@ -47,7 +47,7 @@ class Foo:
 
 def test_c2_attribute_field_validator() -> None:
     """C2: @pydantic.field_validator("x") (Attribute) → pydantic_field_validator."""
-    source = '''
+    source = """
 import pydantic
 
 class Foo:
@@ -55,7 +55,7 @@ class Foo:
     @classmethod
     def val_x(cls, v):
         return v
-'''
+"""
     result = extract(_build_cav(source, "mod.py"), _CONFIG)
     ci = result["mod.Foo"]
     assert len(ci.entries) == 1
@@ -69,7 +69,7 @@ def test_c3_alias_resolution_fixes_v01_bug() -> None:
     v0.1.0 failed to detect this. Phase 2 resolves the alias to the canonical
     field_validator name.
     """
-    source = '''
+    source = """
 from pydantic import field_validator as fv
 
 class Foo:
@@ -77,7 +77,7 @@ class Foo:
     @classmethod
     def val_x(cls, v):
         return v
-'''
+"""
     result = extract(_build_cav(source, "mod.py"), _CONFIG)
     ci = result["mod.Foo"]
     assert len(ci.entries) == 1
@@ -87,14 +87,14 @@ class Foo:
 
 def test_c4_root_validator_recognized() -> None:
     """C4: @root_validator → pydantic_model_validator/invariant (v0.1.0 bug fix)."""
-    source = '''
+    source = """
 from pydantic import root_validator
 
 class Foo:
     @root_validator
     def check(cls, values):
         return values
-'''
+"""
     result = extract(_build_cav(source, "mod.py"), _CONFIG)
     ci = result["mod.Foo"]
     assert len(ci.entries) == 1
@@ -105,7 +105,7 @@ class Foo:
 
 def test_c5_decorator_chain_first_match() -> None:
     """C5: @field_validator + @classmethod → exactly 1 entry (first match wins)."""
-    source = '''
+    source = """
 from pydantic import field_validator
 
 class Foo:
@@ -113,7 +113,7 @@ class Foo:
     @classmethod
     def val_x(cls, v):
         return v
-'''
+"""
     result = extract(_build_cav(source, "mod.py"), _CONFIG)
     ci = result["mod.Foo"]
     assert len(ci.entries) == 1
@@ -121,14 +121,14 @@ class Foo:
 
 def test_c6_factory_call_form() -> None:
     """C6: @validator("x", pre=True) (Call form) → 1 entry."""
-    source = '''
+    source = """
 from pydantic import validator
 
 class Foo:
     @validator("x", pre=True)
     def val_x(cls, v):
         return v
-'''
+"""
     result = extract(_build_cav(source, "mod.py"), _CONFIG)
     ci = result["mod.Foo"]
     assert len(ci.entries) == 1
@@ -141,11 +141,11 @@ def test_c7_post_init_in_plain_class_gets_dataclass_post_init() -> None:
     The verifier must no longer see __post_init__ as an unconditional Pydantic
     concept; method-name-only detection tags it dataclass_post_init.
     """
-    source = '''
+    source = """
 class PlainClass:
     def __post_init__(self):
         pass
-'''
+"""
     result = extract(_build_cav(source, "mod.py"), _CONFIG)
     ci = result["mod.PlainClass"]
     assert len(ci.entries) == 1
@@ -158,7 +158,7 @@ class PlainClass:
 
 def test_mixed_validator_and_post_init() -> None:
     """D-13: @field_validator + __post_init__ in one class → 2 entries, distinct source_kind."""
-    source = '''
+    source = """
 from pydantic import field_validator
 
 class Mixed:
@@ -169,7 +169,7 @@ class Mixed:
 
     def __post_init__(self):
         pass
-'''
+"""
     result = extract(_build_cav(source, "mod.py"), _CONFIG)
     ci = result["mod.Mixed"]
     assert len(ci.entries) == 2
@@ -186,26 +186,26 @@ def test_non_pydantic_import_not_classified() -> None:
     excluded — preventing false positives that would leak function names into
     the physical-architecture output.
     """
-    source = '''
+    source = """
 from other_lib import field_validator
 
 class Foo:
     @field_validator("x")
     def val_x(cls, v):
         return v
-'''
+"""
     result = extract(_build_cav(source, "mod.py"), _CONFIG)
     assert "mod.Foo" not in result
 
 
 def test_no_import_bare_decorator_not_classified() -> None:
     """A decorator name with no import at all is not classified (no pydantic provenance)."""
-    source = '''
+    source = """
 class Foo:
     @field_validator("x")
     def val_x(cls, v):
         return v
-'''
+"""
     result = extract(_build_cav(source, "mod.py"), _CONFIG)
     assert "mod.Foo" not in result
 

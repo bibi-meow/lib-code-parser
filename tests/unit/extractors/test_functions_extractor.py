@@ -90,9 +90,7 @@ def test_extract_emit_order_classes_first_then_top_level(example_cav, example_co
     first_class_idx = kinds.index("class")
     assert first_class_idx < first_function_idx
     # And every "function" entry comes after every "class"/"method" entry.
-    last_non_function_idx = max(
-        i for i, k in enumerate(kinds) if k in ("class", "method")
-    )
+    last_non_function_idx = max(i for i, k in enumerate(kinds) if k in ("class", "method"))
     assert first_function_idx > last_non_function_idx
 
 

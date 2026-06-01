@@ -142,15 +142,11 @@ class PyrightAdapter(SubprocessAdapter):
         these — analyze() calls parse_output directly with them.
         """
         if returncode not in _OK_RETURNCODES:
-            raise RuntimeError(
-                f"pyright exited with code {returncode}: stderr={stderr[:500]}"
-            )
+            raise RuntimeError(f"pyright exited with code {returncode}: stderr={stderr[:500]}")
         try:
             raw = json.loads(stdout)
         except json.JSONDecodeError as e:
-            raise RuntimeError(
-                f"pyright JSON parse failed: {e}; stdout={stdout[:500]}"
-            ) from e
+            raise RuntimeError(f"pyright JSON parse failed: {e}; stdout={stdout[:500]}") from e
 
         tmpdir_fwd = tmpdir.replace("\\", "/") if tmpdir else ""
         diagnostics: list[PyrightDiagnostic] = []
@@ -203,14 +199,11 @@ class PyrightAdapter(SubprocessAdapter):
                     extra_env=_PYRIGHT_DET_ENV,
                 )
             except subprocess.TimeoutExpired as e:
-                raise RuntimeError(
-                    f"pyright timed out after {e.timeout}s on {path}"
-                ) from e
+                raise RuntimeError(f"pyright timed out after {e.timeout}s on {path}") from e
             except FileNotFoundError as e:
                 # pyright executable not installed — D-06 fail-loudly
                 raise RuntimeError(
-                    f"pyright executable not found ({e}); "
-                    "install pyright[nodejs]==1.1.409"
+                    f"pyright executable not found ({e}); install pyright[nodejs]==1.1.409"
                 ) from e
 
             return self.parse_output(

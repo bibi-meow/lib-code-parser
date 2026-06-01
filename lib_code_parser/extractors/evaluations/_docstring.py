@@ -365,9 +365,7 @@ def _derive_conditions(
             lowered = sec.text.lower()
             if "if " in lowered or _has_precondition_keyword(sec.text):
                 label = f"{sec.name}: {sec.text}".strip(": ").strip()
-                pre.append(
-                    SpecCondition(kind="precondition", text=label, source_kind="docstring")
-                )
+                pre.append(SpecCondition(kind="precondition", text=label, source_kind="docstring"))
         elif sec.kind == "returns" and (sec.text or sec.type_ref):
             label = f"{sec.type_ref}: {sec.text}".strip(": ").strip()
             post.append(SpecCondition(kind="postcondition", text=label, source_kind="docstring"))

@@ -155,10 +155,7 @@ class TestWR04GoogleMultiLineParam:
 
     def test_continuation_lines_joined_into_description(self) -> None:
         doc = (
-            "Summary.\n\n"
-            "Args:\n"
-            "    x (int): This is a long\n"
-            "        description spanning lines.\n"
+            "Summary.\n\nArgs:\n    x (int): This is a long\n        description spanning lines.\n"
         )
         sections, _, _ = parse(doc)
         params = [s for s in sections if s.kind == "params"]

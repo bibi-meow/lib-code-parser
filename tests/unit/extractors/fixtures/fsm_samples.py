@@ -89,11 +89,7 @@ FAMILY_C_LITERAL = (
 # self.state = reassignment -> ZERO state machines / ZERO state nodes.
 # ---------------------------------------------------------------------------
 NEGATIVE_BARE_ENUM = (
-    "from enum import Enum\n"
-    "class Color(Enum):\n"
-    "    RED = 1\n"
-    "    GREEN = 2\n"
-    "    BLUE = 3\n"
+    "from enum import Enum\nclass Color(Enum):\n    RED = 1\n    GREEN = 2\n    BLUE = 3\n"
 )
 
 # ---------------------------------------------------------------------------

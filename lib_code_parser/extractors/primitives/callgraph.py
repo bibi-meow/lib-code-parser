@@ -64,8 +64,7 @@ def extract(cav: CAV, config: ParserConfig) -> CallGraph:
     """
     tree = cav.payload  # type: ignore[assignment]
     assert isinstance(tree, ast.Module), (
-        f"callgraph extractor requires Python CAV (ast.Module payload), "
-        f"got {type(tree).__name__}"
+        f"callgraph extractor requires Python CAV (ast.Module payload), got {type(tree).__name__}"
     )
     module_name = get_module_name(cav.path)
     nodes: list[str] = []

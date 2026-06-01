@@ -109,9 +109,7 @@ def test_pyrightconfig_json_written_to_tmpdir(
         def __call__(self, argv, *, cwd, timeout=60.0, extra_env=None):
             cfg = Path(cwd) / "pyrightconfig.json"
             seen["content"] = cfg.read_text(encoding="utf-8")
-            return super().__call__(
-                argv, cwd=cwd, timeout=timeout, extra_env=extra_env
-            )
+            return super().__call__(argv, cwd=cwd, timeout=timeout, extra_env=extra_env)
 
     mock = _CfgRun(stdout='{"version":"1.1.409","generalDiagnostics":[]}')
     monkeypatch.setattr("lib_code_parser.adapters.pyright.run_subprocess", mock)
@@ -131,9 +129,7 @@ def test_target_file_written_with_module_name_basename(
     class _FileRun(_MockRun):
         def __call__(self, argv, *, cwd, timeout=60.0, extra_env=None):
             seen["exists"] = (Path(cwd) / "order_service.py").is_file()
-            return super().__call__(
-                argv, cwd=cwd, timeout=timeout, extra_env=extra_env
-            )
+            return super().__call__(argv, cwd=cwd, timeout=timeout, extra_env=extra_env)
 
     mock = _FileRun(stdout='{"version":"1.1.409","generalDiagnostics":[]}')
     monkeypatch.setattr("lib_code_parser.adapters.pyright.run_subprocess", mock)
