@@ -611,22 +611,25 @@ _MARKER = {  # (package, attr) -> (kind, source_kind)
 | A7 | `deal.pre`/`ensure`/`inv` names (only `deal.post` had a code example in fetched docs) | §deal | Names are the documented DbC trio; low risk but planner should confirm against deal docs when writing the matcher table |
 | A8 | Dialect detection order (Sphinx → NumPy → Google) is byte-stable and unambiguous | §Docstring Dialect Parsing | A docstring mixing dialects could mis-detect; order chosen to prefer most-specific markers first |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **`unresolved` marker placement on edges**
    - What we know: DIA-06 mandates an `unresolved=true` attribute; `GraphEdge` has no `attributes` field and is `extra="forbid"`.
    - What's unclear: whether to add `source_unresolved: bool`, use `label`, or mark the node.
    - Recommendation: add `source_unresolved: bool = False` to `GraphEdge` (SCH-02 `source_` prefix, default keeps parity). Planner confirms at DIA-06 design.
+   - **RESOLVED:** 03-01 Task 1 adds `source_unresolved: bool = False` to `GraphEdge` (SCH-02 `source_` prefix, D-01 append-only).
 
 2. **`contains` EdgeKind for package containment (D-01 open sub-decision)**
    - What we know: D-01 permits adding `contains` IF node-nesting/attributes can't express package→module containment.
    - What's unclear: whether DIA-04 can represent containment purely via `GraphNode.attributes` (e.g., `attributes={"parent_package": "..."}`).
    - Recommendation: prefer attribute-based containment first (avoids EdgeKind growth); add `contains` only if a containment *edge* is genuinely required for verifier comparison. Decide at DIA-04 design.
+   - **RESOLVED:** 03-01/03-02 express package containment via `GraphNode.attributes`; `contains` NOT added (only `imports` appended to EdgeKind).
 
 3. **SP-2 / SP-1 spike verdicts** (gate v0.2.0 scope)
    - What we know: D-08 — ship if deterministically AST-extractable, else defer to v0.3.0.
    - What's unclear: actual verdict (run the spike).
    - Recommendation: SP-2 — `ast.If`/`ast.For`/`ast.While`/`async` map cleanly to `alt`/`loop`/`par` frames deterministically, so SP-2 looks **shippable** (confirm with fixtures in the spike). SP-1 — general control-flow → state beyond explicit FSM is far harder to make deterministic (state identity is ambiguous without an explicit state variable), so SP-1 likely **defers to v0.3.0**. Record both verdicts in `.planning/spikes/`.
+   - **RESOLVED-AT-RUNTIME:** by design a deterministic-rule probe; 03-03 Task 1 (SP-2) and 03-04 Task 1 (SP-1) produce the verdict during execution per D-08.
 
 ## Environment Availability
 
