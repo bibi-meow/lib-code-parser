@@ -43,20 +43,20 @@ verifier (LLM agent) の責務であり、本 lib は事実抽出のみを担っ
 - [ ] spec 修正 — `lib-code-parser.md` の `callgraph.py` + "ACL-2" 表記を削除 (存在しない tool への参照)
 
 **B. Diagram 抽出 (5 種、`lib-diagram-parser` と同形式の structured graph data + 物理メタデータ):**
-- [ ] クラス図抽出 — class 定義 + 継承 + 集約関係 (composition vs aggregation は py2puml 流の type-annotation 由来規則 + 不明時は `association` フォールバック)
-- [ ] シーケンス図抽出 — call graph + 制御フロー (linear が must-have、branch fidelity (alt/loop/par) は spike SP-2)
-- [ ] コンポーネント図抽出 — module/file 境界 + import 依存
-- [ ] パッケージ図抽出 — directory 構造 + namespace 階層 (file = package を 1 単位として複数 package 表現)
-- [ ] 状態遷移図抽出 — FSM 明示パターン (enum + transition method、library-anchored `transitions` / `python-statemachine` AST 検出) **must-have**
-- [ ] 状態遷移図抽出 — 非リテラル state mutation の **return-value substitution 解析** (`self.state = self._next()` を見つけたら `_next()` の return statements を再帰的に解決し、全 return が state literal なら全 edge を emit。N 階層、cycle detection 付き)
-- [ ] 状態遷移図抽出 — 汎用制御フロー由来の状態抽出 **spike SP-1 (決定論的ルール構築可否を検証)**
-- [ ] **lib-diagram-parser 側 contract 変更**: `node_type="package"` enum 値追加の提案 (sibling lib coordination)
+- [x] クラス図抽出 — class 定義 + 継承 + 集約関係 (composition vs aggregation は py2puml 流の type-annotation 由来規則 + 不明時は `association` フォールバック) — Phase 3 (DIA-01)
+- [x] シーケンス図抽出 — call graph + 制御フロー (linear が must-have、branch fidelity (alt/loop/par) は spike SP-2) — Phase 3 (DIA-02、SP-2 verdict=SHIP → branch frames も出荷)
+- [x] コンポーネント図抽出 — module/file 境界 + import 依存 — Phase 3 (DIA-03)
+- [x] パッケージ図抽出 — directory 構造 + namespace 階層 (file = package を 1 単位として複数 package 表現) — Phase 3 (DIA-04、D-06 により in-lib 完結・sibling PR 不要)
+- [x] 状態遷移図抽出 — FSM 明示パターン (enum + transition method、library-anchored `transitions` / `python-statemachine` AST 検出) **must-have** — Phase 3 (DIA-05)
+- [x] 状態遷移図抽出 — 非リテラル state mutation の **return-value substitution 解析** (`self.state = self._next()` を見つけたら `_next()` の return statements を再帰的に解決し、全 return が state literal なら全 edge を emit。N 階層、cycle detection 付き) — Phase 3 (DIA-06)
+- [x] 状態遷移図抽出 — 汎用制御フロー由来の状態抽出 **spike SP-1 (決定論的ルール構築可否を検証)** — Phase 3 (SP-1 verdict=DEFER → 汎用制御フロー state は Out of Scope へ、DIA-05-FULL として v0.3.0 延期)
+- [x] **lib-diagram-parser 側 contract 変更**: `node_type="package"` enum 値追加の提案 (sibling lib coordination) — Phase 3 で D-06 採択により不要化 (`node_type="package"` を plain str として in-lib 完結、sibling PR 依存を解消)
 
 **C. Spec 抽出 (`lib-spec-parser` と並列):**
-- [ ] 関数仕様抽出 (Python) — signature + docstring (Google/NumPy/Sphinx Napoleon) + pre/post conditions の構造化
-- [ ] クラス仕様抽出 (Python) — class definition + members + invariants の構造化
-- [ ] Doxygen 契約抽出 (C++、**TS 昇格**) — `\pre` / `\post` / `\invariant` を解析し contract に変換 (Python/C++ 対称性確保)
-- [ ] icontract / deal / PEP-316 (`pre:`/`post:` docstring keywords) スキャン (Python、補助的)
+- [x] 関数仕様抽出 (Python) — signature + docstring (Google/NumPy/Sphinx Napoleon) + pre/post conditions の構造化 — Phase 3 (SPC-01、stdlib-only docstring parser、D-09)
+- [x] クラス仕様抽出 (Python) — class definition + members + invariants の構造化 — Phase 3 (SPC-02)
+- [ ] Doxygen 契約抽出 (C++、**TS 昇格**) — `\pre` / `\post` / `\invariant` を解析し contract に変換 (Python/C++ 対称性確保) — Phase 4
+- [x] icontract / deal / PEP-316 (`pre:`/`post:` docstring keywords) スキャン (Python、補助的) — Phase 3 (SPC-04、detection-only、D-10)
 
 **D. 言語サポート:**
 - [ ] Python: stdlib `ast` (現状継続) + `pyright[nodejs]==1.1.409` subprocess (型解決) + 内製 call graph extractor (callgraph_builder.py 拡張)
@@ -172,4 +172,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-31 — Phase 2 complete: Python Frontend (CAV single-parse) + 4 pure-CAV extractors + opt-in pyright adapter + v0.1.0 clean break; 241 tests green*
+*Last updated: 2026-06-02 — Phase 3 complete: 5 lib-diagram-parser-compatible diagram extractors (class/sequence/component/package/state) + 2 Python spec extractors (function/class) + SPC-04 contract markers, all 7 registered append-only in EVALUATIONS; SP-2 verdict=SHIP (sequence branch frames), SP-1 verdict=DEFER (general control-flow→state to v0.3.0 DIA-05-FULL); 447 tests green (deterministic under PYTHONHASHSEED=random), 15/15 code-review findings fixed, ruff clean repo-wide*
