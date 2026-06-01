@@ -106,6 +106,37 @@ class TestSequenceBranchFrames:
         assert ("setup", "") in labels  # top-level, no enclosing frame
 
 
+class TestSequenceFrameAlignment:
+    """CR-01: frame labels must align 1:1 with callgraph edges occurrence-for-
+    occurrence, even when calls within ONE statement live at different AST
+    depths. The callgraph primitive collects callees via ``ast.walk`` (BFS),
+    so the frame walk must consume callees in the SAME order, else an awaited
+    call's ``par`` frame is popped for the wrong edge."""
+
+    def test_same_callee_mixed_frames_align_with_callgraph(self) -> None:
+        # `await go() + go()`: the SAME bare callee `go` appears twice within
+        # one statement at DIFFERENT AST depths — the right `go()` is a direct
+        # child of the BinOp (depth 1, linear), the left `go()` is wrapped in
+        # Await (depth 2, par). callgraph collects callees via ast.walk (BFS),
+        # so it emits the shallow (linear) `go` FIRST. The frame walk must
+        # consume callees in the SAME BFS order so the `par`/`` frames land on
+        # the correct edge occurrences. The frame multiset for (driver, go)
+        # must be exactly {"par", ""} in callgraph (BFS) order.
+        src = "async def driver():\n    x = await go() + go()\n"
+        model = _extract(src, "m.py")
+        go_labels = sorted(e.label for e in model.edges if e.target == "go")
+        assert go_labels == ["", "par"]
+        # The genuine alignment assertion: the FIRST callgraph edge (shallow go)
+        # is linear, the SECOND (awaited go) is par. After the DET-04 sort both
+        # share key (m.driver, go), so we re-derive expected order from the
+        # callgraph BFS to assert occurrence-correct assignment.
+        from lib_code_parser.extractors.evaluations.sequence_diagram import _frames_for_body
+
+        frames = _frames_for_body(ast.parse(src).body[0].body)
+        # BFS order (matching callgraph): shallow linear `go` then awaited par.
+        assert frames == [("go", ""), ("go", "par")]
+
+
 class TestSequenceDeterminism:
     """DET-04: sorted on exit, byte-identical across runs / PYTHONHASHSEED."""
 

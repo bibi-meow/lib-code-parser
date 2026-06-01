@@ -22,10 +22,11 @@ order, with deepest-enclosing-frame-wins. An awaited call is ``par`` regardless
 of the enclosing frame. No symbol table, no heuristic, no set/dict iteration in
 the output path → byte-identical across PYTHONHASHSEED.
 
-The frame walk mirrors the callgraph primitive's caller-id scheme and
-per-body ``ast.walk`` call-collection order exactly, so frames align with the
-callgraph edges occurrence-for-occurrence (one frame consumed per callgraph
-edge, in callgraph emission order).
+The frame walk mirrors the callgraph primitive's caller-id scheme and its
+per-body ``ast.walk`` (breadth-first) call-collection order exactly, so frames
+align with the callgraph edges occurrence-for-occurrence (one frame consumed
+per callgraph edge, in callgraph emission order) — even when calls within one
+statement live at different AST depths (CR-01).
 
 DET-04: nodes sorted by ``node_id``; edges sorted by
 ``(source, target, edge_type, label)`` on exit → byte-identical across
@@ -77,37 +78,57 @@ def _call_name(func_node: ast.expr) -> str | None:
 def _frames_for_body(body_nodes: list[ast.stmt]) -> list[tuple[str, str]]:
     """Ordered ``(callee, frame)`` for every call in ``body_nodes``.
 
-    Emission order MUST match the callgraph primitive's ``_collect_calls``:
-    that helper does ``for stmt in body: for call in ast.walk(stmt)`` and
-    appends each callee name in ``ast.walk`` pre-order. We reproduce that exact
-    traversal, additionally tracking the nearest enclosing frame so each call's
-    frame aligns 1:1 with the callgraph edge it produces.
-    """
-    out: list[tuple[str, str]] = []
+    Emission order MUST match the callgraph primitive's ``_collect_calls``
+    EXACTLY: that helper does ``for stmt in body: for call in ast.walk(stmt)``
+    and appends each callee name. ``ast.walk`` is **breadth-first** (it pops
+    from a ``deque``), so two calls within the SAME statement at different AST
+    depths are visited shallow-first — NOT in source/DFS order.
 
-    def walk(node: ast.AST, frame: str) -> None:
-        # Recompute the frame if THIS node is a control-flow statement.
+    CR-01 fix: a prior DFS (``ast.iter_child_nodes`` recursion) frame walk
+    diverged from callgraph's BFS whenever calls within one statement lived at
+    different depths (e.g. ``await go() + go()``: the shallow linear ``go`` is
+    visited before the deep awaited ``par`` ``go`` by ``ast.walk``, but DFS
+    visited the awaited one first). That swapped the per-(caller, callee) frame
+    queue, popping the wrong frame for the wrong edge. We now (1) precompute
+    each Call node's frame via a DFS that tracks the nearest enclosing frame
+    and await-status, then (2) emit in ``ast.walk`` BFS order so frames align
+    1:1 with the callgraph edges. The mapping is keyed by node identity so the
+    two traversals never disagree about a node's frame.
+    """
+    # Pass 1 (DFS): assign each Call node its frame by nearest enclosing frame
+    # statement; an awaited call is `par` regardless of enclosing frame.
+    frame_by_call: dict[int, str] = {}
+
+    def assign(node: ast.AST, frame: str) -> None:
         stmt_frame = _frame_for_stmt(node)
         current = stmt_frame if stmt_frame is not None else frame
-        # An awaited call is `par` regardless of the enclosing frame.
-        if isinstance(node, ast.Await) and isinstance(node.value, ast.Call):
-            name = _call_name(node.value.func)
-            if name is not None:
-                out.append((name, "par"))
-            # Descend into the awaited call's args (rare nested calls) WITHOUT
-            # re-emitting the awaited call itself.
+        if (
+            isinstance(node, ast.Await)
+            and isinstance(node.value, ast.Call)
+            and _call_name(node.value.func) is not None
+        ):
+            frame_by_call[id(node.value)] = "par"
+            # Descend into the awaited call's args WITHOUT overriding its frame.
             for child in ast.iter_child_nodes(node.value):
-                walk(child, current)
+                assign(child, current)
             return
-        if isinstance(node, ast.Call):
-            name = _call_name(node.func)
-            if name is not None:
-                out.append((name, current))
+        if isinstance(node, ast.Call) and id(node) not in frame_by_call:
+            frame_by_call[id(node)] = current
         for child in ast.iter_child_nodes(node):
-            walk(child, current)
+            assign(child, current)
 
     for stmt in body_nodes:
-        walk(stmt, "")
+        assign(stmt, "")
+
+    # Pass 2 (BFS, matching callgraph's ast.walk): emit (callee, frame) in the
+    # exact order the callgraph primitive collects callees.
+    out: list[tuple[str, str]] = []
+    for stmt in body_nodes:
+        for node in ast.walk(stmt):
+            if isinstance(node, ast.Call):
+                name = _call_name(node.func)
+                if name is not None:
+                    out.append((name, frame_by_call.get(id(node), "")))
     return out
 
 
