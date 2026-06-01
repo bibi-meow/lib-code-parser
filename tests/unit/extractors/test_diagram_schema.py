@@ -128,6 +128,23 @@ class TestDia07RealOutputs:
         model = extract(_cav(seq_source, "src/pkg/seq.py"), _config())
         assert_valid_graphmodel(model)
 
+    def test_state_diagram_output_valid(self) -> None:
+        from lib_code_parser.extractors.evaluations.state_diagram import extract
+
+        # transitions.Machine FSM → states + transitions_to edges + guards.
+        state_source = (
+            "from transitions import Machine\n"
+            "class Phone:\n"
+            "    def __init__(self):\n"
+            "        self.m = Machine(\n"
+            "            states=['idle', 'busy'],\n"
+            "            transitions=[{'trigger': 'go', 'source': 'idle', 'dest': 'busy'}],\n"
+            "        )\n"
+        )
+        model = extract(_cav(state_source, "src/pkg/fsm.py"), _config())
+        assert_valid_graphmodel(model)
+        assert any(e.edge_type == "transitions_to" for e in model.edges)
+
     def test_all_edges_use_closed_edgekinds(self) -> None:
         from lib_code_parser.extractors.evaluations.class_diagram import (
             extract as class_extract,

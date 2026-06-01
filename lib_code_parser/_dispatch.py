@@ -76,11 +76,15 @@ from lib_code_parser.extractors.evaluations.package_diagram import (  # noqa: E4
 from lib_code_parser.extractors.evaluations.sequence_diagram import (  # noqa: E402
     extract as _extract_sequence_diagram,
 )
+from lib_code_parser.extractors.evaluations.state_diagram import (  # noqa: E402
+    extract as _extract_state_diagram,
+)
 
 EVALUATIONS["class_diagram"] = _extract_class_diagram
 EVALUATIONS["sequence_diagram"] = _extract_sequence_diagram
 EVALUATIONS["component_diagram"] = _extract_component_diagram
 EVALUATIONS["package_diagram"] = _extract_package_diagram
+EVALUATIONS["state_diagram"] = _extract_state_diagram
 
 __all__ = [
     "FrontendFn",
