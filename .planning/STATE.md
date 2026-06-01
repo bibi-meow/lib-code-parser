@@ -4,13 +4,13 @@ milestone: v0.1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 3 context gathered
-last_updated: "2026-06-01T17:11:18.407Z"
+last_updated: "2026-06-01T17:26:43.888Z"
 last_activity: 2026-06-01
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 23
-  completed_plans: 19
+  completed_plans: 20
   percent: 40
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-05-24)
 ## Current Position
 
 Phase: 03 (python-diagram-spec-extractors) — EXECUTING
-Plan: 2 of 6
+Plan: 3 of 6
 Status: Ready to execute
 Last activity: 2026-06-01
 
-Progress: [████████░░] 83%
+Progress: [█████████░] 87%
 
 ## Performance Metrics
 
@@ -56,6 +56,7 @@ Progress: [████████░░] 83%
 | Phase 02 P06 | 25 | 3 tasks | 8 files |
 | Phase 02 P07 | 25 | 3 tasks | 20 files |
 | Phase 03 P01 | 6 | 4 tasks | 11 files |
+| Phase 03 P02 | 14 | 2 tasks | 15 files |
 
 ## Accumulated Context
 
@@ -74,6 +75,9 @@ Recent decisions affecting current work:
 - [Phase ?]: Phase 2 Plan 06: executor rewritten as dispatch-dict walk (D-03) on typed ParserConfig; barrel ParserConfig graduation deferred to Plan 02-07
 - [Phase ?]: Phase 3 Plan 01: D-01 sub-decision — add ONLY 'imports' to EdgeKind; DIA-04 package containment via GraphNode.attributes['parent_package'], not a 'contains' edge
 - [Phase ?]: Phase 3 Plan 01: DIA-06 marker = GraphEdge.source_unresolved (source_ prefix); SPC-04 taxonomy in evaluations/spec.py (frozen contracts.py untouched); EVALUATIONS gating = run-all-registered
+- Phase 3 Plan 02: DIA-04 package containment via GraphNode.attributes['parent_package'] confirmed sufficient — NO 'contains' EdgeKind added, graph_base.py untouched this plan; DIA-04 completed entirely in-lib (no sibling-lib PR dependency)
+- Phase 3 Plan 02: DIA-01 known-class resolution is structural (module ClassDefs + imported class-like names); unknown annotation names → associates fallback, never a 'uses'/fabricated edge (T-03-03); Optional/X|None/container of known class → aggregates, direct known class → composes, builtins skipped
+- Phase 3 Plan 02: D-03 edges keep this lib's own vocabulary (inherits/composes/aggregates/associates/imports), NOT renamed to sibling lib-diagram-parser spelling — verifier resolves the physical↔logical gap
 
 ### Pending Todos
 
@@ -94,6 +98,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-01T17:10:56.943Z
+Last session: 2026-06-01T17:26:43.876Z
 Stopped at: Phase 3 context gathered
 Resume file: None
