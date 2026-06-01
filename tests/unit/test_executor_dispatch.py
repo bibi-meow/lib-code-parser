@@ -15,6 +15,7 @@ from __future__ import annotations
 import pytest
 
 from lib_code_parser import _dispatch
+from lib_code_parser import executor as _executor_module
 from lib_code_parser.executor import CodeParserExecutor
 from lib_code_parser.models.infrastructure.config import ParserConfig
 from lib_code_parser.models.primitives.callgraph import CallGraph
@@ -52,6 +53,11 @@ def test_dispatch_walks_all_4_primitives(monkeypatch: pytest.MonkeyPatch) -> Non
 
         return _fn
 
+    # Isolate the PRIMITIVES/frontend walk: empty the EVALUATIONS dict so the
+    # sentinel ``object()`` CAV is never fed to real diagram extractors (which
+    # require a real ast.Module payload). Phase 3 registered the first real
+    # EVALUATIONS entries; this dispatch-walk unit only proves the primitive loop.
+    monkeypatch.setattr(_executor_module, "EVALUATIONS", {})
     monkeypatch.setitem(_dispatch.FRONTENDS, "python", _stub_cav)
     monkeypatch.setitem(_dispatch.PRIMITIVES, "functions", _make("functions", []))
     monkeypatch.setitem(_dispatch.PRIMITIVES, "call_graph", _make("call_graph", CallGraph()))
@@ -74,6 +80,7 @@ def test_dispatch_skips_contracts_when_extract_contracts_false(
 
         return _fn
 
+    monkeypatch.setattr(_executor_module, "EVALUATIONS", {})
     monkeypatch.setitem(_dispatch.FRONTENDS, "python", _stub_cav)
     monkeypatch.setitem(_dispatch.PRIMITIVES, "functions", _make("functions", []))
     monkeypatch.setitem(_dispatch.PRIMITIVES, "call_graph", _make("call_graph", CallGraph()))
@@ -104,6 +111,7 @@ def test_dispatch_frontend_python_called(monkeypatch: pytest.MonkeyPatch) -> Non
         seen.append((raw_content, path))
         return object()
 
+    monkeypatch.setattr(_executor_module, "EVALUATIONS", {})
     monkeypatch.setitem(_dispatch.FRONTENDS, "python", _frontend)
     monkeypatch.setitem(_dispatch.PRIMITIVES, "functions", lambda c, cfg: [])
     monkeypatch.setitem(_dispatch.PRIMITIVES, "call_graph", lambda c, cfg: CallGraph())
@@ -129,6 +137,7 @@ def test_dispatch_contract_merger_assigns_to_functionnode(
         ],
     )
 
+    monkeypatch.setattr(_executor_module, "EVALUATIONS", {})
     monkeypatch.setitem(_dispatch.FRONTENDS, "python", _stub_cav)
     monkeypatch.setitem(_dispatch.PRIMITIVES, "functions", lambda c, cfg: [fn])
     monkeypatch.setitem(_dispatch.PRIMITIVES, "call_graph", lambda c, cfg: CallGraph())

@@ -430,12 +430,83 @@
       "guards": []
     },
     "component_diagram": {
-      "nodes": [],
-      "edges": [],
+      "nodes": [
+        {
+          "node_id": "order_service",
+          "node_type": "component",
+          "label": "order_service",
+          "attributes": {}
+        },
+        {
+          "node_id": "pydantic.BaseModel",
+          "node_type": "component",
+          "label": "pydantic.BaseModel",
+          "attributes": {}
+        },
+        {
+          "node_id": "pydantic.field_validator",
+          "node_type": "component",
+          "label": "pydantic.field_validator",
+          "attributes": {}
+        },
+        {
+          "node_id": "pydantic.model_validator",
+          "node_type": "component",
+          "label": "pydantic.model_validator",
+          "attributes": {}
+        },
+        {
+          "node_id": "typing.Optional",
+          "node_type": "component",
+          "label": "typing.Optional",
+          "attributes": {}
+        }
+      ],
+      "edges": [
+        {
+          "source": "order_service",
+          "target": "pydantic.BaseModel",
+          "edge_type": "imports",
+          "label": "",
+          "physical_module": null,
+          "source_unresolved": false
+        },
+        {
+          "source": "order_service",
+          "target": "pydantic.field_validator",
+          "edge_type": "imports",
+          "label": "",
+          "physical_module": null,
+          "source_unresolved": false
+        },
+        {
+          "source": "order_service",
+          "target": "pydantic.model_validator",
+          "edge_type": "imports",
+          "label": "",
+          "physical_module": null,
+          "source_unresolved": false
+        },
+        {
+          "source": "order_service",
+          "target": "typing.Optional",
+          "edge_type": "imports",
+          "label": "",
+          "physical_module": null,
+          "source_unresolved": false
+        }
+      ],
       "guards": []
     },
     "package_diagram": {
-      "nodes": [],
+      "nodes": [
+        {
+          "node_id": "src",
+          "node_type": "package",
+          "label": "src",
+          "attributes": {}
+        }
+      ],
       "edges": [],
       "guards": []
     },
