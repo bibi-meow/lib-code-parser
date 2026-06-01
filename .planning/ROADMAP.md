@@ -12,8 +12,10 @@ lib-code-parser v0.2.0 extends the shipped v0.1.0 AST baseline (commit `cf7e7ec`
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [x] **Phase 1: Architecture Foundation + Spec Correction** - Lock every cross-cutting contract (CAV, EdgeKind, schema compat layer, subprocess determinism, dispatch table, ACL-2/callgraph.py spec fix, Apache-2.0 license) before any extractor code is written; SP-3 libclang feasibility spike (completed 2026-05-25)
-- [x] **Phase 2: Python Frontend + AST Primitives + ACL-2 Adapters** - Build the Python Frontend (one parse per file producing CAV), the four pure-CAV aspect extractors (functions / call graph / type deps / contracts) and the `pyright` subprocess adapter with full canonicalization (completed 2026-05-31)
+- [x] **Phase 1: Architecture Foundation + Spec Correction** - Lock every cross-cutting contract (CAV, EdgeKind, schema compat layer, subprocess determinism, dispatch table, ACL-2/callgraph.py spec fix, Apache-2.0 license) before any extractor code is written; SP-3 libclang feasibility spike
+ (completed 2026-05-25)
+- [x] **Phase 2: Python Frontend + AST Primitives + ACL-2 Adapters** - Build the Python Frontend (one parse per file producing CAV), the four pure-CAV aspect extractors (functions / call graph / type deps / contracts) and the `pyright` subprocess adapter with full canonicalization
+ (completed 2026-05-31)
 - [ ] **Phase 3: Python Diagram + Spec Extractors** - Emit five `lib-diagram-parser`-compatible diagrams (class / sequence / component / package / state) and function/class spec extractors from Python source; SP-1 (general control flow → state) and SP-2 (sequence branch fidelity) spikes
 - [ ] **Phase 4: C++ Frontend + C++ Extractors** - Bring up libclang-based C++ Frontend behind the locked CAV boundary, produce schema-parity output for AST primitives, diagrams, and Doxygen-driven specs; platform matrix incl. macOS arm64 best-effort
 - [ ] **Phase 5: Cross-Cutting Integration + Acceptance** - Snapshot determinism test, cross-lib schema compatibility test against `lib-diagram-parser`, full CI mandatory + best-effort matrices, README platform compat table, v0.2.0 release
@@ -66,7 +68,19 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Caller can extract a state diagram from FSM explicit patterns — `transitions.Machine(...)` library calls, `python-statemachine.StateMachine` subclasses, and native `Enum`-typed instance-attribute + transition-method patterns; `class Color(Enum): RED, GREEN, BLUE` produces zero FSMs (fixture-asserted negative case)
   4. State diagram extractor handles non-literal state mutation via return-value substitution analysis: when `self.state = self._next()` appears, the callee's return statements are resolved intra-class with N-level recursion and cycle detection; fully-resolved cases emit all concrete edges, unresolvable cases emit one placeholder edge with `unresolved=true` attribute (SP-1 spike result recorded — either ship general-control-flow FSM detection or defer to v0.3.0 with documented decision)
   5. Caller can extract `FunctionSpec(signature, docstring_sections, preconditions, postconditions)` from Sphinx Napoleon / Google / NumPy docstring styles and `ClassSpec(definition, members, invariants)` from Python source, plus auxiliary contract markers from `icontract` / `deal` decorators and PEP-316 `pre:` / `post:` docstring keywords (supplementary to Pydantic / dataclass already captured in Phase 2); all 5 diagram outputs validate against the shared `GraphNode` / `GraphEdge` / `GraphModel` schema with `physical_*` / `source_*` prefix fields used for physical-side-only metadata
-**Plans**: TBD
+**Plans**: 6 plans across 6 sequential waves (plans serialized because every extractor plan registers into the shared `_dispatch.py` EVALUATIONS dict + DIA-07 schema test — same-file ownership forces sequential waves)
+  - Wave 0:
+    - [ ] 03-01-PLAN.md — Foundation: EdgeKind+=imports / GraphEdge.source_unresolved / spec.py (FunctionSpec/ClassSpec) / CodeContent 7 slots / executor EVALUATIONS walk / Wave-0 fixtures+conftest (closes 4 integration gaps)
+  - Wave 1:
+    - [ ] 03-02-PLAN.md — DIA-01 class + DIA-03 component + DIA-04 package diagrams (+ DIA-07 schema conformance)
+  - Wave 2:
+    - [ ] 03-03-PLAN.md — DIA-02 sequence diagram + SP-2 branch-fidelity spike verdict
+  - Wave 3:
+    - [ ] 03-04-PLAN.md — DIA-05 FSM (3 families + negative case) + DIA-06 return-value substitution + SP-1 spike verdict
+  - Wave 4:
+    - [ ] 03-05-PLAN.md — SPC-01 function spec + stdlib-only Google/NumPy/Sphinx docstring parser
+  - Wave 5:
+    - [ ] 03-06-PLAN.md — SPC-02 class spec + SPC-04 icontract/deal/PEP-316 marker detection (final EVALUATIONS entry)
 **UI hint**: yes
 
 ### Phase 4: C++ Frontend + C++ Extractors
@@ -99,6 +113,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Architecture Foundation + Spec Correction | 10/10 | Complete   | 2026-05-25 |
 | 2. Python Frontend + AST Primitives + ACL-2 Adapters | 7/7 | Complete   | 2026-05-31 |
-| 3. Python Diagram + Spec Extractors | 0/TBD | Not started | - |
+| 3. Python Diagram + Spec Extractors | 0/6 | Not started | - |
 | 4. C++ Frontend + C++ Extractors | 0/TBD | Not started | - |
 | 5. Cross-Cutting Integration + Acceptance | 0/TBD | Not started | - |
