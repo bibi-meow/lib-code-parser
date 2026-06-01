@@ -30,7 +30,7 @@
 - [x] **DIA-02**: Caller can extract sequence diagram with linear call flow from call graph (branch fidelity `alt`/`loop`/`par` is SP-2 spike — falls back to v2 if spike fails)
 - [x] **DIA-03**: Caller can extract component diagram (file/module-level component nodes + import-derived dependency edges)
 - [x] **DIA-04**: Caller can extract package diagram (directory/namespace hierarchy with **`node_type="package"`** — multiple packages per project supported; sibling lib `lib-diagram-parser` enum gets new value)
-- [ ] **DIA-05**: Caller can extract state diagram from FSM explicit patterns: (a) library-anchored AST detection for `transitions.Machine(...)` and `python-statemachine.StateMachine`, (b) native `Enum` + transition-method pattern
+- [x] **DIA-05**: Caller can extract state diagram from FSM explicit patterns: (a) library-anchored AST detection for `transitions.Machine(...)` and `python-statemachine.StateMachine`, (b) native `Enum` + transition-method pattern
 - [x] **DIA-06**: State diagram extractor performs **return-value substitution analysis** for non-literal state mutations — when `self.state = self._next()` is found, callee's return statements are resolved (intra-class, N-level recursive, cycle-safe); fully-resolved cases emit all edges; unresolvable cases emit placeholder edge with `unresolved=true` attribute
 - [x] **DIA-07**: All 5 diagram outputs serialize to `lib-diagram-parser`-compatible `GraphNode` / `GraphEdge` / `GraphModel` / `GuardExpr` schema; physical-only metadata uses optional `physical_*` / `source_*` prefix fields
 

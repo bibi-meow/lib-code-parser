@@ -4,13 +4,13 @@ milestone: v0.1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 3 context gathered
-last_updated: "2026-06-01T17:38:41.541Z"
+last_updated: "2026-06-01T17:53:01.677Z"
 last_activity: 2026-06-01
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 23
-  completed_plans: 21
+  completed_plans: 22
   percent: 40
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-05-24)
 ## Current Position
 
 Phase: 03 (python-diagram-spec-extractors) — EXECUTING
-Plan: 4 of 6
+Plan: 5 of 6
 Status: Ready to execute
 Last activity: 2026-06-01
 
-Progress: [█████████░] 91%
+Progress: [██████████] 96%
 
 ## Performance Metrics
 
@@ -58,6 +58,7 @@ Progress: [█████████░] 91%
 | Phase 03 P01 | 6 | 4 tasks | 11 files |
 | Phase 03 P02 | 14 | 2 tasks | 15 files |
 | Phase 03 P03 | 12 | 2 tasks | 10 files |
+| Phase 03 P04 | 18 | 3 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -82,6 +83,9 @@ Recent decisions affecting current work:
 - [Phase ?]: Phase 3 Plan 03: SP-2 verdict = SHIP (D-08) — sequence branch fidelity (alt/loop/par) is a deterministic pure-AST rule; ships in v0.2.0, DIA-02-FULL NOT created
 - [Phase ?]: Phase 3 Plan 03: DIA-02 branch frames encoded on GraphEdge.label (alt/loop/par) — no new EdgeKind, edge_type stays 'calls'; label is part of the DET-04 sort key; deepest-frame-wins, awaited call always 'par'
 - [Phase ?]: Phase 3 Plan 03: DIA-02 participants inherit Phase 2 callgraph representation verbatim; Phase 2 deferred CallGraph resolution expansion re-evaluated and NOT needed for linear correctness
+- [Phase ?]: Phase 3 Plan 04: SP-1 verdict = DEFER (D-08) — general control-flow→state is NOT deterministic (state identity ambiguous without explicit state var; two valid rules disagree on same source); DIA-05-FULL deferred to v0.3.0, explicit FSM families ship regardless (D-07)
+- [Phase ?]: Phase 3 Plan 04: DIA-06 unresolved marker = GraphEdge.source_unresolved; unresolvable mutation (external call / cycle dead-end / non-literal) emits exactly ONE placeholder edge
+- [Phase ?]: Phase 3 Plan 04: FSM detection via import-provenance parameterized per target pkg — user's own Machine/State without import NOT detected (T-03-08); target libs detected by AST never imported (D-10)
 
 ### Pending Todos
 
@@ -102,6 +106,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-01T17:38:05.021Z
+Last session: 2026-06-01T17:52:24.778Z
 Stopped at: Phase 3 context gathered
 Resume file: None
