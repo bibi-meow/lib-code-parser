@@ -175,7 +175,17 @@ def resolve_substitution_edges(module: ast.Module) -> tuple[list[str], list[Grap
             continue
         methods = _class_methods(class_node)
 
-        for node in ast.walk(class_node):
+        # CR-02: scan only THIS class's direct method bodies. A full
+        # ast.walk(class_node) descends into nested ClassDefs, so an inner
+        # class's `self.state = self._compute()` would resolve `_compute`
+        # against the OUTER class's methods dict (a different `self`),
+        # emitting a phantom resolved/placeholder edge for the outer class.
+        method_nodes = (
+            node
+            for method in methods.values()
+            for node in ast.walk(method)
+        )
+        for node in method_nodes:
             if not isinstance(node, ast.Assign):
                 continue
             # Target must be `self.<attr> = ...`.

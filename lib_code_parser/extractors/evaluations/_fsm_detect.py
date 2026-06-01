@@ -336,7 +336,16 @@ def detect_native_enum(module: ast.Module) -> list[MachineModel]:
             continue
         model = MachineModel()
         seen: set[str] = set()
-        for sub in ast.walk(node):
+        # CR-03: scan only the class's DIRECT method bodies. A full
+        # ast.walk(node) descends into nested ClassDefs, leaking their
+        # `self.state = ...` assignments into THIS class's model (phantom FSM).
+        method_subs = (
+            sub
+            for item in node.body
+            if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef))
+            for sub in ast.walk(item)
+        )
+        for sub in method_subs:
             if not isinstance(sub, ast.Assign):
                 continue
             for tgt in sub.targets:
