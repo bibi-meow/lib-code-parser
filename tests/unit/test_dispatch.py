@@ -25,8 +25,9 @@ from lib_code_parser._dispatch import (
 class TestDispatchDictsPopulated:
     """Phase 2 (plan 02-06) populates FRONTENDS (1) + PRIMITIVES (4).
 
-    EVALUATIONS stays empty until Phase 3. The Phase 1 "all dicts empty"
-    invariant was retired by plan 02-06's append-only registration deliverable.
+    EVALUATIONS stays empty after Phase 3 plan 03-01 (foundation only); Plans
+    02-06 register the 5 diagrams + 2 specs append-only. The Phase 1 "all dicts
+    empty" invariant was retired by plan 02-06's registration deliverable.
     """
 
     def test_frontends_dict_has_python_entry(self) -> None:
@@ -43,9 +44,30 @@ class TestDispatchDictsPopulated:
             "contracts",
         ]
 
-    def test_evaluations_dict_exists_and_empty(self) -> None:
+    def test_evaluations_registered_append_only(self) -> None:
+        # Forward-compatible (integration gap d): passes now with 0 entries AND
+        # after each later plan (02-06) registers in canonical order. The keys
+        # present must be a prefix-preserving subsequence of the canonical
+        # 7-in-order list — mirroring the PRIMITIVES append-only assertion.
         assert isinstance(EVALUATIONS, dict)
-        assert len(EVALUATIONS) == 0
+        canonical = [
+            "class_diagram",
+            "sequence_diagram",
+            "component_diagram",
+            "package_diagram",
+            "state_diagram",
+            "function_spec",
+            "class_spec",
+        ]
+        present = list(EVALUATIONS.keys())
+        # Every present key must be canonical.
+        assert set(present) <= set(canonical), (
+            f"non-canonical EVALUATIONS keys: {set(present) - set(canonical)}"
+        )
+        # Present keys must preserve canonical relative order (append-only).
+        canonical_index = {name: i for i, name in enumerate(canonical)}
+        indices = [canonical_index[name] for name in present]
+        assert indices == sorted(indices), f"EVALUATIONS keys out of canonical order: {present}"
 
 
 class TestDispatchModuleDocstring:

@@ -2,7 +2,30 @@
 
 from __future__ import annotations
 
+import ast
+
 import pytest
+
+from lib_code_parser.models.infrastructure.cav import CAV
+from lib_code_parser.models.infrastructure.config import ParserConfig
+
+
+def build_python_cav(source: str, path: str) -> CAV:
+    """Build a Python CAV from source (test-side ``ast.parse`` only).
+
+    Shared Wave-0 harness lifted from test_contracts_extractor.py so every
+    Phase 3 extractor test (Plans 02-06) imports ONE CAV builder. The library
+    never parses on its own in tests; the test side stashes ``ast.Module`` into
+    the CAV payload, matching what the python frontend does at runtime.
+    """
+    return CAV(language="python", path=path, payload=ast.parse(source))
+
+
+@pytest.fixture
+def parser_config() -> ParserConfig:
+    """Reusable default ParserConfig for Phase 3 extractor tests."""
+    return ParserConfig(artifact_type="code", executor_lib="lib_code_parser")
+
 
 # The "example" source code from the design spec
 EXAMPLE_SOURCE = '''
