@@ -92,7 +92,20 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. `import lib_code_parser` triggers a runtime guard that calls `cindex.Index.create()` once and verifies the bundled `libclang==18.1.1` ABI version via `cindex.Config.library_path`; if the dylib fails to load, a clear `RuntimeError` is raised with platform-specific install instructions (one of: "install Xcode Command Line Tools", "install libclang-dev", "ensure msvc redistributable") and any caller override via `Config.set_library_file` is rejected
   3. Caller calling `CodeParserExecutor().execute(config, raw_content, "src.cpp")` with `config.language="cpp"` and `config.compile_args=["-std=c++17", "-I", "/path/to/headers"]` gets a `NormalizedArtifact` whose `CodeContent.functions / callgraph / type_deps` and all 5 diagrams have identical Pydantic shape to Python output (schema parity verified by structural assertion); unresolved `#include` directives surface as `diagnostics` warnings, never as parse errors
   4. Caller can extract Doxygen-driven contracts from C++ source — `\pre` / `\post` / `\invariant` markers become `ContractInfo` entries with the same schema as Python's Pydantic/dataclass contracts, so the spec_code_verifier processes both languages symmetrically; `TraceTag` extraction (`Traces: REQ-ID, US-NN`) works identically on Python docstrings and C++ Doxygen comments (parity test)
-**Plans**: TBD
+**Plans**: 7 plans across 6 waves
+  - Wave 1 (parallel):
+    - [ ] 04-01-PLAN.md — D-01 dispatch language-dimension nesting + executor cav.language walks + docs/09 invariant (LNG-04)
+    - [ ] 04-02-PLAN.md — Wave-0 shared test infra: build_cpp_cav conftest helper + tests/fixtures/cpp/ corpus (LNG-04)
+  - Wave 2:
+    - [ ] 04-03-PLAN.md — frontends/cpp.py single libclang parse site + lazy ABI/override runtime guard (LNG-03, DET-02, LNG-05)
+  - Wave 3:
+    - [ ] 04-04-PLAN.md — cpp AST primitives (functions/callgraph/type_deps) + _cpp_cursor.py shared helpers (LNG-04, LNG-05, TRC-03)
+  - Wave 4:
+    - [ ] 04-05-PLAN.md — Doxygen contracts + additive SourceKind=doxygen + SPC-03/TRC-03 parity (SPC-03, TRC-03)
+  - Wave 5:
+    - [ ] 04-06-PLAN.md — 5 cpp diagrams (class/component/sequence/package/empty-state) + LNG-04 schema-parity + determinism (LNG-04)
+  - Wave 6:
+    - [ ] 04-07-PLAN.md — CI mandatory matrix (Linux x86_64/aarch64 + Windows × Py 3.11–3.14) + macOS arm64 best-effort (LNG-01, LNG-02)
 
 ### Phase 5: Cross-Cutting Integration + Acceptance
 **Goal**: Close the v0.2.0 release by verifying every cross-cutting acceptance criterion that spans phases — byte-identical determinism snapshot across 3 consecutive runs of the same fixture, cross-lib schema compatibility test that imports both `lib_code_parser` and `lib_diagram_parser` and asserts structural equivalence on representative `GraphModel` instances, the platform CI matrix gating PR merges, the README platform compatibility table (OS × Python version × C++ availability with "strongly supported" / "best-effort" labels), and the v0.2.0 release artifacts (tag, changelog, `pyproject.toml` final pins). No new extractor code; this phase is acceptance, integration test authoring, and release.
