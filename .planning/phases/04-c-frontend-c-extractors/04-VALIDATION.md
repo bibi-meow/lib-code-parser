@@ -1,8 +1,8 @@
 ---
 phase: 4
 slug: c-frontend-c-extractors
-status: draft
-nyquist_compliant: false
+status: approved
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-06-02
 ---
@@ -76,11 +76,13 @@ created: 2026-06-02
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 30s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies (plan-checker confirmed every task carries an automated verify)
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references (test infra in 04-02; guard/frontend tests created in the plans that consume them)
+- [x] No watch-mode flags
+- [x] Feedback latency < 30s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+> `wave_0_complete` stays `false` until execution actually runs Wave 0 — the strategy is compliant, the work is not yet done.
+
+**Approval:** approved 2026-06-03 (plan-checker VERIFICATION PASSED)
