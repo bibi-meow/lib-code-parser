@@ -87,9 +87,13 @@ from lib_code_parser.extractors.primitives.cpp_callgraph import (  # noqa: E402
 from lib_code_parser.extractors.primitives.cpp_functions import (  # noqa: E402
     extract as _extract_cpp_functions,
 )
+from lib_code_parser.extractors.primitives.cpp_type_deps import (  # noqa: E402
+    extract as _extract_cpp_type_deps,
+)
 
 PRIMITIVES["cpp"]["functions"] = _extract_cpp_functions
 PRIMITIVES["cpp"]["call_graph"] = _extract_cpp_callgraph
+PRIMITIVES["cpp"]["type_deps"] = _extract_cpp_type_deps
 
 # Phase 3 (plan 03-02) EVALUATIONS registrations — append-only, canonical order
 # (class_diagram, sequence_diagram, component_diagram, package_diagram, ...).
