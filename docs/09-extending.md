@@ -152,6 +152,27 @@ def execute(self, config, raw_content, path):
 不可) が機能しない。 executor が動的に dict を走査する形を維持することで、 Phase 2-4 の
 追加が executor.py に **0 行の diff** で済む。
 
+#### 不変条件 #6 への一回限りの改訂 (Phase 4 D-01 — 言語軸の導入)
+
+Phase 4 plan 04-01 (CONTEXT.md D-01) で `PRIMITIVES` / `EVALUATIONS` に **言語次元** を
+導入した。 これにともない executor の走査 2 行が以下に **一回だけ** 変わる:
+
+```python
+# Phase 2-3: 言語非依存の flat 走査
+for name, fn in PRIMITIVES.items(): ...
+for name, fn in EVALUATIONS.items(): ...
+
+# Phase 4 D-01 以降: cav.language で index した走査
+for name, fn in PRIMITIVES[cav.language].items(): ...
+for name, fn in EVALUATIONS[cav.language].items(): ...
+```
+
+これは「評価単位を増やすたびに executor が変わる」変更ではない。 **言語軸の導入という
+一回限りの構造変更** であり、 これ以降 cpp の extractor / 評価単位を追加しても executor 本体は
+再び 0 行 diff である (新しい言語キーの sub-dict に entry を append するだけ)。 したがって
+不変条件 #6 の精神 (extractor 追加で executor body が成長しない) は維持される。 この一回限りの
+例外は D-01 の load-bearing 構造変更として明示的に許容される。
+
 ---
 
 ## 論理アーキ比較対象は models/evaluations/ のみ (D-14)
@@ -301,11 +322,42 @@ from lib_code_parser.extractors import <name> as _<name>_eval
 EVALUATIONS["<name>"] = _<name>_eval.extract
 ```
 
+### 新言語の extractor セット追加手順 (Phase 4 D-01 — 言語次元)
+
+Phase 4 plan 04-01 (CONTEXT.md D-01) で `PRIMITIVES` / `EVALUATIONS` は
+**`dict[language, dict[name, fn]]`** の入れ子構造になった (`FRONTENDS` は言語キー単独の
+flat `dict[language, fn]` のまま — 1 言語 1 frontend なので二重入れ子にしない、 Phase 4 Pitfall 1)。
+新しい言語 (例: `cpp`) の extractor セットを追加する手順は、 上の「dispatch dict への entry
+追加手順」を言語キー配下で行うだけである:
+
+```python
+# 1. その言語の frontend を FRONTENDS に append (上の Frontend 追加手順と同じ)
+FRONTENDS["cpp"] = _cpp_frontend.build_cav
+
+# 2. その言語の primitive / evaluation sub-dict に entry を append
+#    (plan 04-01 で {"python": {...}, "cpp": {}} の空 sub-dict が既に予約されている)
+PRIMITIVES["cpp"]["functions"] = _cpp_functions.extract
+EVALUATIONS["cpp"]["class_diagram"] = _cpp_class_diagram.extract
+# ... 言語ごとに必要な aspect を登録する
+```
+
+スロット名 (`functions` / `class_diagram` / ...) は **言語をまたいで共通** に保つ
+(LNG-04 parity: 物理側の出力スロットが言語に依らず同形式であること)。 executor は
+`PRIMITIVES[cav.language]` / `EVALUATIONS[cav.language]` を走査するので、 cpp の extractor は
+cpp CAV のときだけ走り、 python の extractor は python CAV のときだけ走る。
+
+**不変条件 (言語キーは append-only)**: 既存の言語キー (`"python"`) の **削除・改名は禁止**
+である (dispatch dict 全体の append-only 不変条件 #4 を言語次元に拡張したもの)。 新言語の
+追加は `PRIMITIVES["<lang>"] = {}` / `EVALUATIONS["<lang>"] = {}` の sub-dict 予約 + その配下への
+aspect 登録のみで完結し、 既存言語の entry / 値には一切触れない。
+
 ### 禁止操作
 
-- **既存 entry の修正**: `PRIMITIVES["functions"] = new_extract` のような既存 key への代入は禁止
-  (不変条件 #4 違反)
-- **既存 entry の削除**: `del PRIMITIVES["functions"]` は禁止 (caller の output schema を壊す)
+- **既存 entry の修正**: `PRIMITIVES["python"]["functions"] = new_extract` のような既存 key への
+  代入は禁止 (不変条件 #4 違反)
+- **既存 entry の削除**: `del PRIMITIVES["python"]["functions"]` は禁止 (caller の output schema を壊す)
+- **既存言語キーの削除・改名**: `del PRIMITIVES["python"]` や `"python"` → 別名への変更は禁止
+  (言語キーは append-only)
 - **既存 callable の signature 変更**: `extract(cav, config)` を `extract(cav, config, options)` に
   変更するのは breaking change (MAJOR version 案件)
 

@@ -23,11 +23,13 @@ from lib_code_parser._dispatch import (
 
 
 class TestDispatchDictsPopulated:
-    """Phase 2 (plan 02-06) populates FRONTENDS (1) + PRIMITIVES (4).
+    """Phase 2 populates FRONTENDS (1) + PRIMITIVES (4) + Phase 3 EVALUATIONS (7).
 
-    EVALUATIONS stays empty after Phase 3 plan 03-01 (foundation only); Plans
-    02-06 register the 5 diagrams + 2 specs append-only. The Phase 1 "all dicts
-    empty" invariant was retired by plan 02-06's registration deliverable.
+    Phase 4 plan 04-01 (D-01) nests PRIMITIVES/EVALUATIONS into
+    dict[language, dict[name, fn]]: the Python entries move under ["python"]
+    (values byte-unchanged) and an empty ["cpp"] sub-dict reserves the cpp slot.
+    FRONTENDS stays flat dict[language, fn] (one frontend per language; Pitfall 1
+    — never double-nested).
     """
 
     def test_frontends_dict_has_python_entry(self) -> None:
@@ -35,22 +37,27 @@ class TestDispatchDictsPopulated:
         assert "python" in FRONTENDS
 
     def test_primitives_dict_has_4_entries_in_append_only_order(self) -> None:
+        # Phase 4 D-01: PRIMITIVES is now nested dict[language, dict[name, fn]].
+        # The 4 Python primitives live under ["python"] in append-only order
+        # (D-12); the empty ["cpp"] sub-dict is the reserved slot for later
+        # Phase 4 plans (no cpp callables register in plan 04-01).
         assert isinstance(PRIMITIVES, dict)
-        # Insertion order is the append-only registration order (D-12).
-        assert list(PRIMITIVES.keys()) == [
+        assert list(PRIMITIVES["python"].keys()) == [
             "functions",
             "call_graph",
             "type_deps",
             "contracts",
         ]
+        assert "cpp" in PRIMITIVES
 
     def test_evaluations_registered_append_only(self) -> None:
         # Plan 03-06 registers the FINAL (7th) entry class_spec. All 7
-        # EVALUATIONS are now present in canonical registration order — the
-        # forward-compatible subsequence assertion graduates to full equality
-        # (mirroring test_primitives_dict_has_4_entries_in_append_only_order).
+        # EVALUATIONS are present under ["python"] in canonical registration
+        # order. Phase 4 D-01 nests EVALUATIONS as dict[language, dict[name, fn]];
+        # the empty ["cpp"] sub-dict is the reserved cpp slot (no cpp evaluations
+        # register in plan 04-01).
         assert isinstance(EVALUATIONS, dict)
-        assert list(EVALUATIONS.keys()) == [
+        assert list(EVALUATIONS["python"].keys()) == [
             "class_diagram",
             "sequence_diagram",
             "component_diagram",
@@ -59,6 +66,7 @@ class TestDispatchDictsPopulated:
             "function_spec",
             "class_spec",
         ]
+        assert "cpp" in EVALUATIONS
 
 
 class TestWR01EvaluationKeyGuard:
@@ -70,14 +78,46 @@ class TestWR01EvaluationKeyGuard:
         from lib_code_parser.models.infrastructure.artifact import CodeContent
 
         content_fields = set(CodeContent.model_fields.keys())
-        for key in EVALUATIONS:
-            assert key in content_fields, f"EVALUATIONS key {key!r} has no CodeContent slot"
+        # Phase 4 D-01: EVALUATIONS is nested per-language; iterate both dims.
+        for lang in EVALUATIONS:
+            for key in EVALUATIONS[lang]:
+                assert (
+                    key in content_fields
+                ), f"EVALUATIONS[{lang!r}] key {key!r} has no CodeContent slot"
 
     def test_guard_constant_matches_codecontent_fields(self) -> None:
         from lib_code_parser._dispatch import _CONTENT_FIELDS
         from lib_code_parser.models.infrastructure.artifact import CodeContent
 
         assert _CONTENT_FIELDS == frozenset(CodeContent.model_fields.keys())
+
+    def test_per_language_slot_guard_rejects_bad_cpp_key(self) -> None:
+        # Phase 4 D-01: the import-time guard iterates EVERY language dim, so a
+        # future cpp evaluation registered under a name with no CodeContent slot
+        # must fail fast (T-04-01 fail-loud). Simulate the guard body over a
+        # nested EVALUATIONS containing a bogus cpp key.
+        from lib_code_parser._dispatch import _CONTENT_FIELDS
+
+        evaluations_with_bad_cpp = {
+            "python": {"class_diagram": object()},
+            "cpp": {"not_a_codecontent_slot": object()},
+        }
+        offenders = [
+            (lang, key)
+            for lang in evaluations_with_bad_cpp
+            for key in evaluations_with_bad_cpp[lang]
+            if key not in _CONTENT_FIELDS
+        ]
+        assert offenders == [("cpp", "not_a_codecontent_slot")]
+
+    def test_real_dispatch_passes_per_language_guard(self) -> None:
+        # The live nested dispatch must satisfy the guard for both language dims
+        # at import time (cpp sub-dicts are empty, so they trivially pass).
+        from lib_code_parser._dispatch import _CONTENT_FIELDS
+
+        for lang in EVALUATIONS:
+            for key in EVALUATIONS[lang]:
+                assert key in _CONTENT_FIELDS
 
 
 class TestDispatchModuleDocstring:

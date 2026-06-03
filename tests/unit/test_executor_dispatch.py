@@ -69,7 +69,9 @@ def test_dispatch_walks_all_4_primitives(monkeypatch: pytest.MonkeyPatch) -> Non
     monkeypatch.setattr(_executor_module, "EVALUATIONS", {"python": {}})
     monkeypatch.setitem(_dispatch.FRONTENDS, "python", _stub_cav)
     monkeypatch.setitem(_dispatch.PRIMITIVES["python"], "functions", _make("functions", []))
-    monkeypatch.setitem(_dispatch.PRIMITIVES["python"], "call_graph", _make("call_graph", CallGraph()))
+    monkeypatch.setitem(
+        _dispatch.PRIMITIVES["python"], "call_graph", _make("call_graph", CallGraph())
+    )
     monkeypatch.setitem(_dispatch.PRIMITIVES["python"], "type_deps", _make("type_deps", []))
     monkeypatch.setitem(_dispatch.PRIMITIVES["python"], "contracts", _make("contracts", {}))
 
@@ -92,7 +94,9 @@ def test_dispatch_skips_contracts_when_extract_contracts_false(
     monkeypatch.setattr(_executor_module, "EVALUATIONS", {"python": {}})
     monkeypatch.setitem(_dispatch.FRONTENDS, "python", _stub_cav)
     monkeypatch.setitem(_dispatch.PRIMITIVES["python"], "functions", _make("functions", []))
-    monkeypatch.setitem(_dispatch.PRIMITIVES["python"], "call_graph", _make("call_graph", CallGraph()))
+    monkeypatch.setitem(
+        _dispatch.PRIMITIVES["python"], "call_graph", _make("call_graph", CallGraph())
+    )
     monkeypatch.setitem(_dispatch.PRIMITIVES["python"], "type_deps", _make("type_deps", []))
     monkeypatch.setitem(_dispatch.PRIMITIVES["python"], "contracts", _make("contracts", {}))
 
