@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v0.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 4 context gathered
-last_updated: "2026-06-03T16:46:31.712Z"
+stopped_at: Completed 04-02-PLAN.md
+last_updated: "2026-06-03T16:51:04.489Z"
 last_activity: 2026-06-03
 progress:
   total_phases: 5
   completed_phases: 3
   total_plans: 30
-  completed_plans: 25
+  completed_plans: 26
   percent: 60
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-06-02)
 ## Current Position
 
 Phase: 04 (C++ Frontend + C++ Extractors) — EXECUTING
-Plan: 2 of 7
+Plan: 3 of 7
 Status: Ready to execute
 Last activity: 2026-06-03
 
-Progress: [████████░░] 83%
+Progress: [█████████░] 87%
 
 ## Performance Metrics
 
@@ -63,6 +63,7 @@ Progress: [████████░░] 83%
 | Phase 03 P05 | 6min | 2 tasks | 8 files |
 | Phase 03 P06 | 6min | 2 tasks | 10 files |
 | Phase 04 P01 | 6 | 3 tasks | 5 files |
+| Phase 04 P02 | 9min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -98,6 +99,8 @@ Recent decisions affecting current work:
 - [Phase ?]: Phase 3 Plan 06: v01 parity snapshot regenerated (class_spec slot [] -> 2 ClassSpec for EXAMPLE_SOURCE); all other slots byte-identical
 - [Phase ?]: Phase 4 Plan 01: D-01 — PRIMITIVES/EVALUATIONS nested dict[language, dict[name, fn]] = {python:{...}, cpp:{}}; Python values byte-unchanged under [python]; FRONTENDS stays flat (D-02, Pitfall 1)
 - [Phase ?]: Phase 4 Plan 01: D-03 — executor indexes PRIMITIVES[cav.language]/EVALUATIONS[cav.language] (uses cav.language not local language); ONE-TIME exception to invariant #6, later cpp aspects are 0-line executor diff
+- [Phase ?]: Phase 4 Plan 02: build_cpp_cav test-side libclang CAV builder (mirror of build_python_cav) added to conftest; parses -x c++ -std=c++17, unsaved_files, PARSE_INCOMPLETE, raw_content carried, no PARSE_DETAILED_PROCESSING_RECORD
+- [Phase ?]: Phase 4 Plan 02: tests/fixtures/cpp/ corpus (7 fixtures, pure-ASCII, <30 lines, -std=c++17) covers D-04/D-05/D-08/D-09; missing_include.cpp mechanically demonstrates LNG-05 warn-not-error (diagnostic emitted, Ok cursor still built)
 
 ### Pending Todos
 
@@ -118,6 +121,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-03T16:46:13.666Z
-Stopped at: Phase 4 context gathered
+Last session: 2026-06-03T16:51:04.474Z
+Stopped at: Completed 04-02-PLAN.md
 Resume file: None
