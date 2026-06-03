@@ -69,6 +69,29 @@ def test_sorted_by_det04_key(config) -> None:
     assert keys == sorted(keys)
 
 
+def test_member_source_line_uses_extent_start(config) -> None:
+    """WR-05: member source_line is the decl extent start, not the name-token line.
+
+    For a member declaration that spans multiple lines, the field-name token is
+    on a later line than the decl start; the emitted source_line must be the
+    extent start so the line basis is consistent with cpp_functions/contracts.
+    """
+    src = (
+        "struct Point { int x; };\n"  # line 1
+        "struct Holder {\n"  # line 2
+        "  const\n"  # line 3 — type qualifier on its own line
+        "  Point\n"  # line 4 — type spelling
+        "  member;\n"  # line 5 — field name token
+        "};\n"
+    )
+    cav = build_cpp_cav(src, "ml.cpp")
+    deps = extract(cav, config)
+    member = [d for d in deps if d.kind != "imports" and d.target == "Point"]
+    assert member, "expected a member-type dep targeting Point"
+    # extent starts at line 3 (the 'const' qualifier), NOT line 5 (the name).
+    assert member[0].source_line == 3
+
+
 def test_no_pyright_adapter_in_source() -> None:
     s = pathlib.Path("lib_code_parser/extractors/primitives/cpp_type_deps.py").read_text(
         encoding="utf-8"

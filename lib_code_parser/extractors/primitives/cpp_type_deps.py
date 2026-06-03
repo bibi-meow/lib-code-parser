@@ -105,7 +105,11 @@ def extract(cav: CAV, config: ParserConfig) -> list[TypeDep]:
                 source=source,
                 target=target,
                 kind="uses",
-                source_line=cursor.location.line,
+                # WR-05: use the decl's extent start line (consistent with
+                # cpp_functions._source_range and cpp_contracts), not the
+                # field's name-token location, so the DET-04 sort key orders by
+                # the same line basis library-wide.
+                source_line=cursor.extent.start.line,
             )
         )
 
