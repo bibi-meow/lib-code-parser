@@ -34,13 +34,24 @@ PrimitiveFn = Callable[["CAV", "ParserConfig"], object]
 EvaluationFn = Callable[["CAV", "ParserConfig"], object]
 
 # Phase 2 adds: 'python' (stdlib ast); Phase 4 will add: 'cpp' (libclang adapter).
+# FRONTENDS is keyed by language ONLY — never double-nested (Phase 4 Pitfall 1).
+# There is exactly one frontend per language, so a flat dict[language, fn] is the
+# correct shape; PRIMITIVES/EVALUATIONS below carry the per-language extractor sets.
 FRONTENDS: dict[str, FrontendFn] = {}
 
-# Phase 2 adds 4 entries: functions, call_graph, type_deps, contracts.
-PRIMITIVES: dict[str, PrimitiveFn] = {}
+# Phase 4 D-01: PRIMITIVES/EVALUATIONS gain the language dimension. They are
+# nested dict[language, dict[name, fn]] so cpp extractors run ONLY on cpp CAV and
+# python extractors run ONLY on python CAV (LNG-04 parity: slot names stay common
+# across languages). The Phase 2 python entries move under ["python"] with their
+# values byte-unchanged (Open-Closed invariants #1/#2). The empty ["cpp"] sub-dicts
+# are the only cpp presence in THIS plan; cpp callables register in later Phase 4 plans.
+# Language keys are append-only (existing language keys are never removed or renamed).
 
-# Phase 3 will add 5 diagrams + 2 specs (7 entries total).
-EVALUATIONS: dict[str, EvaluationFn] = {}
+# Phase 2 adds 4 entries under ["python"]: functions, call_graph, type_deps, contracts.
+PRIMITIVES: dict[str, dict[str, PrimitiveFn]] = {"python": {}, "cpp": {}}
+
+# Phase 3 adds 5 diagrams + 2 specs (7 entries total) under ["python"].
+EVALUATIONS: dict[str, dict[str, EvaluationFn]] = {"python": {}, "cpp": {}}
 
 # Phase 2 (plan 02-06) registrations — append-only per Open-Closed invariant #4.
 # ============================================================================
@@ -54,10 +65,10 @@ from lib_code_parser.extractors.primitives.type_deps import extract as _extract_
 from lib_code_parser.frontends.python import build_cav as _build_cav_python
 
 FRONTENDS["python"] = _build_cav_python
-PRIMITIVES["functions"] = _extract_functions
-PRIMITIVES["call_graph"] = _extract_callgraph
-PRIMITIVES["type_deps"] = _extract_type_deps
-PRIMITIVES["contracts"] = _extract_contracts
+PRIMITIVES["python"]["functions"] = _extract_functions
+PRIMITIVES["python"]["call_graph"] = _extract_callgraph
+PRIMITIVES["python"]["type_deps"] = _extract_type_deps
+PRIMITIVES["python"]["contracts"] = _extract_contracts
 
 # Phase 3 (plan 03-02) EVALUATIONS registrations — append-only, canonical order
 # (class_diagram, sequence_diagram, component_diagram, package_diagram, ...).
@@ -86,15 +97,15 @@ from lib_code_parser.extractors.evaluations.state_diagram import (  # noqa: E402
     extract as _extract_state_diagram,
 )
 
-EVALUATIONS["class_diagram"] = _extract_class_diagram
-EVALUATIONS["sequence_diagram"] = _extract_sequence_diagram
-EVALUATIONS["component_diagram"] = _extract_component_diagram
-EVALUATIONS["package_diagram"] = _extract_package_diagram
-EVALUATIONS["state_diagram"] = _extract_state_diagram
+EVALUATIONS["python"]["class_diagram"] = _extract_class_diagram
+EVALUATIONS["python"]["sequence_diagram"] = _extract_sequence_diagram
+EVALUATIONS["python"]["component_diagram"] = _extract_component_diagram
+EVALUATIONS["python"]["package_diagram"] = _extract_package_diagram
+EVALUATIONS["python"]["state_diagram"] = _extract_state_diagram
 # Plan 03-05: SPC-01 function_spec at canonical position #6 (append-only).
-EVALUATIONS["function_spec"] = _extract_function_spec
+EVALUATIONS["python"]["function_spec"] = _extract_function_spec
 # Plan 03-06: SPC-02/04 class_spec at canonical position #7 — the FINAL entry.
-EVALUATIONS["class_spec"] = _extract_class_spec
+EVALUATIONS["python"]["class_spec"] = _extract_class_spec
 
 # WR-01: registration-time guard. The executor assigns each evaluation result
 # into the same-named CodeContent slot via setattr; a misspelled EVALUATIONS
@@ -104,12 +115,13 @@ EVALUATIONS["class_spec"] = _extract_class_spec
 from lib_code_parser.models.infrastructure.artifact import CodeContent  # noqa: E402
 
 _CONTENT_FIELDS = frozenset(CodeContent.model_fields.keys())
-for _eval_key in EVALUATIONS:
-    if _eval_key not in _CONTENT_FIELDS:
-        raise AssertionError(
-            f"EVALUATIONS key {_eval_key!r} has no matching CodeContent slot; "
-            f"declared slots: {sorted(_CONTENT_FIELDS)}"
-        )
+for _lang in EVALUATIONS:
+    for _eval_key in EVALUATIONS[_lang]:
+        if _eval_key not in _CONTENT_FIELDS:
+            raise AssertionError(
+                f"EVALUATIONS[{_lang!r}] key {_eval_key!r} has no matching CodeContent slot; "
+                f"declared slots: {sorted(_CONTENT_FIELDS)}"
+            )
 
 __all__ = [
     "FrontendFn",
