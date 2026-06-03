@@ -90,6 +90,34 @@ def test_method_contract_qualified_id(config) -> None:
     assert res["Calc.add"].entries[0].kind == "precondition"
 
 
+def test_prose_at_pre_not_emitted(config) -> None:
+    """WR-06: prose that merely MENTIONS @pre mid-sentence is NOT a contract entry.
+
+    A Doxygen command must be the first token on its comment line; the anchored
+    _DOXY_RE must reject 'The @pre below ...' so no spurious precondition is
+    emitted.
+    """
+    src = (
+        "/**\n"
+        " * Compute something.\n"
+        " *\n"
+        " * The @pre below is just prose, not a command.\n"
+        " */\n"
+        "void f() {}\n"
+    )
+    cav = build_cpp_cav(src, "prose.cpp")
+    res = extract(cav, config)
+    assert "f" not in res
+
+
+def test_prose_at_pre_inline_not_emitted(config) -> None:
+    """WR-06: an inline prose @pre in a single-line comment is not emitted either."""
+    src = "/** The @pre below is prose */\nvoid f() {}\n"
+    cav = build_cpp_cav(src, "prose2.cpp")
+    res = extract(cav, config)
+    assert "f" not in res
+
+
 def test_registered_in_dispatch() -> None:
     from lib_code_parser._dispatch import PRIMITIVES
 

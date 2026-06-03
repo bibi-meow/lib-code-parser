@@ -51,7 +51,16 @@ from lib_code_parser.models.primitives.contracts import (
 __all__ = ["extract"]
 
 # Both Doxygen command forms (\pre / @pre); case-insensitive marker word.
-_DOXY_RE = re.compile(r"[\\@](pre|post|invariant)\b[ \t]*(.*)", re.IGNORECASE)
+# WR-06: anchored to start-of-line after an optional comment-syntax prefix
+# (leading whitespace, an optional ``*`` continuation, or a ``/**`` / ``///`` /
+# ``//!`` opener) with re.MULTILINE, so a real Doxygen command — which is the
+# first token on its comment line — matches while prose that merely MENTIONS
+# ``@pre`` (e.g. "The @pre below") does NOT. The condition text after the marker
+# is captured but unused (the entry records only kind/name/line); kept for clarity.
+_DOXY_RE = re.compile(
+    r"^[ \t]*(?:/\*+!?|//[/!]?)?[ \t]*\*?[ \t]*[\\@](pre|post|invariant)\b[ \t]*(.*)$",
+    re.IGNORECASE | re.MULTILINE,
+)
 
 # Doxygen marker word -> ContractKind (D-09: \post maps to "postcondition" cleanly).
 _MARKER_TO_KIND: dict[str, ContractKind] = {
