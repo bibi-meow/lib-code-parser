@@ -7,9 +7,11 @@ composes/aggregates/associates/none field-relation classifier (D-04).
 
 from __future__ import annotations
 
+import os
 import pathlib
 import re
 
+import pytest
 from clang.cindex import CursorKind
 
 from lib_code_parser import _cpp_cursor as h
@@ -53,6 +55,42 @@ def test_in_main_file_filters_headers() -> None:
     assert h._in_main_file(ok, "main.cpp") is True
     # The translation-unit root cursor has no location.file -> filtered out.
     assert h._in_main_file(tu.cursor, "main.cpp") is False
+
+
+def test_in_main_file_normalizes_dotslash_path() -> None:
+    """CR-02: a './'-prefixed parse path still matches its cursors (not silent-empty).
+
+    libclang collapses the ``./`` prefix in ``location.file.name`` so a
+    byte-exact compare would drop every cursor; the normalized compare must
+    still match.
+    """
+    cav = build_cpp_cav("struct Ok { int v; };", "./relations.cpp")
+    tu = cav.payload
+    matched = [
+        c
+        for c in tu.cursor.walk_preorder()
+        if c.kind == CursorKind.STRUCT_DECL
+        and c.spelling == "Ok"
+        and h._in_main_file(c, "./relations.cpp")
+    ]
+    assert matched, "normalized path compare must match the './relations.cpp' main file"
+
+
+def test_in_main_file_normalizes_redundant_segments() -> None:
+    """CR-02: a redundant './' segment in the caller path still matches."""
+    cav = build_cpp_cav("struct Ok { int v; };", "src/sub/main.cpp")
+    tu = cav.payload
+    ok = _find(tu, CursorKind.STRUCT_DECL, "Ok", "src/sub/main.cpp")
+    assert h._in_main_file(ok, "src/./sub/main.cpp") is True
+
+
+@pytest.mark.skipif(os.sep != "\\", reason="backslash normalization is Windows-only")
+def test_in_main_file_normalizes_backslash_path() -> None:
+    """CR-02: on Windows a backslash-separated caller path still matches."""
+    cav = build_cpp_cav("struct Ok { int v; };", "src/sub/main.cpp")
+    tu = cav.payload
+    ok = _find(tu, CursorKind.STRUCT_DECL, "Ok", "src/sub/main.cpp")
+    assert h._in_main_file(ok, "src\\sub\\main.cpp") is True
 
 
 def test_qualified_node_id_namespace_qualified() -> None:

@@ -24,6 +24,7 @@ Traces: LNG-04, TRC-03
 
 from __future__ import annotations
 
+import os
 import re
 
 from clang.cindex import Cursor, CursorKind, TypeKind
@@ -48,11 +49,21 @@ def _in_main_file(cursor: Cursor, path: str) -> bool:
     """True only when the cursor's location is the parsed main file (Pitfall 3).
 
     Drops builtin declarations (no location.file) and decls pulled in from
-    headers (location.file.name != path) so cpp extractors emit ONLY the
-    artifact's own declarations.
+    headers (different file) so cpp extractors emit ONLY the artifact's own
+    declarations.
+
+    The comparison is normalized (CR-02): libclang's ``location.file.name``
+    echoes the spelling it was given but may normalize separators, collapse
+    ``./`` prefixes, or differ in absolute-vs-relative form from ``path``. A
+    byte-exact compare silently dropped EVERY cursor (a well-formed empty
+    extraction) when a caller passed ``./foo.cpp`` or an absolute/backslash
+    path. ``os.path.normcase(os.path.normpath(...))`` collapses these so the
+    main-file filter still matches.
     """
     f = cursor.location.file
-    return f is not None and f.name == path
+    if f is None:
+        return False
+    return os.path.normcase(os.path.normpath(f.name)) == os.path.normcase(os.path.normpath(path))
 
 
 def extract_trace_tags(text: str) -> list[TraceTag]:
