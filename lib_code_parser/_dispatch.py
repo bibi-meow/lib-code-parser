@@ -70,6 +70,14 @@ PRIMITIVES["python"]["call_graph"] = _extract_callgraph
 PRIMITIVES["python"]["type_deps"] = _extract_type_deps
 PRIMITIVES["python"]["contracts"] = _extract_contracts
 
+# Phase 4 (plan 04-03) cpp frontend registration — append-only, flat FRONTENDS
+# keyed by language (NOT nested — Phase 4 Pitfall 1). One frontend per language;
+# FRONTENDS["python"] above is never overwritten. cpp PRIMITIVES/EVALUATIONS
+# entries land in their own later Phase 4 plans, not here.
+from lib_code_parser.frontends.cpp import build_cav as _build_cav_cpp  # noqa: E402
+
+FRONTENDS["cpp"] = _build_cav_cpp
+
 # Phase 3 (plan 03-02) EVALUATIONS registrations — append-only, canonical order
 # (class_diagram, sequence_diagram, component_diagram, package_diagram, ...).
 # sequence_diagram (Plan 03-03) and the FSM/spec entries register later; the
