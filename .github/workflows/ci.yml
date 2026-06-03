@@ -11,6 +11,7 @@ jobs:
   test:
     name: test (${{ matrix.os }} / py${{ matrix.python-version }})
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 20  # WR-01: bound wall-clock so a hung libclang load fails fast (not the 6h default)
     strategy:
       fail-fast: false
       matrix:
@@ -60,6 +61,7 @@ jobs:
   macos-arm64-best-effort:
     name: macOS arm64 best-effort (py${{ matrix.python-version }})
     runs-on: macos-14
+    timeout-minutes: 20  # WR-01: continue-on-error does not bound wall-clock; fail fast on hung dylib load
     continue-on-error: true   # D-22 / LNG-02: observed, never blocks the merge gate
     strategy:
       fail-fast: false
