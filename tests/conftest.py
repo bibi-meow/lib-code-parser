@@ -21,6 +21,34 @@ def build_python_cav(source: str, path: str) -> CAV:
     return CAV(language="python", path=path, payload=ast.parse(source))
 
 
+def build_cpp_cav(source: str, path: str) -> CAV:
+    """Build a C++ CAV from source (test-side libclang parse only).
+
+    Phase-4 Wave-0 mirror of ``build_python_cav`` so every cpp extractor test
+    imports ONE libclang CAV builder (no per-test drift). Parses exactly as the
+    cpp frontend will: ``-x c++ -std=c++17`` with an in-memory ``unsaved_files``
+    pair (no disk I/O) and ``PARSE_INCOMPLETE`` so missing ``#include``s warn
+    rather than abort the cursor tree (LNG-05).
+
+    ``raw_content`` is set to the source bytes (NOT left as the CAV ``b""``
+    default) so the component-diagram ``#include`` regex has source to scan.
+
+    Does NOT pass ``PARSE_DETAILED_PROCESSING_RECORD`` — that floods the cursor
+    tree with hundreds of builtin macro definitions (RESEARCH Pitfall 3).
+    """
+    from clang.cindex import Index, TranslationUnit
+
+    raw_content = source.encode("utf-8")
+    args = ["-x", "c++", "-std=c++17"]
+    tu = Index.create().parse(
+        path,
+        args=args,
+        unsaved_files=[(path, source)],
+        options=TranslationUnit.PARSE_INCOMPLETE,
+    )
+    return CAV(language="cpp", path=path, payload=tu, raw_content=raw_content)
+
+
 @pytest.fixture
 def parser_config() -> ParserConfig:
     """Reusable default ParserConfig for Phase 3 extractor tests."""
