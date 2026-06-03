@@ -1,0 +1,107 @@
+"""Unit tests for lib_code_parser._cpp_cursor shared helpers.
+
+Covers the TRC-03 byte-identical regex parity, the main-file cursor filter,
+the namespace-qualified node_id helper (with get_usr() fallback), and the
+composes/aggregates/associates/none field-relation classifier (D-04).
+"""
+
+from __future__ import annotations
+
+import pathlib
+import re
+
+from clang.cindex import CursorKind
+
+from lib_code_parser import _cpp_cursor as h
+from tests.conftest import build_cpp_cav
+
+
+def test_trace_regex_byte_identical_to_python() -> None:
+    """The TRC-03 regex literal in _cpp_cursor must match functions.py exactly."""
+    fn = pathlib.Path("lib_code_parser/extractors/primitives/functions.py").read_text(
+        encoding="utf-8"
+    )
+    m = re.search(r"_TRACE_TAGS_RE = re\.compile\((.*?)\)", fn)
+    assert m, "could not locate _TRACE_TAGS_RE in functions.py"
+    helper = pathlib.Path("lib_code_parser/_cpp_cursor.py").read_text(encoding="utf-8")
+    assert m.group(1) in helper, "TRC-03 regex must be byte-identical to functions.py"
+
+
+def test_extract_trace_tags_parses_refs() -> None:
+    tags = h.extract_trace_tags("Traces: REQ-9, US-3")
+    assert tags and tags[0].tag == "Traces"
+    assert tags[0].refs == ["REQ-9", "US-3"]
+
+
+def test_extract_trace_tags_empty() -> None:
+    assert h.extract_trace_tags("") == []
+    assert h.extract_trace_tags("no tags here") == []
+
+
+def _find(tu, kind, spelling, path):
+    for c in tu.cursor.walk_preorder():
+        f = c.location.file
+        if f is not None and f.name == path and c.kind == kind and c.spelling == spelling:
+            return c
+    raise AssertionError(f"no {kind} {spelling!r} found")
+
+
+def test_in_main_file_filters_headers() -> None:
+    cav = build_cpp_cav("struct Ok { int v; };", "main.cpp")
+    tu = cav.payload
+    ok = _find(tu, CursorKind.STRUCT_DECL, "Ok", "main.cpp")
+    assert h._in_main_file(ok, "main.cpp") is True
+    # The translation-unit root cursor has no location.file -> filtered out.
+    assert h._in_main_file(tu.cursor, "main.cpp") is False
+
+
+def test_qualified_node_id_namespace_qualified() -> None:
+    src = "namespace a { namespace b { struct Calc { int add(int x); }; } }"
+    cav = build_cpp_cav(src, "q.cpp")
+    tu = cav.payload
+    add = _find(tu, CursorKind.CXX_METHOD, "add", "q.cpp")
+    assert h.qualified_node_id(add) == "a.b.Calc.add"
+    calc = _find(tu, CursorKind.STRUCT_DECL, "Calc", "q.cpp")
+    assert h.qualified_node_id(calc) == "a.b.Calc"
+
+
+def test_qualified_node_id_stable_across_runs() -> None:
+    src = "struct S { int f(); };"
+    a = build_cpp_cav(src, "s.cpp").payload
+    b = build_cpp_cav(src, "s.cpp").payload
+    fa = _find(a, CursorKind.CXX_METHOD, "f", "s.cpp")
+    fb = _find(b, CursorKind.CXX_METHOD, "f", "s.cpp")
+    assert h.qualified_node_id(fa) == h.qualified_node_id(fb) == "S.f"
+
+
+def test_field_relation_spectrum() -> None:
+    # Widget is forward-declared (incomplete) -> known as a reference but
+    # undecidable as ownership: the honest "associates" case. (A pointer to a
+    # name with no declaration at all is recovered by libclang to int* under
+    # PARSE_INCOMPLETE, so a forward declaration is the deterministic associates
+    # fixture; the never-declared form is exercised in the relations.cpp
+    # acceptance path as a no-crash/no-edge case.)
+    src = (
+        "class Widget;\n"
+        "struct Point { int x; };\n"
+        "class Diagram {\n"
+        "  Point center;\n"  # value of known -> composes
+        "  Point* parent;\n"  # pointer of known -> aggregates
+        "  Point& ref;\n"  # reference of known -> aggregates
+        "  int count;\n"  # builtin -> None
+        "  Widget* widget;\n"  # pointer of forward-declared -> associates
+        "};\n"
+    )
+    cav = build_cpp_cav(src, "rel.cpp")
+    tu = cav.payload
+    known = {"Point", "Diagram"}
+
+    def rel(name: str):
+        fc = _find(tu, CursorKind.FIELD_DECL, name, "rel.cpp")
+        return h.field_relation(fc, known)
+
+    assert rel("center") == ("composes", "Point")
+    assert rel("parent") == ("aggregates", "Point")
+    assert rel("ref") == ("aggregates", "Point")
+    assert rel("count") is None
+    assert rel("widget") == ("associates", "Widget")
