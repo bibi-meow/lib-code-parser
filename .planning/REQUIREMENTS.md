@@ -45,9 +45,9 @@
 
 - [ ] **LNG-01**: Library installs and runs on CPython 3.11, 3.12, 3.13, 3.14 on Linux x86_64 / aarch64 and Windows x86_64 (strong guarantee — CI mandatory matrix)
 - [ ] **LNG-02**: Library installs on macOS arm64 + Python 3.13+; runtime operation is observed but not guaranteed in v0.2.0 (CI continue-on-error; full guarantee deferred to v0.3.0)
-- [ ] **LNG-03**: Library import triggers runtime guard that calls `cindex.Index.create()` once; on dylib load failure raises clear `RuntimeError` with platform-specific install instructions
+- [x] **LNG-03**: Library import triggers runtime guard that calls `cindex.Index.create()` once; on dylib load failure raises clear `RuntimeError` with platform-specific install instructions
 - [x] **LNG-04**: All AST primitive extractors (AST-01..05) and diagram extractors (DIA-01..07) work on C++ source via `libclang==18.1.1` with output schema parity to Python source
-- [ ] **LNG-05**: C++ extractors accept caller-supplied compile flags via `ParserConfig.params.compile_args` (default `["-std=c++17"]`, unresolved `#include` directives produce warnings not errors)
+- [x] **LNG-05**: C++ extractors accept caller-supplied compile flags via `ParserConfig.params.compile_args` (default `["-std=c++17"]`, unresolved `#include` directives produce warnings not errors)
 
 ### Architecture (5)
 
@@ -60,7 +60,7 @@
 ### Determinism (5)
 
 - [ ] **DET-01**: Library output is byte-identical for the same `(raw_content, path, ParserConfig)` tuple across re-runs, machines, and OS — verified by snapshot tests that diff JSON dump of `NormalizedArtifact` between 3 consecutive runs
-- [ ] **DET-02**: `libclang==18.1.1` exact pin enforced; runtime ABI assertion at import rejects `Config.set_library_file` overrides and verifies the bundled library version via `cindex.Config.library_path`
+- [x] **DET-02**: `libclang==18.1.1` exact pin enforced; runtime ABI assertion at import rejects `Config.set_library_file` overrides and verifies the bundled library version via `cindex.Config.library_path`
 - [x] **DET-03**: `pyright[nodejs]==1.1.409` exact pin; subprocess invocation sets `PYRIGHT_PYTHON_FORCE_VERSION=1.1.409` to prevent npm pyright drift
 - [x] **DET-04**: All extractor outputs are sorted by stable composite keys before emission — `FunctionNode` by `node_id`, `CallGraph.edges` lexicographic by `(caller, callee)`, `TypeDep` by `(node_id, type_ref)`
 - [ ] **DET-05**: All subprocess calls (`pyright`, future tools) use `capture_output=True`, `encoding="utf-8"`, `env={..., "LC_ALL": "C", "PYTHONHASHSEED": "0"}`, `timeout=60`, and explicit `cwd` (no inherited `os.getcwd()`)

@@ -4,13 +4,13 @@ milestone: v0.1.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 04-02-PLAN.md
-last_updated: "2026-06-03T16:51:04.489Z"
+last_updated: "2026-06-03T16:56:46.308Z"
 last_activity: 2026-06-03
 progress:
   total_phases: 5
   completed_phases: 3
   total_plans: 30
-  completed_plans: 26
+  completed_plans: 27
   percent: 60
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-06-02)
 ## Current Position
 
 Phase: 04 (C++ Frontend + C++ Extractors) — EXECUTING
-Plan: 3 of 7
+Plan: 4 of 7
 Status: Ready to execute
 Last activity: 2026-06-03
 
-Progress: [█████████░] 87%
+Progress: [█████████░] 90%
 
 ## Performance Metrics
 
@@ -64,6 +64,7 @@ Progress: [█████████░] 87%
 | Phase 03 P06 | 6min | 2 tasks | 10 files |
 | Phase 04 P01 | 6 | 3 tasks | 5 files |
 | Phase 04 P02 | 9min | 2 tasks | 8 files |
+| Phase 04 P03 | 3min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -101,6 +102,7 @@ Recent decisions affecting current work:
 - [Phase ?]: Phase 4 Plan 01: D-03 — executor indexes PRIMITIVES[cav.language]/EVALUATIONS[cav.language] (uses cav.language not local language); ONE-TIME exception to invariant #6, later cpp aspects are 0-line executor diff
 - [Phase ?]: Phase 4 Plan 02: build_cpp_cav test-side libclang CAV builder (mirror of build_python_cav) added to conftest; parses -x c++ -std=c++17, unsaved_files, PARSE_INCOMPLETE, raw_content carried, no PARSE_DETAILED_PROCESSING_RECORD
 - [Phase ?]: Phase 4 Plan 02: tests/fixtures/cpp/ corpus (7 fixtures, pure-ASCII, <30 lines, -std=c++17) covers D-04/D-05/D-08/D-09; missing_include.cpp mechanically demonstrates LNG-05 warn-not-error (diagnostic emitted, Ok cursor still built)
+- [Phase ?]: Phase 4 Plan 03: frontends/cpp.py single libclang parse site; D-07 lazy _READY guard (DET-02 ABI pin via importlib.metadata.version no FFI, LNG-03 reject set_library_file + assert bundled clang/native, Index.create smoke test); build_cav -x c++ + compile_args + PARSE_INCOMPLETE (LNG-05 warn-not-error), in-process no adapters; FRONTENDS[cpp] registered flat
 
 ### Pending Todos
 
@@ -121,6 +123,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-03T16:51:04.474Z
+Last session: 2026-06-03T16:56:46.297Z
 Stopped at: Completed 04-02-PLAN.md
 Resume file: None
