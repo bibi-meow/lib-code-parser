@@ -186,6 +186,21 @@ for _lang in EVALUATIONS:
                 f"declared slots: {sorted(_CONTENT_FIELDS)}"
             )
 
+# IN-01: analogous registration-time guard for PRIMITIVES. Unlike EVALUATIONS
+# (assigned via setattr), the executor maps primitive results through an
+# explicit if/elif chain keyed by these names with NO else branch — so a
+# misspelled PRIMITIVES key (e.g. "call_grph") would run the extractor and
+# silently DISCARD the result. Assert at import time that every registered key
+# (both languages) is a member of the known set so a typo fails fast.
+_KNOWN_PRIMITIVES = frozenset({"functions", "call_graph", "type_deps", "contracts"})
+for _lang in PRIMITIVES:
+    for _prim_key in PRIMITIVES[_lang]:
+        if _prim_key not in _KNOWN_PRIMITIVES:
+            raise AssertionError(
+                f"PRIMITIVES[{_lang!r}] key {_prim_key!r} is not a known primitive slot; "
+                f"known slots: {sorted(_KNOWN_PRIMITIVES)}"
+            )
+
 __all__ = [
     "FrontendFn",
     "PrimitiveFn",

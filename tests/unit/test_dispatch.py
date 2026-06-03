@@ -81,9 +81,9 @@ class TestWR01EvaluationKeyGuard:
         # Phase 4 D-01: EVALUATIONS is nested per-language; iterate both dims.
         for lang in EVALUATIONS:
             for key in EVALUATIONS[lang]:
-                assert (
-                    key in content_fields
-                ), f"EVALUATIONS[{lang!r}] key {key!r} has no CodeContent slot"
+                assert key in content_fields, (
+                    f"EVALUATIONS[{lang!r}] key {key!r} has no CodeContent slot"
+                )
 
     def test_guard_constant_matches_codecontent_fields(self) -> None:
         from lib_code_parser._dispatch import _CONTENT_FIELDS
@@ -118,6 +118,44 @@ class TestWR01EvaluationKeyGuard:
         for lang in EVALUATIONS:
             for key in EVALUATIONS[lang]:
                 assert key in _CONTENT_FIELDS
+
+
+class TestIN01PrimitiveKeyGuard:
+    """IN-01: every PRIMITIVES key must be a known primitive slot, enforced at
+    import time. The executor maps primitive results via an explicit if/elif
+    chain with no else, so a misspelled key would silently discard the result;
+    the guard makes such a typo fail fast at import."""
+
+    def test_every_primitive_key_is_known(self) -> None:
+        from lib_code_parser._dispatch import _KNOWN_PRIMITIVES
+
+        for lang in PRIMITIVES:
+            for key in PRIMITIVES[lang]:
+                assert key in _KNOWN_PRIMITIVES, (
+                    f"PRIMITIVES[{lang!r}] key {key!r} is not a known primitive slot"
+                )
+
+    def test_known_primitives_constant_value(self) -> None:
+        from lib_code_parser._dispatch import _KNOWN_PRIMITIVES
+
+        assert _KNOWN_PRIMITIVES == frozenset({"functions", "call_graph", "type_deps", "contracts"})
+
+    def test_guard_rejects_bad_primitive_key(self) -> None:
+        # Simulate the guard body over a PRIMITIVES containing a misspelled key
+        # ("call_grph"); the guard must flag it.
+        from lib_code_parser._dispatch import _KNOWN_PRIMITIVES
+
+        primitives_with_typo = {
+            "python": {"functions": object(), "call_grph": object()},
+            "cpp": {},
+        }
+        offenders = [
+            (lang, key)
+            for lang in primitives_with_typo
+            for key in primitives_with_typo[lang]
+            if key not in _KNOWN_PRIMITIVES
+        ]
+        assert offenders == [("python", "call_grph")]
 
 
 class TestDispatchModuleDocstring:
