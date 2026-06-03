@@ -141,6 +141,19 @@ EVALUATIONS["python"]["function_spec"] = _extract_function_spec
 # Plan 03-06: SPC-02/04 class_spec at canonical position #7 — the FINAL entry.
 EVALUATIONS["python"]["class_spec"] = _extract_class_spec
 
+# Phase 4 (plan 04-06) cpp EVALUATIONS registrations — append-only into the
+# reserved ["cpp"] sub-dict (D-01). The diagram keys share the Python slot
+# spelling (class_diagram / sequence_diagram / component_diagram /
+# package_diagram / state_diagram) so LNG-04 parity is automatic; function_spec
+# and class_spec are Python-only and NOT registered for cpp (the executor walks
+# EVALUATIONS[cav.language], so cpp simply omits them). Registered in canonical
+# slot-name order; the remaining 4 diagrams register in the next task.
+from lib_code_parser.extractors.evaluations.cpp_class_diagram import (  # noqa: E402
+    extract as _extract_cpp_class_diagram,
+)
+
+EVALUATIONS["cpp"]["class_diagram"] = _extract_cpp_class_diagram
+
 # WR-01: registration-time guard. The executor assigns each evaluation result
 # into the same-named CodeContent slot via setattr; a misspelled EVALUATIONS
 # key would otherwise surface only at runtime as an opaque Pydantic
