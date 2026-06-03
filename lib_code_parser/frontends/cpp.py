@@ -127,9 +127,24 @@ def build_cav(raw_content: bytes, path: str, config: ParserConfig) -> CAV:
     ``#include`` surfaces as a diagnostic warning carried on the TranslationUnit,
     NEVER as a raised exception. This function never inspects ``tu.diagnostics``
     to raise.
+
+    WR-02 (by design, not validated): ``compile_args`` is forwarded verbatim to
+    libclang and MAY include include-resolution flags (``-I``, ``-include``,
+    ``-isystem``). SC#3 documents ``compile_args=["-std=c++17", "-I",
+    "/path/to/headers"]`` as a valid call, so this is an intended feature, not a
+    hole — include flags cause libclang to read header files from disk. That
+    filesystem read is caller-controlled and deterministic given the same
+    filesystem state (same ``(raw_content, path, config)`` + same headers ->
+    same output), so the determinism contract holds. The library itself opens no
+    files; any disk read is whatever the caller's ``compile_args`` instruct
+    libclang to do. No flag validation/rejection is performed.
     """
     _ensure_libclang_ready()
     source = raw_content.decode("utf-8", errors="replace")
+    # IN-02 (by design): ALWAYS parse as ``-x c++`` — including ``.c`` / ``.h``
+    # files routed here by executor._CPP_EXTENSIONS. There is no separate
+    # ``-x c`` path (Python + C++ are the two supported languages from the
+    # start); a C header is parsed under C++ rules deterministically.
     args = ["-x", "c++", *config.compile_args]
     tu = Index.create().parse(
         path,

@@ -26,6 +26,12 @@ from lib_code_parser.models.primitives.contracts import ContractInfo
 from lib_code_parser.models.primitives.functions import FunctionNode
 from lib_code_parser.models.primitives.type_deps import TypeDep
 
+# IN-02 (by design): .c and C-only .h files are routed to the cpp frontend and
+# parsed as ``-x c++`` (see frontends/cpp.py). Python and C++ are both first-class
+# from the start; there is no separate ``-x c`` path. C++ parsing of a C header
+# can differ from a C compiler on a few constructs (e.g. ``restrict``, implicit
+# int), but determinism is preserved — the choice is fidelity-vs-uniformity, made
+# deliberately in favour of one cpp path.
 _CPP_EXTENSIONS = frozenset({".cpp", ".c", ".h", ".cc"})
 
 

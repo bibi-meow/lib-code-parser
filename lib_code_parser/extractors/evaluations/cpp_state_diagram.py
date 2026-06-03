@@ -54,13 +54,19 @@ def extract(cav: CAV, config: ParserConfig) -> GraphModel:
         f"got {type(tu).__name__}"
     )
 
-    # A1 / D-05: zero detected states for v0.2.0 (parity-as-empty-shape).
+    # A1 / D-05 (DELIBERATE, not a stub): for v0.2.0 the C++ state diagram is the
+    # empty-shape parity contract. C++ has no portable deterministic FSM idiom
+    # mapping to the Python families, so this extractor intentionally emits an
+    # EMPTY GraphModel — identical to a Python ``Color(Enum)`` with no
+    # transitions. It IS registered and DOES run; it is not an unfinished
+    # placeholder. The three sorts below are therefore no-ops over empty lists;
+    # they are kept only to make the DET-04 sort-on-exit shape byte-identical to
+    # the Python sibling (a reviewer should read them as "same structure, zero
+    # data", not "TODO: implement").
     nodes: list[GraphNode] = []
     edges: list[GraphEdge] = []
     guards: list[GuardExpr] = []
 
-    # DET-04 sort-on-exit with stable composite keys (no-op over empty lists, but
-    # kept verbatim for structural parity with the Python sibling).
     nodes.sort(key=lambda n: n.node_id)
     edges.sort(key=lambda e: (e.source, e.target, e.edge_type, e.label))
     guards.sort(key=lambda g: (g.from_state, g.to_state, g.condition, g.action))
