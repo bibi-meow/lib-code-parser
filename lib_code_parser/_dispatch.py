@@ -95,6 +95,15 @@ PRIMITIVES["cpp"]["functions"] = _extract_cpp_functions
 PRIMITIVES["cpp"]["call_graph"] = _extract_cpp_callgraph
 PRIMITIVES["cpp"]["type_deps"] = _extract_cpp_type_deps
 
+# Phase 4 (plan 04-05) cpp Doxygen contracts (SPC-03) — append-only into the
+# reserved ["cpp"] sub-dict, sharing the common "contracts" slot spelling with
+# python so the executor's config.extract_contracts gate applies uniformly (D-09).
+from lib_code_parser.extractors.primitives.cpp_contracts import (  # noqa: E402
+    extract as _extract_cpp_contracts,
+)
+
+PRIMITIVES["cpp"]["contracts"] = _extract_cpp_contracts
+
 # Phase 3 (plan 03-02) EVALUATIONS registrations — append-only, canonical order
 # (class_diagram, sequence_diagram, component_diagram, package_diagram, ...).
 # sequence_diagram (Plan 03-03) and the FSM/spec entries register later; the
