@@ -10,7 +10,8 @@ cpp evaluation extractors — share ONE implementation of:
   ``Traces:`` lines extract the same for Python docstrings and C++ Doxygen
   comments (D-09 parity).
 - ``qualified_node_id`` — a stable namespace-qualified dotted id
-  (``a.b.Class.method``) with ``cursor.get_usr()`` as the deterministic fallback.
+  (``a.b.Class.method``); anonymous decls get a synthetic ``<anonymous@l:c>``
+  chain segment so the id never escapes the dotted namespace (CR-01).
 - ``field_relation``   — the composes / aggregates / associates / none classifier
   (D-04), the C++ analog of class_diagram.py's ``_classify_annotation``.
 
@@ -75,9 +76,14 @@ def qualified_node_id(cursor: Cursor) -> str:
     cursor's own spelling. The chain is the same for an in-class declaration
     and its out-of-line definition, so both resolve to the identical id.
 
-    Falls back to the deterministic ``cursor.get_usr()`` when the cursor has no
-    spelling (anonymous decls); the USR is stable across runs for identical
-    input.
+    For anonymous decls (empty spelling) a stable synthetic segment
+    ``<anonymous@line:col>`` is appended to the enclosing chain instead of
+    collapsing to a bare ``cursor.get_usr()``. This keeps the id inside the
+    dotted ``a.b.Class`` namespace every other code path merges against
+    (CR-01): a raw USR (``c:@S@...``) is a different id namespace and would
+    silently fail node_id-keyed dedup/merge. The synthetic segment is
+    deterministic across runs for identical input (libclang reports a stable
+    line:col for the same source bytes).
     """
     parts: list[str] = []
     parent = cursor.semantic_parent
@@ -88,7 +94,10 @@ def qualified_node_id(cursor: Cursor) -> str:
     parts.reverse()
     own = cursor.spelling
     if not own:
-        return cursor.get_usr()
+        # Keep the dotted-id namespace for anonymous decls; never escape to a
+        # bare USR (CR-01).
+        loc = cursor.location
+        own = f"<anonymous@{loc.line}:{loc.column}>"
     parts.append(own)
     return ".".join(parts)
 

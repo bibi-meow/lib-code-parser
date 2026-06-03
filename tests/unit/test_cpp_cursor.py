@@ -74,6 +74,40 @@ def test_qualified_node_id_stable_across_runs() -> None:
     assert h.qualified_node_id(fa) == h.qualified_node_id(fb) == "S.f"
 
 
+def test_qualified_node_id_anonymous_stays_in_dotted_namespace() -> None:
+    """CR-01: an empty-spelling decl gets a synthetic segment, never a bare USR.
+
+    An anonymous namespace (``namespace { ... }``) is the deterministic
+    empty-``spelling`` case in this libclang build. Its id must stay in the
+    dotted namespace (carry a ``<anonymous@`` segment) rather than collapsing
+    to a raw ``c:@...`` USR that would break node_id-keyed merge/dedup, and it
+    must be stable across runs for identical input.
+    """
+    src = "namespace { int g; }"
+    anon_a = None
+    for c in build_cpp_cav(src, "anon.cpp").payload.cursor.walk_preorder():
+        f = c.location.file
+        if f is not None and f.name == "anon.cpp" and c.kind == CursorKind.NAMESPACE:
+            assert not c.spelling, "fixture must produce an empty-spelling namespace"
+            anon_a = c
+            break
+    assert anon_a is not None, "expected an anonymous namespace (empty spelling)"
+
+    ns_id = h.qualified_node_id(anon_a)
+    assert not ns_id.startswith("c:"), "must not return a bare USR"
+    assert "<anonymous@" in ns_id, "empty-spelling decl must carry the synthetic segment"
+
+    # Deterministic across runs for identical bytes.
+    anon_b = None
+    for c in build_cpp_cav(src, "anon.cpp").payload.cursor.walk_preorder():
+        f = c.location.file
+        if f is not None and f.name == "anon.cpp" and c.kind == CursorKind.NAMESPACE:
+            anon_b = c
+            break
+    assert anon_b is not None
+    assert h.qualified_node_id(anon_b) == ns_id
+
+
 def test_field_relation_spectrum() -> None:
     # Widget is forward-declared (incomplete) -> known as a reference but
     # undecidable as ownership: the honest "associates" case. (A pointer to a
