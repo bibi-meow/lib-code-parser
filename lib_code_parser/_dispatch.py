@@ -78,6 +78,19 @@ from lib_code_parser.frontends.cpp import build_cav as _build_cav_cpp  # noqa: E
 
 FRONTENDS["cpp"] = _build_cav_cpp
 
+# Phase 4 (plan 04-04) cpp PRIMITIVES registrations — append-only into the
+# reserved ["cpp"] sub-dict (D-01). Common slot spelling shared with python
+# ("functions"/"call_graph"/"type_deps") so LNG-04 parity is automatic.
+from lib_code_parser.extractors.primitives.cpp_callgraph import (  # noqa: E402
+    extract as _extract_cpp_callgraph,
+)
+from lib_code_parser.extractors.primitives.cpp_functions import (  # noqa: E402
+    extract as _extract_cpp_functions,
+)
+
+PRIMITIVES["cpp"]["functions"] = _extract_cpp_functions
+PRIMITIVES["cpp"]["call_graph"] = _extract_cpp_callgraph
+
 # Phase 3 (plan 03-02) EVALUATIONS registrations — append-only, canonical order
 # (class_diagram, sequence_diagram, component_diagram, package_diagram, ...).
 # sequence_diagram (Plan 03-03) and the FSM/spec entries register later; the
