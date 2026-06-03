@@ -99,7 +99,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   - Wave 2:
     - [x] 04-03-PLAN.md — frontends/cpp.py single libclang parse site + lazy ABI/override runtime guard (LNG-03, DET-02, LNG-05)
   - Wave 3:
-    - [ ] 04-04-PLAN.md — cpp AST primitives (functions/callgraph/type_deps) + _cpp_cursor.py shared helpers (LNG-04, LNG-05, TRC-03)
+    - [x] 04-04-PLAN.md — cpp AST primitives (functions/callgraph/type_deps) + _cpp_cursor.py shared helpers (LNG-04, LNG-05, TRC-03)
   - Wave 4:
     - [ ] 04-05-PLAN.md — Doxygen contracts + additive SourceKind=doxygen + SPC-03/TRC-03 parity (SPC-03, TRC-03)
   - Wave 5:
@@ -127,5 +127,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 1. Architecture Foundation + Spec Correction | 10/10 | Complete   | 2026-05-25 |
 | 2. Python Frontend + AST Primitives + ACL-2 Adapters | 7/7 | Complete   | 2026-05-31 |
 | 3. Python Diagram + Spec Extractors | 6/6 | Complete   | 2026-06-01 |
-| 4. C++ Frontend + C++ Extractors | 3/7 | In Progress|  |
+| 4. C++ Frontend + C++ Extractors | 4/7 | In Progress|  |
 | 5. Cross-Cutting Integration + Acceptance | 0/TBD | Not started | - |
