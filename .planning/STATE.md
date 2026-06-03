@@ -4,13 +4,13 @@ milestone: v0.1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 4 context gathered
-last_updated: "2026-06-02T15:14:11.103Z"
-last_activity: 2026-06-02 -- Phase 4 planning complete
+last_updated: "2026-06-03T16:46:31.712Z"
+last_activity: 2026-06-03
 progress:
   total_phases: 5
   completed_phases: 3
   total_plans: 30
-  completed_plans: 24
+  completed_plans: 25
   percent: 60
 ---
 
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-02)
 
 **Core value:** コードから抽出する全アーキ表現が、`lib-diagram-parser` が spec から抽出するものと同形式・最大忠実度・決定論的に比較可能であること (Layer M bisimulation の物理側基盤)
-**Current focus:** Phase 4 — c++ frontend + c++ extractors
+**Current focus:** Phase 04 — C++ Frontend + C++ Extractors
 
 ## Current Position
 
-Phase: 4
-Plan: Not started
+Phase: 04 (C++ Frontend + C++ Extractors) — EXECUTING
+Plan: 2 of 7
 Status: Ready to execute
-Last activity: 2026-06-02 -- Phase 4 planning complete
+Last activity: 2026-06-03
 
-Progress: [██████████] 100%
+Progress: [████████░░] 83%
 
 ## Performance Metrics
 
@@ -62,6 +62,7 @@ Progress: [██████████] 100%
 | Phase 03 P04 | 18 | 3 tasks | 12 files |
 | Phase 03 P05 | 6min | 2 tasks | 8 files |
 | Phase 03 P06 | 6min | 2 tasks | 10 files |
+| Phase 04 P01 | 6 | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -95,6 +96,8 @@ Recent decisions affecting current work:
 - [Phase ?]: Phase 3 Plan 06: SPC-04 markers detection-only (D-10) via parameterized import-provenance over (icontract,deal); decoy require() not flagged (T-03-13); lambdas ast.unparse'd never executed (T-03-14)
 - [Phase ?]: Phase 3 Plan 06: class_spec registered final EVALUATIONS #7; all 7 in canonical order; ClassSpec.invariants holds SPC-04 markers only (Phase-2 contracts stay in CodeContent.contracts; frozen contracts.py + shipped spec.py untouched)
 - [Phase ?]: Phase 3 Plan 06: v01 parity snapshot regenerated (class_spec slot [] -> 2 ClassSpec for EXAMPLE_SOURCE); all other slots byte-identical
+- [Phase ?]: Phase 4 Plan 01: D-01 — PRIMITIVES/EVALUATIONS nested dict[language, dict[name, fn]] = {python:{...}, cpp:{}}; Python values byte-unchanged under [python]; FRONTENDS stays flat (D-02, Pitfall 1)
+- [Phase ?]: Phase 4 Plan 01: D-03 — executor indexes PRIMITIVES[cav.language]/EVALUATIONS[cav.language] (uses cav.language not local language); ONE-TIME exception to invariant #6, later cpp aspects are 0-line executor diff
 
 ### Pending Todos
 
@@ -115,6 +118,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-02T14:38:55.102Z
+Last session: 2026-06-03T16:46:13.666Z
 Stopped at: Phase 4 context gathered
-Resume file: .planning/phases/04-c-frontend-c-extractors/04-CONTEXT.md
+Resume file: None

@@ -94,7 +94,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. Caller can extract Doxygen-driven contracts from C++ source — `\pre` / `\post` / `\invariant` markers become `ContractInfo` entries with the same schema as Python's Pydantic/dataclass contracts, so the spec_code_verifier processes both languages symmetrically; `TraceTag` extraction (`Traces: REQ-ID, US-NN`) works identically on Python docstrings and C++ Doxygen comments (parity test)
 **Plans**: 7 plans across 6 waves
   - Wave 1 (parallel):
-    - [ ] 04-01-PLAN.md — D-01 dispatch language-dimension nesting + executor cav.language walks + docs/09 invariant (LNG-04)
+    - [x] 04-01-PLAN.md — D-01 dispatch language-dimension nesting + executor cav.language walks + docs/09 invariant (LNG-04)
     - [ ] 04-02-PLAN.md — Wave-0 shared test infra: build_cpp_cav conftest helper + tests/fixtures/cpp/ corpus (LNG-04)
   - Wave 2:
     - [ ] 04-03-PLAN.md — frontends/cpp.py single libclang parse site + lazy ABI/override runtime guard (LNG-03, DET-02, LNG-05)
@@ -127,5 +127,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 1. Architecture Foundation + Spec Correction | 10/10 | Complete   | 2026-05-25 |
 | 2. Python Frontend + AST Primitives + ACL-2 Adapters | 7/7 | Complete   | 2026-05-31 |
 | 3. Python Diagram + Spec Extractors | 6/6 | Complete   | 2026-06-01 |
-| 4. C++ Frontend + C++ Extractors | 0/TBD | Not started | - |
+| 4. C++ Frontend + C++ Extractors | 1/7 | In Progress|  |
 | 5. Cross-Cutting Integration + Acceptance | 0/TBD | Not started | - |

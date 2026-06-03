@@ -46,7 +46,7 @@
 - [ ] **LNG-01**: Library installs and runs on CPython 3.11, 3.12, 3.13, 3.14 on Linux x86_64 / aarch64 and Windows x86_64 (strong guarantee — CI mandatory matrix)
 - [ ] **LNG-02**: Library installs on macOS arm64 + Python 3.13+; runtime operation is observed but not guaranteed in v0.2.0 (CI continue-on-error; full guarantee deferred to v0.3.0)
 - [ ] **LNG-03**: Library import triggers runtime guard that calls `cindex.Index.create()` once; on dylib load failure raises clear `RuntimeError` with platform-specific install instructions
-- [ ] **LNG-04**: All AST primitive extractors (AST-01..05) and diagram extractors (DIA-01..07) work on C++ source via `libclang==18.1.1` with output schema parity to Python source
+- [x] **LNG-04**: All AST primitive extractors (AST-01..05) and diagram extractors (DIA-01..07) work on C++ source via `libclang==18.1.1` with output schema parity to Python source
 - [ ] **LNG-05**: C++ extractors accept caller-supplied compile flags via `ParserConfig.params.compile_args` (default `["-std=c++17"]`, unresolved `#include` directives produce warnings not errors)
 
 ### Architecture (5)
