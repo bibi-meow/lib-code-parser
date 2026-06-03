@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v0.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04-02-PLAN.md
-last_updated: "2026-06-03T17:08:40.566Z"
+stopped_at: Completed 04-05-PLAN.md
+last_updated: "2026-06-03T17:15:31.228Z"
 last_activity: 2026-06-03
 progress:
   total_phases: 5
   completed_phases: 3
   total_plans: 30
-  completed_plans: 28
+  completed_plans: 29
   percent: 60
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-06-02)
 ## Current Position
 
 Phase: 04 (C++ Frontend + C++ Extractors) — EXECUTING
-Plan: 5 of 7
+Plan: 6 of 7
 Status: Ready to execute
 Last activity: 2026-06-03
 
-Progress: [█████████░] 93%
+Progress: [██████████] 97%
 
 ## Performance Metrics
 
@@ -66,6 +66,7 @@ Progress: [█████████░] 93%
 | Phase 04 P02 | 9min | 2 tasks | 8 files |
 | Phase 04 P03 | 3min | 3 tasks | 4 files |
 | Phase 04 P04 | 9min | 3 tasks | 10 files |
+| Phase 04 P05 | 4min | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -106,6 +107,9 @@ Recent decisions affecting current work:
 - [Phase ?]: Phase 4 Plan 03: frontends/cpp.py single libclang parse site; D-07 lazy _READY guard (DET-02 ABI pin via importlib.metadata.version no FFI, LNG-03 reject set_library_file + assert bundled clang/native, Index.create smoke test); build_cav -x c++ + compile_args + PARSE_INCOMPLETE (LNG-05 warn-not-error), in-process no adapters; FRONTENDS[cpp] registered flat
 - [Phase ?]: Phase 4 Plan 04: _cpp_cursor.py centralizes cpp helpers (main-file filter, byte-identical TRC-03 regex, qualified_node_id via semantic_parent + get_usr fallback, field_relation composes/aggregates/associates/none D-04); reuse point for cpp class/component diagrams
 - [Phase ?]: Phase 4 Plan 04: 3 cpp primitives in PRIMITIVES[cpp] (functions/call_graph/type_deps, Python key spelling = LNG-04 parity); cpp_type_deps uses #include regex over raw_content (Open Q3) + FIELD_DECL member deps, NO subprocess oracle (D-06); all sort-on-exit DET-04; node_id de-dups in-class decl vs out-of-line def
+- [Phase ?]: Phase 4 Plan 05: D-08 SourceKind gains additive 'doxygen' (only Phase-4 model change; existing 4 intact); docs/09 records additive-Literal policy (additive allowed, deletion/rename forbidden)
+- [Phase ?]: Phase 4 Plan 05: D-09 SPC-03 cpp_contracts reuses shared CodeContent.contracts slot + EXISTING ContractInfo/ContractEntry schema; _DOXY_RE matches \ and @ forms read off EXACT decl cursor (Pitfall 4); PRIMITIVES[cpp][contracts] 0-line executor diff
+- [Phase ?]: Phase 4 Plan 05: TRC-03 parity proven 3 ways (Python vs cpp helper, regex .pattern literals, live cpp_functions path) all yielding Traces:->[[REQ-9,US-3]]
 
 ### Pending Todos
 
@@ -126,6 +130,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-03T17:08:01.657Z
-Stopped at: Completed 04-02-PLAN.md
+Last session: 2026-06-03T17:15:31.215Z
+Stopped at: Completed 04-05-PLAN.md
 Resume file: None
