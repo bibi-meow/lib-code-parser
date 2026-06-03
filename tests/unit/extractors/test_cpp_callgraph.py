@@ -55,3 +55,18 @@ def test_nodes_deduped(config) -> None:
     cav = build_cpp_cav(src, "d.cpp")
     cg = extract(cav, config)
     assert len(cg.nodes) == len(set(cg.nodes))
+
+
+def test_call_inside_lambda_not_attributed_to_enclosing(config) -> None:
+    """WR-04: a call inside a nested lambda body is NOT attributed to the encloser.
+
+    The enclosing function ``outer`` only directly invokes the lambda; the
+    ``helper()`` call lives inside the lambda body and must not be flattened up
+    into ``outer`` (which would double-count it against the nested callable).
+    """
+    src = "int helper();\nvoid outer() {\n  auto fn = []() { return helper(); };\n  fn();\n}\n"
+    cav = build_cpp_cav(src, "lam.cpp")
+    cg = extract(cav, config)
+    outer_callees = {e.callee for e in cg.edges if e.caller == "outer"}
+    # 'helper' is called only inside the lambda body, never directly by outer.
+    assert "helper" not in outer_callees

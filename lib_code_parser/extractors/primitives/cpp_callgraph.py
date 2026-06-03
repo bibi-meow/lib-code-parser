@@ -36,6 +36,16 @@ __all__ = ["extract"]
 _CLASS_KINDS = (CursorKind.CLASS_DECL, CursorKind.STRUCT_DECL)
 _CALLABLE_KINDS = (CursorKind.CXX_METHOD, CursorKind.FUNCTION_DECL)
 _CALL_KINDS = (CursorKind.CALL_EXPR, CursorKind.MEMBER_REF_EXPR)
+# WR-04: callable boundaries that _collect_callees must NOT descend into, so a
+# call inside a nested lambda / local function / local method is attributed to
+# that nested callable (its own node) and not ALSO double-counted into the
+# enclosing function — matching the Python sibling's flatten-to-enclosing rule
+# (the Python sibling never double-emits a nested callable's calls).
+_NESTED_CALLABLE_KINDS = (
+    CursorKind.CXX_METHOD,
+    CursorKind.FUNCTION_DECL,
+    CursorKind.LAMBDA_EXPR,
+)
 
 
 def _has_body(cursor: Cursor) -> bool:
@@ -43,11 +53,25 @@ def _has_body(cursor: Cursor) -> bool:
 
 
 def _collect_callees(cursor: Cursor) -> list[str]:
-    """All call/member-ref names within a function/method body (preorder)."""
+    """All call/member-ref names directly within a function/method body.
+
+    Manual preorder walk that STOPS descending at nested callable boundaries
+    (CXX_METHOD / FUNCTION_DECL / LAMBDA_EXPR) so calls inside a nested lambda
+    or local function are not double-attributed to both this enclosing callable
+    and the nested one (WR-04). The starting ``cursor`` is itself a callable, so
+    its own children are always traversed; only DEEPER callables are pruned.
+    """
     names: list[str] = []
-    for node in cursor.walk_preorder():
+    stack: list[Cursor] = list(cursor.get_children())
+    while stack:
+        node = stack.pop()
         if node.kind in _CALL_KINDS and node.spelling:
             names.append(node.spelling)
+        if node.kind in _NESTED_CALLABLE_KINDS:
+            # Do not descend into a nested callable's body — its calls belong to
+            # that callable's own node, not this one.
+            continue
+        stack.extend(node.get_children())
     return names
 
 
