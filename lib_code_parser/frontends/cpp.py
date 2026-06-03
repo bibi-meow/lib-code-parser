@@ -11,9 +11,12 @@ libclang is loaded IN-PROCESS via ctypes here (D-06): the subprocess hardening i
 the subprocess-only layer is NOT applied — that layer stays subprocess-only and this
 module never imports or calls anything from it.
 
-The D-07 runtime guard (``_ensure_libclang_ready``) runs ONCE at first parse via a
-lazy ``_READY`` flag, so Python-only caller paths that never import this module never
-load libclang (no-I/O-at-import preserved for the pure-Python path).
+The D-07 runtime guard (``_ensure_libclang_ready``) runs its cheap ABI-pin and
+override-rejection checks on EVERY parse (SC#2 must hold per-parse even if a caller
+calls ``set_library_file`` after the first parse — BL-02), and gates only the
+expensive one-time ``Index.create()`` dylib smoke test behind a lazy ``_READY``
+flag. Python-only caller paths that never import this module never load libclang
+(no-I/O-at-import preserved for the pure-Python path).
 
 Unlike the Python frontend (whose ``config`` argument is accepted only for signature
 parity), this frontend DOES consume ``config.compile_args`` — the caller-supplied
@@ -59,7 +62,7 @@ def _platform_install_hint() -> str:
 
 
 def _ensure_libclang_ready() -> None:
-    """Run the D-07 libclang runtime guard once (idempotent via the _READY flag).
+    """Run the D-07 libclang runtime guard (per-parse checks + one-time smoke test).
 
     Three jobs (LNG-03 / DET-02):
       1. DET-02 ABI pin: assert ``importlib.metadata.version("libclang") == "18.1.1"``.
@@ -70,11 +73,16 @@ def _ensure_libclang_ready() -> None:
          resolves into the bundled ``clang/native/`` directory.
       3. LNG-03 smoke test: ``Index.create()`` once; a dylib load failure raises a
          clear ``RuntimeError`` with the platform-specific install hint.
+
+    The cheap checks (jobs 1 and 2) run on EVERY call: ``Config`` is process-global
+    and a caller could ``set_library_file(...)`` AFTER the first parse, so SC#2
+    ("any caller override is rejected") must be enforced per-parse, not once
+    (BL-02). Only the expensive ``Index.create()`` dylib smoke test is gated behind
+    ``_READY`` (D-07 lazy-once intent for the one-time dylib load).
     """
     global _READY
-    if _READY:
-        return
     # DET-02: pinned ABI assertion via metadata (safe — never FFI-poke the version).
+    # Runs on EVERY call (cheap; BL-02).
     ver = importlib.metadata.version("libclang")
     if ver != _EXPECTED_VERSION:
         raise RuntimeError(
@@ -82,7 +90,8 @@ def _ensure_libclang_ready() -> None:
         )
     from clang.cindex import Config
 
-    # LNG-03: reject caller override of the bundled library.
+    # LNG-03: reject caller override of the bundled library — EVERY call (BL-02):
+    # a set_library_file(...) after the first parse must still be rejected.
     if Config.library_file is not None:
         raise RuntimeError(
             "Config.set_library_file override is rejected: the pinned bundled "
@@ -95,6 +104,10 @@ def _ensure_libclang_ready() -> None:
             f"libclang not resolving to the bundled wheel (library_path={lib_path!r}). "
             f"{_platform_install_hint()}"
         )
+
+    # The dylib load smoke test is the only expensive, genuinely one-time step.
+    if _READY:
+        return
     try:
         Index.create()  # dylib load smoke test (LNG-03)
     except Exception as exc:  # dylib failed to load
