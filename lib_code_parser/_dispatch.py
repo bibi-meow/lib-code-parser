@@ -147,12 +147,28 @@ EVALUATIONS["python"]["class_spec"] = _extract_class_spec
 # package_diagram / state_diagram) so LNG-04 parity is automatic; function_spec
 # and class_spec are Python-only and NOT registered for cpp (the executor walks
 # EVALUATIONS[cav.language], so cpp simply omits them). Registered in canonical
-# slot-name order; the remaining 4 diagrams register in the next task.
+# slot-name order (the same 5-diagram order as ["python"]).
 from lib_code_parser.extractors.evaluations.cpp_class_diagram import (  # noqa: E402
     extract as _extract_cpp_class_diagram,
 )
+from lib_code_parser.extractors.evaluations.cpp_component_diagram import (  # noqa: E402
+    extract as _extract_cpp_component_diagram,
+)
+from lib_code_parser.extractors.evaluations.cpp_package_diagram import (  # noqa: E402
+    extract as _extract_cpp_package_diagram,
+)
+from lib_code_parser.extractors.evaluations.cpp_sequence_diagram import (  # noqa: E402
+    extract as _extract_cpp_sequence_diagram,
+)
+from lib_code_parser.extractors.evaluations.cpp_state_diagram import (  # noqa: E402
+    extract as _extract_cpp_state_diagram,
+)
 
 EVALUATIONS["cpp"]["class_diagram"] = _extract_cpp_class_diagram
+EVALUATIONS["cpp"]["sequence_diagram"] = _extract_cpp_sequence_diagram
+EVALUATIONS["cpp"]["component_diagram"] = _extract_cpp_component_diagram
+EVALUATIONS["cpp"]["package_diagram"] = _extract_cpp_package_diagram
+EVALUATIONS["cpp"]["state_diagram"] = _extract_cpp_state_diagram
 
 # WR-01: registration-time guard. The executor assigns each evaluation result
 # into the same-named CodeContent slot via setattr; a misspelled EVALUATIONS
