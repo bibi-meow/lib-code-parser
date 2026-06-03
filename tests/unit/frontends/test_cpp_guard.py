@@ -19,6 +19,8 @@ Traces: LNG-03, DET-02.
 from __future__ import annotations
 
 import importlib.metadata
+import pathlib
+import re
 
 import pytest
 from clang.cindex import Config
@@ -67,3 +69,20 @@ def test_happy_path_sets_ready(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(cpp, "_READY", False)
     cpp._ensure_libclang_ready()  # must not raise
     assert cpp._READY is True
+
+
+def test_expected_version_matches_pyproject_pin() -> None:
+    """IN-04: _EXPECTED_VERSION must equal the libclang== pin in pyproject.toml.
+
+    A drift between the runtime ABI guard and the installed pin would make the
+    guard reject the very wheel the package ships (or vice versa); this test
+    fails CI on such a drift so the two stay a single source of truth.
+    """
+    pyproject = pathlib.Path(__file__).resolve().parents[3] / "pyproject.toml"
+    text = pyproject.read_text(encoding="utf-8")
+    m = re.search(r"libclang==([0-9]+\.[0-9]+\.[0-9]+)", text)
+    assert m, "could not find a 'libclang==X.Y.Z' pin in pyproject.toml"
+    assert cpp._EXPECTED_VERSION == m.group(1), (
+        f"_EXPECTED_VERSION ({cpp._EXPECTED_VERSION!r}) drifted from the "
+        f"pyproject libclang pin ({m.group(1)!r})"
+    )
