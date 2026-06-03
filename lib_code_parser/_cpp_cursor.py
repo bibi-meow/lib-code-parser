@@ -128,7 +128,17 @@ def field_relation(field_cursor: Cursor, known_classes: set[str]) -> tuple[str, 
     t = field_cursor.type
     is_ptr_ref = t.kind in (TypeKind.POINTER, TypeKind.LVALUEREFERENCE)
     target = t.get_pointee().spelling if is_ptr_ref else t.spelling
-    base = target.replace("class ", "").replace("struct ", "").split("::")[-1].strip(" *&")
+    # Strip elaborated keywords and leading cv-qualifiers (WR-03): a const-ref
+    # member like ``const Foo&`` must resolve to ``Foo`` so it matches
+    # known_classes (-> aggregates) instead of degrading to ``associates``.
+    base = (
+        target.replace("class ", "")
+        .replace("struct ", "")
+        .replace("const ", "")
+        .replace("volatile ", "")
+        .split("::")[-1]
+        .strip(" *&")
+    )
     if is_ptr_ref:
         return ("aggregates", base) if base in known_classes else ("associates", base)
     if t.kind in (TypeKind.ELABORATED, TypeKind.RECORD):

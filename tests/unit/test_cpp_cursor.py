@@ -177,3 +177,29 @@ def test_field_relation_spectrum() -> None:
     assert rel("ref") == ("aggregates", "Point")
     assert rel("count") is None
     assert rel("widget") == ("associates", "Widget")
+
+
+def test_field_relation_const_ref_strips_cv_qualifier() -> None:
+    """WR-03: a ``const Point&`` member resolves to ``Point`` (aggregates), not associates.
+
+    Without stripping the leading ``const `` cv-qualifier the base would be
+    ``const Point`` which never matches known_classes, silently degrading the
+    classification to ``associates``.
+    """
+    src = (
+        "struct Point { int x; };\n"
+        "class Diagram {\n"
+        "  const Point& cref;\n"  # const reference of known -> aggregates
+        "  const Point* cptr;\n"  # const pointer of known -> aggregates
+        "};\n"
+    )
+    cav = build_cpp_cav(src, "cv.cpp")
+    tu = cav.payload
+    known = {"Point", "Diagram"}
+
+    def rel(name: str):
+        fc = _find(tu, CursorKind.FIELD_DECL, name, "cv.cpp")
+        return h.field_relation(fc, known)
+
+    assert rel("cref") == ("aggregates", "Point")
+    assert rel("cptr") == ("aggregates", "Point")
