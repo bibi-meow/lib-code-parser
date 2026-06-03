@@ -17,6 +17,7 @@ import pytest
 from lib_code_parser import _dispatch
 from lib_code_parser import executor as _executor_module
 from lib_code_parser.executor import CodeParserExecutor
+from lib_code_parser.models.infrastructure.cav import CAV
 from lib_code_parser.models.infrastructure.config import ParserConfig
 from lib_code_parser.models.primitives.callgraph import CallGraph
 from lib_code_parser.models.primitives.contracts import (
@@ -38,9 +39,16 @@ def _config(**kw: object) -> ParserConfig:
     return ParserConfig(**base)  # type: ignore[arg-type]
 
 
-def _stub_cav(raw_content: bytes, path: str, config: ParserConfig) -> object:
-    """Frontend stub — returns a sentinel object (extractors are mocked too)."""
-    return object()
+def _stub_cav(raw_content: bytes, path: str, config: ParserConfig) -> CAV:
+    """Frontend stub — returns a python-keyed CAV.
+
+    Phase 4 D-01 nests PRIMITIVES/EVALUATIONS under ``cav.language``; the
+    executor now indexes ``PRIMITIVES[cav.language]`` / ``EVALUATIONS[cav.language]``,
+    so the stub must carry ``language="python"`` (a bare ``object()`` no longer
+    has the attribute the walk reads). The ``payload`` is still an opaque sentinel
+    because the mocked extractors never touch it.
+    """
+    return CAV(language="python", path=path, payload=object())
 
 
 def test_dispatch_walks_all_4_primitives(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -53,16 +61,17 @@ def test_dispatch_walks_all_4_primitives(monkeypatch: pytest.MonkeyPatch) -> Non
 
         return _fn
 
-    # Isolate the PRIMITIVES/frontend walk: empty the EVALUATIONS dict so the
-    # sentinel ``object()`` CAV is never fed to real diagram extractors (which
-    # require a real ast.Module payload). Phase 3 registered the first real
-    # EVALUATIONS entries; this dispatch-walk unit only proves the primitive loop.
-    monkeypatch.setattr(_executor_module, "EVALUATIONS", {})
+    # Isolate the PRIMITIVES/frontend walk: empty the python EVALUATIONS sub-dict
+    # so the sentinel CAV is never fed to real diagram extractors (which require a
+    # real ast.Module payload). Phase 4 D-01 nests both dicts under cav.language,
+    # so the empty override must be {"python": {}} (an empty {} would KeyError on
+    # EVALUATIONS["python"]); the primitive stubs are set under PRIMITIVES["python"].
+    monkeypatch.setattr(_executor_module, "EVALUATIONS", {"python": {}})
     monkeypatch.setitem(_dispatch.FRONTENDS, "python", _stub_cav)
-    monkeypatch.setitem(_dispatch.PRIMITIVES, "functions", _make("functions", []))
-    monkeypatch.setitem(_dispatch.PRIMITIVES, "call_graph", _make("call_graph", CallGraph()))
-    monkeypatch.setitem(_dispatch.PRIMITIVES, "type_deps", _make("type_deps", []))
-    monkeypatch.setitem(_dispatch.PRIMITIVES, "contracts", _make("contracts", {}))
+    monkeypatch.setitem(_dispatch.PRIMITIVES["python"], "functions", _make("functions", []))
+    monkeypatch.setitem(_dispatch.PRIMITIVES["python"], "call_graph", _make("call_graph", CallGraph()))
+    monkeypatch.setitem(_dispatch.PRIMITIVES["python"], "type_deps", _make("type_deps", []))
+    monkeypatch.setitem(_dispatch.PRIMITIVES["python"], "contracts", _make("contracts", {}))
 
     CodeParserExecutor().execute(_config(), _PY, _PATH)
     assert sorted(calls) == ["call_graph", "contracts", "functions", "type_deps"]
@@ -80,12 +89,12 @@ def test_dispatch_skips_contracts_when_extract_contracts_false(
 
         return _fn
 
-    monkeypatch.setattr(_executor_module, "EVALUATIONS", {})
+    monkeypatch.setattr(_executor_module, "EVALUATIONS", {"python": {}})
     monkeypatch.setitem(_dispatch.FRONTENDS, "python", _stub_cav)
-    monkeypatch.setitem(_dispatch.PRIMITIVES, "functions", _make("functions", []))
-    monkeypatch.setitem(_dispatch.PRIMITIVES, "call_graph", _make("call_graph", CallGraph()))
-    monkeypatch.setitem(_dispatch.PRIMITIVES, "type_deps", _make("type_deps", []))
-    monkeypatch.setitem(_dispatch.PRIMITIVES, "contracts", _make("contracts", {}))
+    monkeypatch.setitem(_dispatch.PRIMITIVES["python"], "functions", _make("functions", []))
+    monkeypatch.setitem(_dispatch.PRIMITIVES["python"], "call_graph", _make("call_graph", CallGraph()))
+    monkeypatch.setitem(_dispatch.PRIMITIVES["python"], "type_deps", _make("type_deps", []))
+    monkeypatch.setitem(_dispatch.PRIMITIVES["python"], "contracts", _make("contracts", {}))
 
     CodeParserExecutor().execute(_config(extract_contracts=False), _PY, _PATH)
     assert "contracts" not in calls
@@ -107,16 +116,16 @@ def test_dispatch_cpp_extension_returns_empty_content() -> None:
 def test_dispatch_frontend_python_called(monkeypatch: pytest.MonkeyPatch) -> None:
     seen: list[tuple[bytes, str]] = []
 
-    def _frontend(raw_content: bytes, path: str, config: ParserConfig) -> object:
+    def _frontend(raw_content: bytes, path: str, config: ParserConfig) -> CAV:
         seen.append((raw_content, path))
-        return object()
+        return CAV(language="python", path=path, payload=object())
 
-    monkeypatch.setattr(_executor_module, "EVALUATIONS", {})
+    monkeypatch.setattr(_executor_module, "EVALUATIONS", {"python": {}})
     monkeypatch.setitem(_dispatch.FRONTENDS, "python", _frontend)
-    monkeypatch.setitem(_dispatch.PRIMITIVES, "functions", lambda c, cfg: [])
-    monkeypatch.setitem(_dispatch.PRIMITIVES, "call_graph", lambda c, cfg: CallGraph())
-    monkeypatch.setitem(_dispatch.PRIMITIVES, "type_deps", lambda c, cfg: [])
-    monkeypatch.setitem(_dispatch.PRIMITIVES, "contracts", lambda c, cfg: {})
+    monkeypatch.setitem(_dispatch.PRIMITIVES["python"], "functions", lambda c, cfg: [])
+    monkeypatch.setitem(_dispatch.PRIMITIVES["python"], "call_graph", lambda c, cfg: CallGraph())
+    monkeypatch.setitem(_dispatch.PRIMITIVES["python"], "type_deps", lambda c, cfg: [])
+    monkeypatch.setitem(_dispatch.PRIMITIVES["python"], "contracts", lambda c, cfg: {})
 
     CodeParserExecutor().execute(_config(), _PY, _PATH)
     assert seen == [(_PY, _PATH)]
@@ -137,12 +146,12 @@ def test_dispatch_contract_merger_assigns_to_functionnode(
         ],
     )
 
-    monkeypatch.setattr(_executor_module, "EVALUATIONS", {})
+    monkeypatch.setattr(_executor_module, "EVALUATIONS", {"python": {}})
     monkeypatch.setitem(_dispatch.FRONTENDS, "python", _stub_cav)
-    monkeypatch.setitem(_dispatch.PRIMITIVES, "functions", lambda c, cfg: [fn])
-    monkeypatch.setitem(_dispatch.PRIMITIVES, "call_graph", lambda c, cfg: CallGraph())
-    monkeypatch.setitem(_dispatch.PRIMITIVES, "type_deps", lambda c, cfg: [])
-    monkeypatch.setitem(_dispatch.PRIMITIVES, "contracts", lambda c, cfg: {"m.Foo": ci})
+    monkeypatch.setitem(_dispatch.PRIMITIVES["python"], "functions", lambda c, cfg: [fn])
+    monkeypatch.setitem(_dispatch.PRIMITIVES["python"], "call_graph", lambda c, cfg: CallGraph())
+    monkeypatch.setitem(_dispatch.PRIMITIVES["python"], "type_deps", lambda c, cfg: [])
+    monkeypatch.setitem(_dispatch.PRIMITIVES["python"], "contracts", lambda c, cfg: {"m.Foo": ci})
 
     art = CodeParserExecutor().execute(_config(), _PY, _PATH)
     merged = art.content.functions[0]

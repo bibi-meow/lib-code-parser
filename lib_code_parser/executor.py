@@ -88,7 +88,7 @@ class CodeParserExecutor:
         type_deps: list[TypeDep] = []
         contracts_dict: dict[str, ContractInfo] = {}
 
-        for name, primitive_fn in PRIMITIVES.items():
+        for name, primitive_fn in PRIMITIVES[cav.language].items():
             if name == "contracts" and not config.extract_contracts:
                 continue
             result = primitive_fn(cav, config)
@@ -118,7 +118,7 @@ class CodeParserExecutor:
         # evaluation produces its slot value, set by matching name. Phase 3
         # registered 7 evaluations (5 diagrams + 2 specs), append-only; the
         # name→slot correspondence is guarded at import time in _dispatch.py.
-        for name, eval_fn in EVALUATIONS.items():
+        for name, eval_fn in EVALUATIONS[cav.language].items():
             setattr(content, name, eval_fn(cav, config))
 
         return NormalizedArtifact[CodeContent](
