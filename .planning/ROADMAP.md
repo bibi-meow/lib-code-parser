@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Python Frontend + AST Primitives + ACL-2 Adapters** - Build the Python Frontend (one parse per file producing CAV), the four pure-CAV aspect extractors (functions / call graph / type deps / contracts) and the `pyright` subprocess adapter with full canonicalization
  (completed 2026-05-31)
 - [x] **Phase 3: Python Diagram + Spec Extractors** - Emit five `lib-diagram-parser`-compatible diagrams (class / sequence / component / package / state) and function/class spec extractors from Python source; SP-1 (general control flow → state) and SP-2 (sequence branch fidelity) spikes (completed 2026-06-01)
-- [ ] **Phase 4: C++ Frontend + C++ Extractors** - Bring up libclang-based C++ Frontend behind the locked CAV boundary, produce schema-parity output for AST primitives, diagrams, and Doxygen-driven specs; platform matrix incl. macOS arm64 best-effort
+- [x] **Phase 4: C++ Frontend + C++ Extractors** - Bring up libclang-based C++ Frontend behind the locked CAV boundary, produce schema-parity output for AST primitives, diagrams, and Doxygen-driven specs; platform matrix incl. macOS arm64 best-effort (completed 2026-06-03)
 - [ ] **Phase 5: Cross-Cutting Integration + Acceptance** - Snapshot determinism test, cross-lib schema compatibility test against `lib-diagram-parser`, full CI mandatory + best-effort matrices, README platform compat table, v0.2.0 release
 
 ## Phase Details
@@ -105,7 +105,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   - Wave 5:
     - [x] 04-06-PLAN.md — 5 cpp diagrams (class/component/sequence/package/empty-state) + LNG-04 schema-parity + determinism (LNG-04)
   - Wave 6:
-    - [ ] 04-07-PLAN.md — CI mandatory matrix (Linux x86_64/aarch64 + Windows × Py 3.11–3.14) + macOS arm64 best-effort (LNG-01, LNG-02)
+    - [x] 04-07-PLAN.md — CI mandatory matrix (Linux x86_64/aarch64 + Windows × Py 3.11–3.14) + macOS arm64 best-effort (LNG-01, LNG-02)
 
 ### Phase 5: Cross-Cutting Integration + Acceptance
 **Goal**: Close the v0.2.0 release by verifying every cross-cutting acceptance criterion that spans phases — byte-identical determinism snapshot across 3 consecutive runs of the same fixture, cross-lib schema compatibility test that imports both `lib_code_parser` and `lib_diagram_parser` and asserts structural equivalence on representative `GraphModel` instances, the platform CI matrix gating PR merges, the README platform compatibility table (OS × Python version × C++ availability with "strongly supported" / "best-effort" labels), and the v0.2.0 release artifacts (tag, changelog, `pyproject.toml` final pins). No new extractor code; this phase is acceptance, integration test authoring, and release.
@@ -127,5 +127,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 1. Architecture Foundation + Spec Correction | 10/10 | Complete   | 2026-05-25 |
 | 2. Python Frontend + AST Primitives + ACL-2 Adapters | 7/7 | Complete   | 2026-05-31 |
 | 3. Python Diagram + Spec Extractors | 6/6 | Complete   | 2026-06-01 |
-| 4. C++ Frontend + C++ Extractors | 6/7 | In Progress|  |
+| 4. C++ Frontend + C++ Extractors | 7/7 | Complete   | 2026-06-03 |
 | 5. Cross-Cutting Integration + Acceptance | 0/TBD | Not started | - |

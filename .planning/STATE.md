@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v0.1.0
 milestone_name: milestone
-status: executing
+status: verifying
 stopped_at: Completed 04-06-PLAN.md
-last_updated: "2026-06-03T17:25:41.142Z"
+last_updated: "2026-06-03T17:29:11.592Z"
 last_activity: 2026-06-03
 progress:
   total_phases: 5
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 30
-  completed_plans: 30
-  percent: 60
+  completed_plans: 31
+  percent: 80
 ---
 
 # Project State
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-06-02)
 
 Phase: 04 (C++ Frontend + C++ Extractors) — EXECUTING
 Plan: 7 of 7
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-06-03
 
 Progress: [██████████] 100%
@@ -68,6 +68,7 @@ Progress: [██████████] 100%
 | Phase 04 P04 | 9min | 3 tasks | 10 files |
 | Phase 04 P05 | 4min | 3 tasks | 7 files |
 | Phase 04 P06 | 6min | 3 tasks | 9 files |
+| Phase 04 P07 | 4 | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -114,6 +115,7 @@ Recent decisions affecting current work:
 - [Phase ?]: Phase 4 Plan 06: 5 cpp diagrams in EVALUATIONS[cpp] (class/sequence/component/package/state, Python slot spelling, no function_spec/class_spec); each asserts TranslationUnit payload + DET-04 sort tail
 - [Phase ?]: Phase 4 Plan 06: A1/D-05 cpp_state_diagram emits EMPTY GraphModel (parity-as-empty-shape, fixture-asserted on not_a_state_machine.cpp); no non-deterministic C++ FSM idiom invented
 - [Phase ?]: Phase 4 Plan 06: LNG-04 structural parity proven through public executor (cpp==python CodeContent slots+types); DET-04 per-extractor 3-fresh-parse byte-identity proven for all 5 cpp diagrams
+- [Phase ?]: Phase 4 Plan 07: ci.yml graduated to LNG-01 mandatory matrix (no continue-on-error) Linux x86_64 + Linux aarch64 (ubuntu-24.04-arm, QEMU/manylinux2014_aarch64 fallback documented) + Windows x86_64 x CPython 3.11-3.14, full pytest exercises cpp track per cell; macOS arm64 x 3.13/3.14 stays continue-on-error best-effort (LNG-02 graduated from sp3-libclang-spike)
 
 ### Pending Todos
 
@@ -134,6 +136,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-03T17:25:24.562Z
+Last session: 2026-06-03T17:29:11.580Z
 Stopped at: Completed 04-06-PLAN.md
 Resume file: None
