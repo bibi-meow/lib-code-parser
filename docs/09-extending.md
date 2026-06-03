@@ -248,6 +248,38 @@ composition (`composes`) と aggregation (`aggregates`) の区別が type annota
 
 ---
 
+## SourceKind 追加は additive Literal 拡張 (削除・改名は禁止)
+
+`models/primitives/contracts.py` の `SourceKind` Literal は契約 (ContractEntry) の **provenance**
+(どの仕組みから抽出された契約か) を表す:
+
+```python
+SourceKind = Literal[
+    "pydantic_validator", "pydantic_model_validator",
+    "pydantic_field_validator", "dataclass_post_init",
+    "doxygen",   # Phase 4 D-08 で additive 追加
+]
+```
+
+`EdgeKind` (§EdgeKind 追加は MAJOR version 案件) とは扱いが異なる。 `SourceKind` は
+**verifier に直接渡らない primitive 層**の中間データ (§論理アーキ比較対象は models/evaluations/ のみ
+— `ContractInfo` は primitives) であり、 新しい言語・新しい契約抽出メカニズムを足すたびに
+provenance 値が 1 つ増えるのは自然な拡張である。 したがって:
+
+- ✅ **additive 拡張は許容** — 新しい provenance 値 (例: Phase 4 の `"doxygen"`) を Literal の
+  末尾に **追加** するのは MAJOR version bump を必要としない (additive、 既存 caller は影響を受けない)。
+- ❌ **既存値の削除・改名は禁止** — 既存の `SourceKind` 値を削除・改名するのは breaking change で
+  あり禁止される (caller が既に emit 済みの値が読めなくなる)。 これは EdgeKind の「削除・改名は
+  禁止」と同じ規律であり、 dispatch dict append-only 不変条件 #4 とも整合する。
+
+新しい provenance 値を追加するときは、 末尾に append し、 既存 4 値 (`pydantic_validator` /
+`pydantic_model_validator` / `pydantic_field_validator` / `dataclass_post_init`) の順序・綴りを
+一切変えない。 `ContractEntry.kind` (precondition / invariant / postcondition) は別軸の
+discriminator なので、 provenance 値 1 つで複数の契約種別を表現できる (例: `"doxygen"` 1 値が
+`\pre` / `\post` / `\invariant` の 3 種をカバーする)。
+
+---
+
 ## dispatch dict への entry 追加手順
 
 新しい frontend / primitive / evaluation を追加する標準手順を示す。 すべて

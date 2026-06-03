@@ -28,6 +28,7 @@ SourceKind = Literal[
     "pydantic_model_validator",
     "pydantic_field_validator",
     "dataclass_post_init",
+    "doxygen",  # ADDITIVE - D-08 (single value; ContractEntry.kind discriminates pre/post/invariant)
 ]
 
 
